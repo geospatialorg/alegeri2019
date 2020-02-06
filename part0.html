@@ -1,0 +1,126 @@
+<html>
+  <head>
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="assets/bootstrap-4.4.1-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/bootstrap-select-1.13.9/dist/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="assets/fontawesome-free-5.12.0-web/css/all.css">
+    <link rel="stylesheet" href="assets/prism/prism.css">
+
+    <script src="assets/jquery-3.4.1.min.js"></script>
+    <script src="assets/popper.min.js"></script>
+    <script src="assets/bootstrap-4.4.1-dist/js/bootstrap.min.js"></script>
+    <script src="assets/bootstrap-select-1.13.9/dist/js/bootstrap-select.min.js"></script>
+    <script src="assets/clipboard.js-master/dist/clipboard.min.js"></script>
+
+    <style>
+      .container {
+        padding-top: 20px;
+      }
+      .tutorialTitle {
+        border-bottom-style: solid;
+        border-bottom-width: 1px;
+        border-bottom-color: rgb(234, 236, 239);
+        margin-bottom: 16px;
+        padding-bottom: 9.6px;
+      }
+      code[class*="language-"],
+      pre[class*="language-"] {
+        word-wrap: normal;
+      }
+    </style>
+    
+  </head>
+  <body>
+    
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <strong><i class="fas fa-person-booth"></i>&nbsp;&nbsp;<a class="navbar-brand" href="#">Alegeri 2019 - Poveste</a></strong>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item dropdown active">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-laptop-code"></i>&nbsp;&nbsp;Povestea hărții
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item active" href="part0.html">0 - Introducere</a>
+              <a class="dropdown-item" href="part1.html">1 - Mașina virtuală OSGeoLive</a>
+              <a class="dropdown-item" href="part2.html">2 - Datele de intrare</a>
+              <a class="dropdown-item" href="part3.html">3 - Realizarea hărții la nivel de secție de votare (poligon)</a>
+              <a class="dropdown-item" href="part4.html">4 - Se poate oare coborî mai jos de secție cu reprezentarea?</a>
+              <a class="dropdown-item" href="part4.html">5 - Hărțile clasice, la nivel de UAT și județ</a>
+              <a class="dropdown-item" href="part6.html">6 - Crearea hărții interactive</a>
+              <a class="dropdown-item" href="part7.html">7 - Utilizarea rezultatelor în OSGeoLive</a>
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-toggle-on"></i>&nbsp;&nbsp;Hartă
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="turul1.html">Turul 1</a>
+              <a class="dropdown-item" href="index.html">Turul 2</a>
+              <a class="dropdown-item" href="tur1_vs_tur2.html">Turul 1 vs Turul 2</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <main role="main" class="container">
+      <h4 class="tutorialTitle">Cartografie electorală în linie de comandă - Partea 0: Introducere</h4>
+
+      <div class="alert alert-danger" role="alert">
+        <strong>Disclaimer:</strong> <a href="http://www.geo-spatial.org/">geo-spatial.org</a> nu a fost și nu va fi vreodată implicat în demersuri cu caracter politic. Acest material are un scop pur didactic și nu urmărește aprecierea în sens pozitv sau negativ a candidaților ce au participat la cele două tururi de alegeri prezidențiale din 2019.</a>
+      </div>
+
+      <h5 class="tutorialTitle">Motivație și scop</h5>
+      <p>2019 a fost un an fierbinte în istoria recentă a României. Iar unul din evenimentele principale ale acestui an au fost alegerile prezidențiale din luna noiembrie. Evident, procesul electoral are o importantă dimensiune geospațială iar înțelegerea corectă și completă a rezultatelor se poate face doar ținînd cont de acest aspect, utilizînd mijloace specifice cartografiei. Demersul de față vine ca răspuns la o provocare foarte interesantă lansată pe Twitter sub eticheta <a href="https://twitter.com/search?q=%23HartaPrezidentiale2019&src=typed_query">#HartaPrezidentiale2019</a>, provocare anunțată și pe <a href="http://geo-spatial-org.2126404.n4.nabble.com/Lansez-o-provocare-pe-Twitter-HartaPrezidentiale2019-td4658765.html">lista de discuții a geo-spatial.org</a>. Considerăm că acest demers are potențialul de a dinamiza comunitatea geospațială românească în a crea reprezentări cartografice statice sau interactive ce ne pot ajuta să înțelegem mai bine evenimetele din jurul nostru. Materialul de față a fost posibil datorită:</p>
+      <ul>
+        <li>Disponibilității în format deschis a datelor cu privire la alegeri (<a href="https://prezenta.bec.ro/">BEC</a> a publicat rezultatelor detaliate înregistrate în cele două tururi ale alegerilor pe o platformă dedicată;) și a celor geospațiale suport (ex: locațiile secțiilor de votare, limitele unităților administrativ teritoariale, județe, etc.);</li>
+        <li>Disponibilității unor foarte puternice soluții software open source ce aduc oricui posibilitatea de a face astfel de prelucrări și reprezentări.</li>
+      </ul>
+      <p>Demersul are două scopuri:</p>
+      <ul>
+        <li>Prezentarea pas cu pas a unor tehnici de lucru în prelucrarea datelor și obținerea de reprezentări cartografice relevante;</li>
+        <li>Sublinierea importanței faptului că o înțelegere comprehensivă a rezultatului acestui acestui exercițiu civic de bază, alegerile libere, nu se poate face doar doar prin seaca constatare a rezultatului la nivel de țară județ sau chiar UAT ci mergînd și analizînd mai în detaliu rezultatele, eventual prin coroborarea acestora cu alte surse de informații (ex: statistici demografice). Un exemplu foarte elocvent a celor exprimate anterior este reprezentat, în opinia noastră, de către analiza cartografică a ultimelor alegeri prezidențiale americane, creată de către Nick Knudson sub titul <a href="https://demcastusa.com/2019/11/11/land-doesnt-vote-people-do-this-electoral-map-tells-the-real-story/">"Land Doesn’t Vote, People Do"</a>.</li>
+      </ul>
+      <img src="images/001_scr_harta_alegeri_tur_2.jpg" class="img-fluid" alt="Rezultate aleger turul 2 la nivel de secții">
+      <p class="text-center"><em>Exemplu rezultate turul 2 la nivel de secție de votare.</em></p>
+
+      <h5 class="tutorialTitle">Structura tutorialului și abordarea tehnică</h5>
+      <p>Pentru o parcurgere mai ușoară, materialul a fost sctructurat în mai multe părți logice. Acestea detaliază fiecare pas parcurs de la descărcarea datelor, prelucrarea lor primară, crearea datelor intermediare și a celor finale. Am ales să fac toată partea de prelucrare a datelor în linie de comandă. Acest lucru poate fi intimidant pentru utilizatorii mai puțin tehnici. Însă, cei ce vor fi curioși să treacă prin toate capitolele materialului vor descoperi că "dracul nu este chiar atît de negru" și că puterea pe care acest mediu de lucru ne-o oferă, merită să ieșim din zona de confort și să experimentăm un flux de lucru flexibil și ușor de automatizat. În mod voit, comenzile au fost rulate separat, pentru ca fiecare pas să fie simplu de înțeles. Altfel, multe din ele (mai ales interogările SQL) ar fi putut grupate, compactînd codul și reducînd numărul de rezultate intermediare salvat. Chiar și așa, nu ne îndoim de faptul că cineva cu cunoștințe mai bune de PostgreSQL/Post ar fi putut scrie acele interogări mai mai elegant și mai eficient. Rezultatele finale au fost publicate pe web într-o formă interactivă și pot fi consultate în secțiunea "Hartă". De asemenea, cu siguranță, codul JavaScript ce alimentează harta interactivă, se putea scrie într-o manieră mult mai eficientă. Tutorialul nu detaliază și modul în care au fost realizate aceste hărți interactive dar pune la dispoziția celor interesați codul sursă a acestora. Toți pașii necesari pentru realizarea datelor au fost făcuți cu diverse aplicații geospațiale open source, cele mai importante fiind:</p>
+      <ul>
+        <li><a href="https://gdal.org">GDAL/OGR</a> - briceagul elvețian al transformării datelor geospațiale;</li>
+        <li><a href="https://www.postgresql.org">PostgreSQL</a> + <a href="http://postgis.net">PostGIS</a> - cel mai cunoscut sistem relațional de gestiune a bazelor de date cu caracter geospațial;</li>
+        <li><a href="https://github.com/mbloch/mapshaper">Mapshaper</a> - un foarte versatil și puternic editor pentru datele vectoriale;</li>
+        <li><a href="http://geoserver.org">GeoServer</a> - server prin intermediul căruia datele geospațiale pot fi publicate prin servicii web standardizate cum ar fi WMS, WFS, WCS, etc.</li>
+      </ul>
+      <p>Cei interesați să afle mai multe informații despre aplicațiile geospațiale cu sursă liberă (open source) pot consulta două materiale mai vechi, pe alocuri cu conținut expirat, de pe geo-spatial.org: <a href="http://www.geo-spatial.org/articole/open-source-gis-I">"I. Software GIS open-source, o alternativă completă la soluțiile proprietare. Introducere, librării și toolkit-uri de dezvoltare"</a> și <a href="http://www.geo-spatial.org/articole/open-source-gis-II">II. Software GIS open-source, o alternativă completă la soluțiile proprietare. Aplicații desktop</a>. Bineînțeles, astăzi, Internetul ne oferă mult mai multe surse de informare, mai actualizate și mai corecte.</p>
+      <p>Revenind la tutorialul nostru, fiecare comandă este inclusă în text și explicată. Cei ce doresc să parcurgă pașii și să înțeleagă rezultatul comenzilor o pot face simplu, utilizînd <a href="https://live.osgeo.org">OSGeo Live</a>. Evident, se poate utiliza și propriul calculator, cu precizarea că este necesară adaptarea comenzilor pentru a se potrivi cu căile de pe mașina locală și cu sistemul de operare utilizat.</p>
+
+      <h5 class="tutorialTitle">Inspirație</h5>
+      <p>Evident, mai nimic nu e nou pe lumea asta. În crearea datelor și dezvoltarea micii aplicații cartografice, ne-am inspirat dintr-o serie de resurse disponibile online. Cele mai importante ar fi:</p>
+      <ul>
+        <li>Articolul <a href="https://www.theguardian.com/australia-news/datablog/ng-interactive/2019/jul/03/mapping-every-vote-extremely-detailed-maps-on-the-2019-election">"Mapping every vote: extremely detailed maps on the 2019 election"</a> din <a href="https://www.theguardian.com/">The Guardian</a>;</li>
+        <li>Postarea lui Nick Knudsen, <a href="https://demcastusa.com/2019/11/11/land-doesnt-vote-people-do-this-electoral-map-tells-the-real-story/">"Land Doesn’t Vote, People Do: This Electoral Map Tells the Real Story"</a>, de pe <a href="https://demcastusa.com/">DemCastUSA</a>;</li>
+        <li>Tutorialul <a href="http://bl.ocks.org/mehak-sachdeva/503588cc042fd4b5500128034beae71a">"Interactive Charts"</a> scris de <a href="https://github.com/mehak-sachdeva">Mehak Sachdeva;</a></li>
+        <li>Răspunsul lui <a href="https://github.com/komzpa">Darafei Praliaskouski</a> la thread-ul <a href="https://lists.osgeo.org/pipermail/postgis-users/2018-June/042795.html">"Split polygons based on polygons' area"</a> pe lista de discuții <a href="https://lists.osgeo.org/mailman/listinfo/postgis-users">postgis-users</a> și postarea lui <a href="https://github.com/pramsey">Paul Ramsey</a>, <a href="http://blog.cleverelephant.ca/2018/06/polygon-splitting.html">"PostGIS Polygon Splitting"</a>, pe același subiect, de pe <a href="http://blog.cleverelephant.ca">blog.cleverelephant.ca</a>;</li>
+        <li>Aplicația <a href="https://lpvis.hub.eox.at/">LPvis</a>, dezvoltată de <a href="https://eox.at/">EOX IT Services GmbH</a> și descrisă pe <a href="https://eox.at/2020/01/vector-tiles-with-dynamically-updated-style-in-leaflet-lpvis/">blogul lor</a>;</li>
+      </ul>
+
+      <h5 class="tutorialTitle">Viitor</h5>
+      <p>În viitorul apropiat, ne dorim să integrăm datele/aplicația cu un demers mai vechi al <a href="http://www.geo-spatial.org/">geo-spatial.org</a>: <a href="http://politicalcolours.ro/">politicalcolours.ro</a>.</p>
+
+
+      <p class="text-right"><a href="part1.html">Mai departe către Partea 1: Mașina virtuală OSGeoLive -></a></p>
+    </main>
+    <script src="assets/prism/prism.js"></script>
+    <script type="text/javascript">
+      Prism.plugins.NormalizeWhitespace.setDefaults({'break-lines': 112,});
+    </script>
+
+  </body>
+</html>

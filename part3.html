@@ -1,0 +1,414 @@
+<html>
+  <head>
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="assets/bootstrap-4.4.1-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/bootstrap-select-1.13.9/dist/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="assets/fontawesome-free-5.12.0-web/css/all.css">
+    <link rel="stylesheet" href="assets/prism/prism.css">
+
+    <script src="assets/jquery-3.4.1.min.js"></script>
+    <script src="assets/popper.min.js"></script>
+    <script src="assets/bootstrap-4.4.1-dist/js/bootstrap.min.js"></script>
+    <script src="assets/bootstrap-select-1.13.9/dist/js/bootstrap-select.min.js"></script>
+    <script src="assets/clipboard.js-master/dist/clipboard.min.js"></script>
+
+    <style>
+      .container {
+        padding-top: 20px;
+      }
+      .tutorialTitle {
+        border-bottom-style: solid;
+        border-bottom-width: 1px;
+        border-bottom-color: rgb(234, 236, 239);
+        margin-bottom: 16px;
+        padding-bottom: 9.6px;
+      }
+      code[class*="language-"],
+      pre[class*="language-"] {
+        word-wrap: normal;
+      }
+    </style>
+    
+  </head>
+  <body>
+    
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <strong><i class="fas fa-person-booth"></i>&nbsp;&nbsp;<a class="navbar-brand" href="#">Alegeri 2019 - Poveste</a></strong>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item dropdown active">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-laptop-code"></i>&nbsp;&nbsp;Povestea hărții
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="part0.html">0 - Introducere</a>
+              <a class="dropdown-item" href="part1.html">1 - Mașina virtuală OSGeoLive</a>
+              <a class="dropdown-item" href="part2.html">2 - Datele de intrare</a>
+              <a class="dropdown-item active" href="part3.html">3 - Realizarea hărții la nivel de secție de votare (poligon)</a>
+              <a class="dropdown-item" href="part4.html">4 - Se poate oare coborî mai jos de secție cu reprezentarea?</a>
+              <a class="dropdown-item" href="part5.html">5 - Hărțile clasice, la nivel de UAT și județ</a>
+              <a class="dropdown-item" href="part6.html">6 - Crearea hărții interactive</a>
+              <a class="dropdown-item" href="part7.html">7 - Utilizarea rezultatelor în OSGeoLive</a>
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-toggle-on"></i>&nbsp;&nbsp;Hartă
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="turul1.html">Turul 1</a>
+              <a class="dropdown-item" href="index.html">Turul 2</a>
+              <a class="dropdown-item" href="tur1_vs_tur2.html">Turul 1 vs Turul 2</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <main role="main" class="container">
+      <h4 class="tutorialTitle">Cartografie electorală în linie de comandă - Partea 3: Realizarea hărții la nivel de secție de votare (poligon)</h4>
+      <h5 class="tutorialTitle">3.1. Definirea problemei</h5>
+      <p>Ziceam în <a href="part0.html">introducere</a> că ne-am propus să ilustrăm distribuția votului la cel mai detaliat nivel cu putință. Reprezentările clasice se opresc de regulă la nivel de UAT. Noi avem însă datele la nivel de secție. Este drept, secțiile sînt elemente punctuale și este extrem de greu de definit "bazinul" alocat unei secții. Fiecărei secții îi sînt arondate o serie de adrese iar pe site-ul AEP există o <a href="https://www.roaep.ro/management-electoral/wp-content/uploads/2019/11/alegatori_sectie_19112019.xlsx">bază de date</a> cu distribuția acestor adrese pe secții. Geocodarea lor și transformarea lor în poligoane este însă o sarcină extrem de dificilă, neștiind ce teritoriu putem aloca pentru fiecare adresă punctuală. De aceea, vom alege o metodă mult mai simplă, chiar dacă nu va produce rezultate precise (de altfel, imposibil de obținut). Pentru acesta am ales să împărțim teritoriul unui UAT în subdiviziuni folosind tehnica <a href="https://en.wikipedia.org/wiki/Voronoi_diagram">poligoanelor Voronoi</a>. Astfel, pentru fiecare secție vom obține un poligon ce are secția în apropiere de centru. Suprafața poligonului va depinde de numărul și de poziția celorlalte secții din cadrul UAT-ului. Cum am precizat deja, nu este suprafața reală a secției de votare dar tehnica ne oferă o metodă decentă de aproximare a acesteia și un bun pretext de spațializare cu o granulometrie mai mare a rezultatelor votului. O potențială problemă o reprezintă secțiile multiple din cadrul unor instituții (cum ar fi școlile). Pentru aceste situații, setul de date cu secții descărcat de la AEP oferă o poziție unică, centrată pe școală sau instituția unde se găsesc secțiile. Am putea "mișca" puțin locațiile acelor secții dar am avea o problemă la generarea poligoanelor Voronoi pentru că ar fi foarte mici. De aceea am luat decizia de a păstra locația unică și de a cumula numărul de voturi la respectivul poligon, păstrînd "istoricul" secțiilor ce au contribuit la rezultat.</p>
+      <p>Cum procedăm? Deși problema pare simplă, implică un număr important de pași intermediari.</p>
+
+      <h5 class="tutorialTitle">3.2. Spațializarea proceselor verbale</h5>
+      <p>Presupune crearea unor tabele noi, <code class="highlighter-rouge">sectii_pv_tur1</code> în schema <code class="highlighter-rouge">tur1</code> și <code class="highlighter-rouge">sectii_pv_tur2</code> în schema <code class="highlighter-rouge">tur2</code>, care să includă, pe lîngă coloanele cu rezultatele votului, atributele relevante din tabela <code class="highlighter-rouge">sectii</code>:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+CREATE TABLE tur1.sectii_pv_tur1 AS select sectii.geom, sectii.gid, sectii.judet, sectii.uat, sectii.localitate, sectii.numarsectie, sectii.institutie, sectii.adresa, pv_tur1.siruta, pv_tur1.g1, pv_tur1.g2, pv_tur1.g3, pv_tur1.g4, pv_tur1.g5, pv_tur1.g6, pv_tur1.g7, pv_tur1.g8, pv_tur1.g9, pv_tur1.g10, pv_tur1.g11, pv_tur1.g12, pv_tur1.g13, pv_tur1.g14 FROM referinta.sectii AS sectii, referinta.pv_tur1 AS pv_tur1 WHERE sectii.judet = pv_tur1.județ AND sectii.numarsectie = pv_tur1.nr;
+
+CREATE TABLE tur2.sectii_pv_tur2 AS select sectii.geom, sectii.gid, sectii.judet, sectii.uat, sectii.localitate, sectii.numarsectie, sectii.institutie, sectii.adresa, pv_tur2.siruta, pv_tur2.g1, pv_tur2.g2 FROM referinta.sectii AS sectii, referinta.pv_tur2 AS pv_tur2 WHERE sectii.judet = pv_tur2.județ AND sectii.numarsectie = pv_tur2.nr;"
+        </code>
+      </pre>
+      <p>Rezultatul este prezentat în imaginea de mai jos. Practic, pe lîngă cîmpurile originale din tabela <code class="highlighter-rouge">sectii</code> am adus cîmpurile <code class="highlighter-rouge">g[x]</code> pentru cei 14 candidați din turul 1 și cei 2 candidați din turul 2. Automat, o dată cu acest join, au fost eliminate secțiile din diaspora.</p>
+      <img src="images/014_osgeolive_qgis_sectii.jpg" class="img-fluid" alt="Rezultatul unirii dintre tabela secții și tabelele cu procesele verbale">
+      <p class="text-center"><em>Rezultatul unirii dintre tabela secții și tabelele cu procesele verbale.</em></p>
+
+      <h5 class="tutorialTitle">3.3. Comasarea secțiilor cu aceeași locație</h5>
+      <p>Spuneam anterior că o serie de secții se găsesc la aceeași adresă, avînd coordonate identice în tabela <code class="highlighter-rouge">sectii</code>. Un exemplu de acest gen este Școala "Sfântu Andrei" din Drumul Taberei unde, pe perioada alegerilor, au funcționat 10 secții de votare:</p>
+      <img src="images/014_osgeolive_qgis_sectii_comune.jpg" class="img-fluid" alt="Exemplu de secții multiple la aceeași adresă">
+      <p class="text-center"><em>Exemplu de secții multiple la aceeași adresă.</em></p>
+
+      <h6 class="tutorialTitle">3.2.1. Ștergerea geometriilor duplicate</h6>
+      <p>Primul pas în vederea comasării este crearea unui strat nou în care secțiile cu geometrie duplicată sînt eliminate. Pentru aceasta facem o copie a tabelei <code class="highlighter-rouge">sectii_pv_tur1</code> pe care o vom denumi <code class="highlighter-rouge">sectii_unic</code>. Apoi vom șterge din această tabelă elementele cu geometrie duplicată:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+CREATE TABLE sandbox.sectii_unic AS SELECT geom, gid FROM tur1.sectii_pv_tur1;
+
+DELETE FROM sandbox.sectii_unic a
+  WHERE EXISTS (SELECT 1 FROM sandbox.sectii_unic b 
+    WHERE a.gid < b.gid 
+    AND ST_DWithin(a.geom, b.geom, 1));"
+        </code>
+      </pre>
+
+      <h6 class="tutorialTitle">3.2.2. Crearea de buffer-e pentru secții</h6>
+      <p>În continuare, vom face un buffer de 1 metru în jurul fiecărei secții. Tabela nou creată o vom intitula <code class="highlighter-rouge">sectii_buffer</code>:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+CREATE TABLE sandbox.sectii_buffer AS SELECT ST_Buffer(sectii.geom, 1) AS geom, sectii.gid FROM sandbox.sectii_unic AS sectii;"
+        </code>
+      </pre>
+
+      <h6 class="tutorialTitle">3.2.3. Cumularea rezultatelor din secțiile cu geometrie duplicată</h6>
+      <p>Am făcut acest buffer special pentru comasarea secțiilor cu geometrie duplicată. Diametrul mic, de doar 1 metru, ne asigură că nu vom include secții de la altă adresă. Vom folosi funcția SQL <code class="highlighter-rouge">SUM</code> pentru a cumula valorile din cîmpurile <code class="highlighter-rouge">g[X]</code> și pentru a le scrie în două noi tabele intermediare, <code class="highlighter-rouge">sectii_buffer_pv_tur1</code> și <code class="highlighter-rouge">sectii_buffer_pv_tur2</code>. De asemenea, vom folosi funcția <code class="highlighter-rouge">STRING_AGG</code> pentru a stoca în coloana <code class="highlighter-rouge">id_sectii</code> toate indicativele secțiilor ale căror rezultate au fost cumulate. Funcția <code class="highlighter-rouge">MAX</code> nu are decît rolul de a prelua o singură valoare din cîmpurile <code class="highlighter-rouge">judet</code>, <code class="highlighter-rouge">uat</code>, <code class="highlighter-rouge">localitate</code>, <code class="highlighter-rouge">institutie</code>, <code class="highlighter-rouge">adresa</code> și <code class="highlighter-rouge">siruta</code>. Oricum, valorile sînt identice pentru toate secțiile cu valori cumulate.</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+CREATE TABLE tur1.sectii_buffer_pv_tur1 AS SELECT buffer.geom, buffer.gid, SUM(sectii.g1 :: INTEGER) AS g1, SUM(sectii.g2 :: INTEGER) AS g2, SUM(sectii.g3 :: INTEGER) AS g3, SUM(sectii.g4 :: INTEGER) AS g4, SUM(sectii.g5 :: INTEGER) AS g5, SUM(sectii.g6 :: INTEGER) AS g6, SUM(sectii.g7 :: INTEGER) AS g7, SUM(sectii.g8 :: INTEGER) AS g8, SUM(sectii.g9 :: INTEGER) AS g9, SUM(sectii.g10 :: INTEGER) AS g10, SUM(sectii.g11 :: INTEGER) AS g11, SUM(sectii.g12 :: INTEGER) AS g12, SUM(sectii.g13 :: INTEGER) AS g13, SUM(sectii.g14 :: INTEGER) AS g14, STRING_AGG(sectii.gid :: character varying, ', ') AS id_sectii, MAX(sectii.judet) AS judet, MAX(sectii.uat) AS uat, MAX(sectii.localitate) AS localitate, MAX(sectii.institutie) AS institutie, MAX(sectii.adresa) AS adresa, MAX(sectii.siruta) AS siruta
+    FROM sandbox.sectii_buffer AS buffer, tur1.sectii_pv_tur1 AS sectii
+      WHERE ST_Within(sectii.geom, buffer.geom) GROUP BY buffer.geom, buffer.gid;
+      
+CREATE TABLE tur2.sectii_buffer_pv_tur2 AS SELECT buffer.geom, buffer.gid, SUM(sectii.g1 :: INTEGER) AS g1, SUM(sectii.g2 :: INTEGER) AS g2, STRING_AGG(sectii.gid :: character varying, ', ') AS id_sectii, MAX(sectii.judet) AS judet, MAX(sectii.uat) AS uat, MAX(sectii.localitate) AS localitate, MAX(sectii.institutie) AS institutie, MAX(sectii.adresa) AS adresa, MAX(sectii.siruta) AS siruta
+    FROM sandbox.sectii_buffer AS buffer, tur2.sectii_pv_tur2 AS sectii
+      WHERE ST_Within(sectii.geom, buffer.geom) GROUP BY buffer.geom, buffer.gid;"
+        </code>
+      </pre>
+      <p>Figura de mai jos prezintă un exemplu de cumulare a atributelor secțiilor cu geometrii duplicate:</p>
+      <img src="images/016_qgis_sectii_cumulate.jpg" class="img-fluid" alt="Cumulare a atributelor secțiilor cu geometrii duplicate">
+      <p class="text-center"><em>Cumulare a atributelor secțiilor cu geometrii duplicate.</em></p>
+
+      <h6 class="tutorialTitle">3.2.4. Conversie buffer-e în centroizi</h6>
+      <p>Buffer-ele și-au jucat rolul, e timpul să ne întoarcem la puncte. Pentru aceasta vom converti fiecare buffer în puncte (centroizi), le vom păstra atributele și vom salva tabela nou creată cu numele <code class="highlighter-rouge">sectii_pv_cumulat_tur1</code>, respectiv: <code class="highlighter-rouge">sectii_pv_cumulat_tur2</code>:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+CREATE TABLE tur1.sectii_pv_cumulat_tur1 AS SELECT ST_Centroid(buffer.geom) as geom, buffer.gid, buffer.judet, buffer.uat, buffer.localitate, buffer.siruta, buffer.institutie, buffer.adresa, buffer.id_sectii, buffer.g1, buffer.g2, buffer.g3, buffer.g4, buffer.g5, buffer.g6, buffer.g7, buffer.g8, buffer.g9, buffer.g10, buffer.g11, buffer.g12, buffer.g13, buffer.g14  FROM tur1.sectii_buffer_pv_tur1 AS buffer;
+
+CREATE TABLE tur2.sectii_pv_cumulat_tur2 AS SELECT ST_Centroid(buffer.geom) as geom, buffer.gid, buffer.judet, buffer.uat, buffer.localitate, buffer.siruta, buffer.institutie, buffer.adresa, buffer.id_sectii, buffer.g1, buffer.g2  FROM tur2.sectii_buffer_pv_tur2 AS buffer;"
+        </code>
+      </pre>
+
+      <h5 class="tutorialTitle">3.3. Diverse calcule tabelare</h5>
+      <h6 class="tutorialTitle">3.3.1. Transferarea voturilor de la secția 8618 la 8606 și de la secția 15499 la 15751</h6>
+      <p>UAT-urile Miercurea Ciuc și Timișoara au insulițe mici în interiorul altor UAT-uri (ex: Aeroportul Internațional Traian Vuia - Timișoara). Deoarece au suprafețe foarte mici, geometriile acestor insulițe au fost șterse în faza de simplificare a limitelor UAT. Pentru a nu pierde voturile, le vom transfera localităților mamă și vom șterge respectivele înregistrări din tabelele <code class="highlighter-rouge">sectii_pv_cumulat_tur1</code> și <code class="highlighter-rouge">sectii_pv_cumulat_tur2</code>.</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g1 = (g1 + 117)::numeric WHERE gid = 15751;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g2 = (g2 + 18)::numeric WHERE gid = 15751;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g3 = (g2 + 112)::numeric WHERE gid = 15751;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g4 = (g2 + 4)::numeric WHERE gid = 15751;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g5 = (g2 + 23)::numeric WHERE gid = 15751;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g6 = (g2 + 0)::numeric WHERE gid = 15751;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g7 = (g2 + 0)::numeric WHERE gid = 15751;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g8 = (g2 + 4)::numeric WHERE gid = 15751;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g9 = (g2 + 2)::numeric WHERE gid = 15751;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g10 = (g2 + 28)::numeric WHERE gid = 15751;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g11 = (g2 + 4)::numeric WHERE gid = 15751;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g12 = (g2 + 11)::numeric WHERE gid = 15751;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g13 = (g2 + 1)::numeric WHERE gid = 15751;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g14 = (g2 + 5)::numeric WHERE gid = 15751;
+DELETE FROM tur1.sectii_pv_cumulat_tur1 WHERE gid = 15499;
+
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g1 = (g1 + 6)::numeric WHERE gid = 8606;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g2 = (g2 + 1)::numeric WHERE gid = 8606;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g3 = (g2 + 3)::numeric WHERE gid = 8606;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g4 = (g2 + 68)::numeric WHERE gid = 8606;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g5 = (g2 + 6)::numeric WHERE gid = 8606;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g6 = (g2 + 0)::numeric WHERE gid = 8606;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g7 = (g2 + 0)::numeric WHERE gid = 8606;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g8 = (g2 + 1)::numeric WHERE gid = 8606;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g9 = (g2 + 1)::numeric WHERE gid = 8606;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g10 = (g2 + 1)::numeric WHERE gid = 8606;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g11 = (g2 + 0)::numeric WHERE gid = 8606;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g12 = (g2 + 1)::numeric WHERE gid = 8606;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g13 = (g2 + 1)::numeric WHERE gid = 8606;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g14 = (g2 + 0)::numeric WHERE gid = 8606;
+DELETE FROM tur1.sectii_pv_cumulat_tur1 WHERE gid=8618;
+
+UPDATE tur2.sectii_pv_cumulat_tur2 SET g1 = (g1 + 268)::numeric WHERE gid = 15751;
+UPDATE tur2.sectii_pv_cumulat_tur2 SET g2 = (g2 + 74)::numeric WHERE gid = 15751;
+DELETE FROM tur2.sectii_pv_cumulat_tur2 WHERE gid = 15499;
+
+UPDATE tur2.sectii_pv_cumulat_tur2 SET g1 = (g1 + 49)::numeric WHERE gid = 8606;
+UPDATE tur2.sectii_pv_cumulat_tur2 SET g2 = (g2 + 15)::numeric WHERE gid = 8606;
+DELETE FROM tur2.sectii_pv_cumulat_tur2 WHERE gid=8618;"
+        </code>
+      </pre>  
+
+      <h6 class="tutorialTitle">3.3.2. Calcularea voturilor în procente</h6>
+      <p>Avem numărul de voturi primit de fiecare candidat. Totuși, lumea este obișnuită să analizeze în procente prestația candidaților. Pentru aceasta vom adăuga cîmpuri de tip <code class="highlighter-rouge">g[X]p</code> unde vom introduce procentele obținute de fiecare candidat în fiecare secție:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+ALTER TABLE tur1.sectii_pv_cumulat_tur1 ADD COLUMN g1p float;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g1p = ROUND(((g1 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2);
+ALTER TABLE tur1.sectii_pv_cumulat_tur1 ADD COLUMN g2p float;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g2p = ROUND(((g2 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2);
+ALTER TABLE tur1.sectii_pv_cumulat_tur1 ADD COLUMN g3p float;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g3p = ROUND(((g3 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2);
+ALTER TABLE tur1.sectii_pv_cumulat_tur1 ADD COLUMN g4p float;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g4p = ROUND(((g4 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2);
+ALTER TABLE tur1.sectii_pv_cumulat_tur1 ADD COLUMN g5p float;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g5p = ROUND(((g5 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2);
+ALTER TABLE tur1.sectii_pv_cumulat_tur1 ADD COLUMN g6p float;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g6p = ROUND(((g6 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2);
+ALTER TABLE tur1.sectii_pv_cumulat_tur1 ADD COLUMN g7p float;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g7p = ROUND(((g7 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2);
+ALTER TABLE tur1.sectii_pv_cumulat_tur1 ADD COLUMN g8p float;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g8p = ROUND(((g8 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2);
+ALTER TABLE tur1.sectii_pv_cumulat_tur1 ADD COLUMN g9p float;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g9p = ROUND(((g9 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2);
+ALTER TABLE tur1.sectii_pv_cumulat_tur1 ADD COLUMN g10p float;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g10p = ROUND(((g10 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2);
+ALTER TABLE tur1.sectii_pv_cumulat_tur1 ADD COLUMN g11p float;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g11p = ROUND(((g11 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2);
+ALTER TABLE tur1.sectii_pv_cumulat_tur1 ADD COLUMN g12p float;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g12p = ROUND(((g12 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2);
+ALTER TABLE tur1.sectii_pv_cumulat_tur1 ADD COLUMN g13p float;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g13p = ROUND(((g13 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2);
+ALTER TABLE tur1.sectii_pv_cumulat_tur1 ADD COLUMN g14p float;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET g14p = ROUND(((g14 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2);
+
+ALTER TABLE tur2.sectii_pv_cumulat_tur2 ADD COLUMN g1p float;
+UPDATE tur2.sectii_pv_cumulat_tur2 SET g1p = ROUND(((g1 / (g1 + g2)::float) * 100)::numeric, 2);
+ALTER TABLE tur2.sectii_pv_cumulat_tur2 ADD COLUMN g2p float;
+UPDATE tur2.sectii_pv_cumulat_tur2 SET g2p = ROUND(((g2 / (g1 + g2)::float) * 100)::numeric, 2);"
+        </code>
+      </pre>
+
+      <h6 class="tutorialTitle">3.3.3. Calcularea cîștigătorului la nivel de secție</h6>
+      <p>Vom crea o coloană nouă, numită <code class="highlighter-rouge">castigator</code>, în care vom stoca indicativul cîștigătorul respectivei secții. În turul 2, în caz de egaliatate, vom stoca valoarea <code class="highlighter-rouge">0</code>:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+ALTER TABLE tur1.sectii_pv_cumulat_tur1 ADD COLUMN castigator integer;
+UPDATE tur1.sectii_pv_cumulat_tur1 SET castigator = CASE
+  WHEN GREATEST(g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12, g13, g14) = g1 THEN 1
+  WHEN GREATEST(g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12, g13, g14) = g2 THEN 2
+  WHEN GREATEST(g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12, g13, g14) = g3 THEN 3
+  WHEN GREATEST(g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12, g13, g14) = g4 THEN 4
+  WHEN GREATEST(g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12, g13, g14) = g5 THEN 5
+  WHEN GREATEST(g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12, g13, g14) = g6 THEN 6
+  WHEN GREATEST(g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12, g13, g14) = g7 THEN 7
+  WHEN GREATEST(g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12, g13, g14) = g8 THEN 8
+  WHEN GREATEST(g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12, g13, g14) = g9 THEN 9
+  WHEN GREATEST(g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12, g13, g14) = g10 THEN 10
+  WHEN GREATEST(g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12, g13, g14) = g11 THEN 11
+  WHEN GREATEST(g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12, g13, g14) = g12 THEN 12
+  WHEN GREATEST(g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12, g13, g14) = g13 THEN 13
+  WHEN GREATEST(g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12, g13, g14) = g14 THEN 14
+END;
+
+ALTER TABLE tur2.sectii_pv_cumulat_tur2 ADD COLUMN castigator integer;
+UPDATE tur2.sectii_pv_cumulat_tur2 SET castigator = 1 WHERE g1 > g2;
+UPDATE tur2.sectii_pv_cumulat_tur2 SET castigator = 2 WHERE g1 < g2;
+UPDATE tur2.sectii_pv_cumulat_tur2 SET castigator = 0 WHERE g1 = g2;"
+        </code>
+      </pre>
+
+      <h5 class="tutorialTitle">3.4. Crearea poligoanelor asociate secțiilor de votare</h5>
+
+      <h6 class="tutorialTitle">3.4.1. Crearea poligoanelor Voronoi</h6>
+      <p>În sfîrșit, am ajuns la pasul în care construim poligoanele secțiilor de votare. După cum am spus mai devreme, facem asta folosind tehnica <a href="https://en.wikipedia.org/wiki/Voronoi_diagram">poligoanelor Voronoi</a>. Ce ne dorim este să construim o interogare care să itereze prin fiecare UAT, să folosească secțiile din respectivul UAT ca informație de intrare pentru funcția <code class="highlighter-rouge">ST_VoronoiPolygons</code> din <a href="http://postgis.net">PostGIS</a> pentru a crea poligoanele asociate fiecărei secții. Evident, deoarece funcția nu are un parametru de "mască" pentru generarea poligoanelor, acestea vor depăși suprafața UAT-ului. De aceea, pentru a decupa poligoanele pe limita UAT-ului, vom folosi funcția <code class="highlighter-rouge">ST_Intersection</code>. Scenariul interogării SQL este prezentat în figura de mai jos:</p>
+      <img src="images/017_sectie_statii.png" class="img-fluid" alt="Etapele generării poligoanelor Voronoi pentru secțiile de votare">
+      <p class="text-center"><em>Etapele generării poligoanelor Voronoi pentru secțiile de votare.</em></p>
+      <p>Interogarea se poate scrie după cum urmează:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+CREATE TABLE sandbox.voronoi AS
+  SELECT (ST_Intersection(uat.geom, (ST_Dump(ST_VoronoiPolygons(ST_collect(sectii.geom), extend_to := uat.geom))).geom)) AS geom
+    FROM tur1.sectii_pv_cumulat_tur1 AS sectii, referinta.uat AS uat WHERE sectii.siruta = uat.natcode GROUP BY uat.geom;"
+        </code>
+      </pre>
+      <p>Secțiile nedecupate arată ca în figura mai jos:</p>
+      <img src="images/018_voronoi_nedecupat.png" class="img-fluid" alt="Secțiile nedecupate">
+      <p class="text-center"><em>Secțiile nedecupate.</em></p>
+      <p>După aplicarea funcției <code class="highlighter-rouge">ST_Intersection</code> lucrurile încep să capete conturul dorit:</p>
+      <img src="images/019_voronoi_decupat.jpg" class="img-fluid" alt="Secțiile decupate pe conturile UAT">
+      <p class="text-center"><em>Secțiile decupate pe conturile UAT.</em></p>
+      <p>Observăm totuși o serie de goluri. Sînt cauzate de UAT-urile unde există o singură secție de votare, algoritmul Voronoi neputînd genera geometrii pe baza unui singur punct.</p>
+
+      <h6 class="tutorialTitle">3.4.2. Utilizarea geometriei UAT-ului acolo unde există o singură secție</h6>
+      <p>Soluția logică în situația UAT-urilor cu o singură secție este utilizarea geometriei UAT-ului pentru reprezentarea secției. Pentru aceasta vom rula următoarele comenzi:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+CREATE TABLE sandbox.gap_voronoi AS
+  WITH sect AS (SELECT uat.geom, count(sectii.geom) AS total_sectii FROM referinta.uat AS uat LEFT JOIN tur1.sectii_pv_cumulat_tur1 as sectii ON st_contains(uat.geom, sectii.geom) GROUP BY uat.geom)
+  SELECT sect.geom FROM sect WHERE total_sectii = 1;
+
+CREATE TABLE sandbox.sectii_voronoi AS( 
+  SELECT geom FROM sandbox.voronoi
+  UNION 
+  SELECT geom FROM sandbox.gap_voronoi
+);"
+        </code>
+      </pre>
+      <p>Prima comandă numără iterativ secțiile din fiecare UAT. Atunci cînd totalul este egal cu 1, salvează geometria într-o tabelă nouă, numită <code class="highlighter-rouge">gap_voronoi</code>. Vom obține un număr de 292 de geometrii:</p>
+      <img src="images/020_voronoi_gap.jpg" class="img-fluid" alt="Geometria UAT-urilor cu o singură secție de votare">
+      <p class="text-center"><em>Geometria UAT-urilor cu o singură secție de votare.</em></p>
+      A doua comandă comasează poligoanele Voronoi cu geometriile UAT-urilor cu o singură secție, obținînd o hartă cu geometriile tuturor secțiilor de votare din România, salvată în tabela numită <code class="highlighter-rouge">ST_VoronoiPolygons</code>:    
+      <img src="images/021_voronoi_sectii.jpg" class="img-fluid" alt="Geometria secțiilor de votare din România">
+      <p class="text-center"><em>Geometria secțiilor de votare din România.</em></p>
+      <p>În imaginea de mai jos putem observa un detaliu din geometria secțiilor, geometrii peste care am suprapus limitele UAT-urilor și locațiile secțiilor:</p>
+      <img src="images/021_voronoi_sectii_detaliu.jpg" class="img-fluid" alt="Geometria secțiilor de votare din România - detaliu">
+      <p class="text-center"><em>Geometria secțiilor de votare din România - detaliu.</em></p>
+
+      <h6 class="tutorialTitle">3.4.3. Transferul atributelor de la stațiile de tip punct către poligoanele Voronoi</h6>
+      <p>Operațiile desfășurate anterior s-au făcut doar la nivel de geometrii. Este necesar să asociem și atributele calculate deja la nivel de secție de tip punct cu noile poligoane. Pentru aceasta vom folosi funcția <a href="http://postgis.net">PostGIS</a> <code class="highlighter-rouge">ST_Within:</code></p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+CREATE TABLE tur1.sectii_voronoi_pv_tur1 AS SELECT voronoi.geom, sectii.gid, sectii.judet, sectii.uat, sectii.localitate, sectii.siruta, sectii.institutie, sectii.adresa, sectii.id_sectii, sectii.g1, sectii.g2, sectii.g3, sectii.g4, sectii.g5, sectii.g6, sectii.g7, sectii.g8, sectii.g9, sectii.g10, sectii.g11, sectii.g12, sectii.g13, sectii.g14, sectii.g1p, sectii.g2p, sectii.g3p, sectii.g4p, sectii.g5p, sectii.g6p, sectii.g7p, sectii.g8p, sectii.g9p, sectii.g10p, sectii.g11p, sectii.g12p, sectii.g13p, sectii.g14p, sectii.castigator
+  FROM sandbox.sectii_voronoi as voronoi, tur1.sectii_pv_cumulat_tur1 as sectii
+    WHERE ST_Within(sectii.geom, voronoi.geom);
+
+CREATE TABLE tur2.sectii_voronoi_pv_tur2 AS SELECT voronoi.geom, sectii.gid, sectii.judet, sectii.uat, sectii.localitate, sectii.siruta, sectii.institutie, sectii.adresa, sectii.id_sectii, sectii.g1, sectii.g2, sectii.g1p, sectii.g2p, sectii.castigator
+  FROM sandbox.sectii_voronoi as voronoi, tur2.sectii_pv_cumulat_tur2 as sectii
+    WHERE ST_Within(sectii.geom, voronoi.geom);"
+        </code>
+      </pre>         
+      <p>Avînd rezultatele votului asociat cu geometriile poligonale ale secțiilor, putem face o primă încercare de a da culoare votului:</p>
+      <img src="images/022_prima_harta_alegeri.jpg" class="img-fluid" alt="Simbolizarea secțiilor în funcție de cîștigătorul din primul tur">
+      <p class="text-center"><em>Simbolizarea secțiilor în funcție de cîștigătorul din primul tur.</em></p>
+
+      <h6 class="tutorialTitle">3.4.4. Inserarea unei entități pentru reprezentarea voturilor din diaspora</h6>
+      <p>BEC publică rezultatele pentru diaspora într-o manieră similară. Scopul nostru este de a prezenta rezultatele la nivel național dar vom include o geometrie separată pentru a centraliza rezultatele din diaspora. Numărul de voturi pentru candidații din cele două tururi a fost preluat de pe platforma informatică a BEC. Noul element vectorual va primi codul <code class="highlighter-rouge">gid</code>: <code class="highlighter-rouge">20000</code>.</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+INSERT INTO tur1.sectii_voronoi_pv_tur1 (geom, gid, g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12, g13, g14) (SELECT ST_Buffer(ST_SetSRID(ST_MakePoint(2297467, 6009221), 3857), 110000), 20000, 341450, 41550, 178845, 3363, 17727, 1242, 2378, 2575, 2017, 23535, 2741, 11101, 2028, 16056);
+UPDATE tur1.sectii_voronoi_pv_tur1 SET g1p = ROUND(((g1 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2) WHERE gid = 20000;
+UPDATE tur1.sectii_voronoi_pv_tur1 SET g2p = ROUND(((g2 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2) WHERE gid = 20000;
+UPDATE tur1.sectii_voronoi_pv_tur1 SET g3p = ROUND(((g3 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2) WHERE gid = 20000;
+UPDATE tur1.sectii_voronoi_pv_tur1 SET g4p = ROUND(((g4 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2) WHERE gid = 20000;
+UPDATE tur1.sectii_voronoi_pv_tur1 SET g5p = ROUND(((g5 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2) WHERE gid = 20000;
+UPDATE tur1.sectii_voronoi_pv_tur1 SET g6p = ROUND(((g6 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2) WHERE gid = 20000;
+UPDATE tur1.sectii_voronoi_pv_tur1 SET g7p = ROUND(((g7 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2) WHERE gid = 20000;
+UPDATE tur1.sectii_voronoi_pv_tur1 SET g8p = ROUND(((g8 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2) WHERE gid = 20000;
+UPDATE tur1.sectii_voronoi_pv_tur1 SET g9p = ROUND(((g9 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2) WHERE gid = 20000;
+UPDATE tur1.sectii_voronoi_pv_tur1 SET g10p = ROUND(((g10 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2) WHERE gid = 20000;
+UPDATE tur1.sectii_voronoi_pv_tur1 SET g11p = ROUND(((g11 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2) WHERE gid = 20000;
+UPDATE tur1.sectii_voronoi_pv_tur1 SET g12p = ROUND(((g12 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2) WHERE gid = 20000;
+UPDATE tur1.sectii_voronoi_pv_tur1 SET g13p = ROUND(((g13 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2) WHERE gid = 20000;
+UPDATE tur1.sectii_voronoi_pv_tur1 SET g14p = ROUND(((g14 / (g1 + g2 + g3 + g4 + g5 + g6 + g7 + g8 + g9 + g10 + g11 + g12 + g13 + g14)::float) * 100)::numeric, 2) WHERE gid = 20000;
+UPDATE tur1.sectii_voronoi_pv_tur1 SET castigator = 1 WHERE gid = 20000;
+UPDATE tur1.sectii_voronoi_pv_tur1 SET localitate = 'Diaspora' WHERE gid = 20000;
+
+INSERT INTO tur2.sectii_voronoi_pv_tur2 (geom, gid, g1, g2) (SELECT ST_Buffer(ST_SetSRID(ST_MakePoint(2297467, 6009221), 3857), 110000), 20000, 863850, 55493);
+UPDATE tur2.sectii_voronoi_pv_tur2 SET g1p = ROUND(((g1 / (g1 + g2)::float) * 100)::numeric, 2) WHERE gid = 20000;
+UPDATE tur2.sectii_voronoi_pv_tur2 SET g2p = ROUND(((g2 / (g1 + g2)::float) * 100)::numeric, 2) WHERE gid = 20000;
+UPDATE tur2.sectii_voronoi_pv_tur2 SET castigator = 1 WHERE gid = 20000;
+UPDATE tur2.sectii_voronoi_pv_tur2 SET localitate = 'Diaspora' WHERE gid = 20000;"
+        </code>
+      </pre>
+      <p>Rezultatul este prezentat în figura mai jos:</p>
+      <img src="images/023_prima_harta_alegeri_diaspora.jpg" class="img-fluid" alt="Inserarea unei entități pentru reprezentarea voturilor din diaspora">
+      <p class="text-center"><em>Inserarea unei entități pentru reprezentarea voturilor din diaspora.</em></p>
+      <h5 class="tutorialTitle">3.5. Concluzii de etapă</h5>
+      <p>În cele scrise pînă acum, am arătat cum datele deschise, disponibile online, pot fi utilizate pentru a spațializa rezultatele alegerilor prezidențiale la nivel de secție de votare. E drept, limita secțiilor este una fictivă dar care ne ajută să "vedem" mai bine cum arată harta politică a alegerilor prezidențiale din 2019 în România. În continuare, vom vedea dacă se poate coborî mai jos de nivelul de secție, precum și cum putem automatiza procesul de creare a hărților la nivele ceva mai convenționale (UAT, județ).</p>
+
+      <div>
+        <div class="float-left">
+          <p class="text-left"><a href="part2.html"><- Înapoi către Partea 2: Datele de intrare</a></p>
+        </div>
+        <div class="float-right">
+          <p class="text-right"><a href="part4.html">Înainte către Partea 4: Se poate oare coborî mai jos de secție cu reprezentarea? -></a></p>
+        </div>
+        <div class="clearfix"></div>
+      </div>
+
+      
+    </main>
+    <script src="assets/prism/prism.js"></script>
+    <script type="text/javascript">
+      Prism.plugins.NormalizeWhitespace.setDefaults({'break-lines': 112,});
+    </script>
+
+
+  </body>
+</html>

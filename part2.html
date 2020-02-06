@@ -1,0 +1,325 @@
+<html>
+  <head>
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="assets/bootstrap-4.4.1-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/bootstrap-select-1.13.9/dist/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="assets/fontawesome-free-5.12.0-web/css/all.css">
+    <link rel="stylesheet" href="assets/prism/prism.css">
+
+    <script src="assets/jquery-3.4.1.min.js"></script>
+    <script src="assets/popper.min.js"></script>
+    <script src="assets/bootstrap-4.4.1-dist/js/bootstrap.min.js"></script>
+    <script src="assets/bootstrap-select-1.13.9/dist/js/bootstrap-select.min.js"></script>
+    <script src="assets/clipboard.js-master/dist/clipboard.min.js"></script>
+
+    <style>
+      .container {
+        padding-top: 20px;
+      }
+      .tutorialTitle {
+        border-bottom-style: solid;
+        border-bottom-width: 1px;
+        border-bottom-color: rgb(234, 236, 239);
+        margin-bottom: 16px;
+        padding-bottom: 9.6px;
+      }
+      code[class*="language-"],
+      pre[class*="language-"] {
+        word-wrap: normal;
+      }
+    </style>
+    
+  </head>
+  <body>
+    
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <strong><i class="fas fa-person-booth"></i>&nbsp;&nbsp;<a class="navbar-brand" href="#">Alegeri 2019 - Poveste</a></strong>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item dropdown active">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-laptop-code"></i>&nbsp;&nbsp;Povestea hărții
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="part0.html">0 - Introducere</a>
+              <a class="dropdown-item" href="part1.html">1 - Mașina virtuală OSGeoLive</a>
+              <a class="dropdown-item active" href="part2.html">2 - Datele de intrare</a>
+              <a class="dropdown-item" href="part3.html">3 - Realizarea hărții la nivel de secție de votare (poligon)</a>
+              <a class="dropdown-item" href="part4.html">4 - Se poate oare coborî mai jos de secție cu reprezentarea?</a>
+              <a class="dropdown-item" href="part5.html">5 - Hărțile clasice, la nivel de UAT și județ</a>
+              <a class="dropdown-item" href="part6.html">6 - Crearea hărții interactive</a>
+              <a class="dropdown-item" href="part7.html">7 - Utilizarea rezultatelor în OSGeoLive</a>
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-toggle-on"></i>&nbsp;&nbsp;Hartă
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="turul1.html">Turul 1</a>
+              <a class="dropdown-item" href="index.html">Turul 2</a>
+              <a class="dropdown-item" href="tur1_vs_tur2.html">Turul 1 vs Turul 2</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <main role="main" class="container">
+      <h4 class="tutorialTitle">Cartografie electorală în linie de comandă - Partea 2: Datele de intrare</h4>
+      <h5 class="tutorialTitle">2.1. "Despre ce vorbim noi aici"?</h5>
+      <p>Primul pas în reprezentarea cartografică a rezultatelor este, evident, accesarea rezultatelor votului și asocierea lor cu elementele ce ne permit spațializarea votului (ex: poziția secțiilor de votare, unitățile administrative, etc).</p>
+
+      <h6 class="tutorialTitle">2.1.1. Procesele verbale de vot</h6>
+      <p>În România, organizarea alegerilor cade în sarcina <a href="https://www.roaep.ro/">Autorității Electorale Permanente (AEP)</a>. Pe perioada scrutinurilor, AEP formează o serie de birouri electorale a căror activitate este coordonată și centralizată de către <a href="http://prezidentiale2019.bec.ro/">Biroul Electoral Central (BEC)</a>. Pe perioada alegerilor prezidențiale din 2019, BEC a operat o platformă electronică ce a centralizat în timp real prezența la vot. Tot aici, au fost publicate procesele verbale cu rezultatul voturilor la nivel de secție și unități teritorial administrative.</p>
+      <img src="images/006_prezenta_bec.jpg" class="img-fluid" alt="Platforma electronică BEC 2019">
+      <p class="text-center"><em>Platforma electronică BEC 2019</em></p>
+      <p>Datorită modului de funcționare a platformei, descărcarea proceselor verbale centralizate cu voturile pentru toată țara, la nivel de secție de votare, se poate face doar interactiv, de pe platforma BEC, neexistînd un link permanent de unde aceastea să poată fi descărcate automat. Aceasta este singura parte din tot tutorialul ce nu a putut fi automatizată și care necesită intervenția manuală a celui ce dorește să replice pașii tehnici. Așadar, de la adresa <a href="https://prezenta.bec.ro/prezidentiale10112019/romania-pv-final">https://prezenta.bec.ro/prezidentiale10112019/romania-pv-final</a> se descarcă, din secțiunea <code class="highlighter-rouge">Fișiere pentru întreaga țară</code>, fișierul <code class="highlighter-rouge">pv_RO_PRSD_FINAL.csv</code> și se mută în directorul nostru de lucru (<code class="highlighter-rouge">/home/user/alegeri2019</code>) cu numele <code class="highlighter-rouge">pv_tur1.csv</code> (implicit, Firefox va descărca fișierele în <code class="highlighter-rouge">/home/user/Downloads</code>). Similar se procedează și cu procesele verbale pentru turul doi. Se navighează la <a href="https://prezenta.bec.ro/prezidentiale24112019/romania-pv-final">https://prezenta.bec.ro/prezidentiale24112019/romania-pv-final</a>, se descarcă același fișier (va avea același nume cu cel din primul tur) și se mută în directorul de lucru cu numele <code class="highlighter-rouge">pv_tur2.csv</code>.</p> 
+      <p>Inspectarea rapidă a conținutului fișierelor se poate face cu aplicația <a href="http://tarot.freeshell.org/leafpad/">Leafpad</a>, preinstalată pe mașina virtuală. Putem observa din imaginea de mai jos că fișierele conțin valori pentru cîmpurile: <code class="highlighter-rouge">Cod birou electoral</code>, <code class="highlighter-rouge">Județ</code>, <code class="highlighter-rouge">Uat</code>, <code class="highlighter-rouge">Siruta</code>, <code class="highlighter-rouge">Localitate</code>, <code class="highlighter-rouge">Secție</code>, <code class="highlighter-rouge">Nr</code>, <code class="highlighter-rouge">Tip</code>, <code class="highlighter-rouge">Versiune</code>, <code class="highlighter-rouge">a</code>, <code class="highlighter-rouge">b</code>, <code class="highlighter-rouge">b1</code>, <code class="highlighter-rouge">b2</code>, <code class="highlighter-rouge">b3</code>, <code class="highlighter-rouge">c</code>, <code class="highlighter-rouge">d</code>, <code class="highlighter-rouge">e</code>, <code class="highlighter-rouge">f</code>, <code class="highlighter-rouge">g1</code>, <code class="highlighter-rouge">g2</code>, <code class="highlighter-rouge">g3</code>, <code class="highlighter-rouge">g4</code>, <code class="highlighter-rouge">g5</code>, <code class="highlighter-rouge">g6</code>, <code class="highlighter-rouge">g7</code>, <code class="highlighter-rouge">g8</code>, <code class="highlighter-rouge">g9</code>, <code class="highlighter-rouge">g10</code>, <code class="highlighter-rouge">g11</code>, <code class="highlighter-rouge">g12</code>, <code class="highlighter-rouge">g13</code>, <code class="highlighter-rouge">g14</code>.</p>
+      <img src="images/007_leaf_pv1.jpg" class="img-fluid" alt="Conținutul fișierului cu procesele verbale centralizate">
+      <p class="text-center"><em>Conținutul fișierului cu procesele verbale centralizate</em></p>
+      <p>Conform legendei de pe platforma BEC, semnificația câmpurilor codate este după cum urmează:</p>
+      <ul>
+        <li><code class="highlighter-rouge">a</code>: Numărul total al alegătorilor prevăzut în lista electorală permanentă existentă în secția de votare</li>
+        <li><code class="highlighter-rouge">b</code>: Numărul total al alegătorilor care s-au prezentat la urne</li>
+        <li><code class="highlighter-rouge">b1</code>: Numărul total al alegătorilor care s-au prezentat la urne, înscriși în lista electorală permanentă</li>
+        <li><code class="highlighter-rouge">b2</code>: Numărul total al alegătorilor care s-au prezentat la urne și nu sunt cuprinși în lista electorală permanentă, înscriși în lista electorală suplimentară</li>
+        <li><code class="highlighter-rouge">b3</code>: Numărul total al alegătorilor care au votat utilizând urna specială, înscriși în extrasul din listele electorale</li>
+        <li><code class="highlighter-rouge">c</code>: Numărul total al voturilor valabil exprimate</li>
+        <li><code class="highlighter-rouge">d</code>: Numărul voturilor nule</li>
+        <li><code class="highlighter-rouge">e</code>: Numărul buletinelor de vot primite</li>
+        <li><code class="highlighter-rouge">f</code>: Numărul buletinelor de vot neîntrebuințate și anulate</li>
+        <li><code class="highlighter-rouge">g1</code>: KLAUS-WERNER IOHANNIS</li>
+        <li><code class="highlighter-rouge">g2</code>: THEODOR PALEOLOGU</li>
+        <li><code class="highlighter-rouge">g3</code>: ILIE-DAN BARNA</li>
+        <li><code class="highlighter-rouge">g4</code>: HUNOR KELEMEN</li>
+        <li><code class="highlighter-rouge">g5</code>: VASILICA-VIORICA DĂNCILĂ</li>
+        <li><code class="highlighter-rouge">g6</code>: CĂTĂLIN-SORIN IVAN</li>
+        <li><code class="highlighter-rouge">g7</code>: NINEL PEIA</li>
+        <li><code class="highlighter-rouge">g8</code>: SEBASTIAN-CONSTANTIN POPESCU</li>
+        <li><code class="highlighter-rouge">g9</code>: JOHN-ION BANU</li>
+        <li><code class="highlighter-rouge">g10</code>: MIRCEA DIACONU</li>
+        <li><code class="highlighter-rouge">g11</code>: BOGDAN-DRAGOS-AURELIU MARIAN-STANOEVICI</li>
+        <li><code class="highlighter-rouge">g12</code>: RAMONA-IOANA BRUYNSEELS</li>
+        <li><code class="highlighter-rouge">g13</code>: VIOREL CATARAMĂ</li>
+        <li><code class="highlighter-rouge">g14</code>: ALEXANDRU CUMPĂNAȘU</li>
+      </ul>
+      <p>Pe noi ne vor interesa cîmpurile cu voturile candidaților, de tip <code class="highlighter-rouge">g[x]</code></p>
+
+      <h6 class="tutorialTitle">2.1.2. Locațiile secțiilor de votare</h6>
+      <p>AEP a publicat locațiile secțiilor de votare într-o aplicație web interactivă pe site-ul <a href="https://gis.registrulelectoral.ro:8443/DrumLaSectie/">https://gis.registrulelectoral.ro:8443/DrumLaSectie/</a>. Inspectînd modul de funcționare a aplicației, am descoperit că informațiile sînt dinamic servite prin intermediul unui serviciu <a href="https://www.opengeospatial.org/standards/wfs">WFS</a> asigurat de o instanță <a href="http://geoserver.org">GeoServer</a>. Astfel, este suficient să facem o cerere <a href="https://www.opengeospatial.org/standards/wfs">WFS</a> către acest server pentru a descărca local o copie a datelor. Facem respectiva cerere prin intermediul utilitarului <a href="https://www.gnu.org/software/wget/">Wget</a>:</p>
+      <pre>
+        <code class="language-bash">
+wget -O sectii.json --no-check-certificate "https://gis.registrulelectoral.ro:8443/CountApp/geoserver/aep/wfs?service=WFS&version=1.1.0&request=GetFeature&typename=aep:SectiiVotareRomania&outputFormat=application/json&srsname=EPSG:3857"
+        </code>
+      </pre>
+      <p>Rezultatul, în format <a href="https://geojson.org/">GeoJSON</a>, va fi stocat în directorul nostru de lucru cu numele <code class="highlighter-rouge">sectii.json</code>. Fișierul conține locațiile tuturor secțiilor din România și diaspora, așa cum se poate observa după încărcarea în <a href="https://www.qgis.org/">QGIS</a> (disponibil de asemenea pe mașina virtuală):</p>
+      <img src="images/008_osgeolive_qgis_sectii.jpg" class="img-fluid" alt="Locațiile secțiilor de votare din România și diaspora încărcate în QGIS">
+      <p class="text-center"><em>Locațiile secțiilor de votare din România și diaspora încărcate în QGIS</em></p>
+
+      <h6 class="tutorialTitle">2.1.3. Limitele UAT-urilor</h6>
+      <p>Limitele oficiale, și actualizări ale acestora, sînt publicate periodic de către <a href="http://ancpi.ro/">ANCPI</a> pe geoportalul INSPIRE, în <a href="http://geoportal.ancpi.ro/portal/apps/webappviewer/index.html?id=faeba2d173374445b1f13512bd477bb2">aplicația de descărcare</a>. <a href="http://www.geo-spatial.org/">geo-spatial.org</a> preia aceste date, le îmbunătățește la nivel de atribut (ex: se adaugă informații statistice precum numărul de locuitori în diverși ani), și le publică ca fișiere statice și prin intermediul serviciilor de rețea standardizate. Vom prelua datele de pe <a href="http://www.geo-spatial.org/">geo-spatial.org</a> deoarece o putem face automat, aplicația <a href="http://ancpi.ro/">ANCPI</a> fiind una interactivă, ce presupune selecția zonei de interes pe hartă și primirea datelor pe email. Pentru descărcarea datelor, vom folosi din nou aplicația <a href="https://www.gnu.org/software/wget/">Wget</a>:</p>
+      <pre>
+        <code class="language-bash">
+wget -O ro_uat_poligon.zip http://www.geo-spatial.org/file_download/29533
+        </code>
+      </pre>
+      <p>Deoarece datele descărcate sînt arhivate <code class="highlighter-rouge">.zip</code>, vom proceda la dezarhivarea lor:</p>
+      <pre>
+        <code class="language-bash">
+unzip ro_uat_poligon.zip
+        </code>
+      </pre>
+      <p>Putem testa validitatea datelor încărcîndu-le în <a href="https://www.qgis.org/">QGIS</a>:</p>
+      <img src="images/009_osgeolive_qgis_uat.jpg" class="img-fluid" alt="Limitele UAT încărcate în QGIS">
+      <p class="text-center"><em>Limitele UAT încărcate în QGIS</em></p>
+
+      <h5 class="tutorialTitle">2.2. Preprocesarea datelor și încărcarea într-o bază de date PostGIS</h5>
+      <p>Acum, că avem toate datele necesare disponibile în directorul de lucru, putem să ne apucăm de treabă. Dar, pînă la prelucrarea lor pentru a obține doritele reprezentări cartografice, sînt necesare o serie de operații de preprocesare. În principal, aceste operații se vor face prin interogări <code class="highlighter-rouge">SQL</code>, într-o bază de date <a href="https://www.postgresql.org">PostgreSQL</a> + <a href="http://postgis.net">PostGIS</a>. Așadar, este nevoie să importăm datele în baza de date.</p>
+
+      <h6 class="tutorialTitle">2.2.1. Simplificarea geometriei stratului cu limitele UAT</h6>
+      <p>Un singur pas îl vom face în afara ei, și anume, simplificarea geometriei stratului cu limitele UAT. <a href="http://postgis.net">PostGIS</a> poate face și el această operațiune dar <a href="https://github.com/mbloch/mapshaper">Mapshaper</a> o face mai bine. Dar de ce avem nevoie să simplificăm geometriile? Well, deoarece stratul este destul de complex (peste 50 MB pe disc) iar noi ne dorim să aducem vectorul, fără complicații, într-o aplicație web. Iar cum, pentru scopul nostru, geometria detaliată și exactă nu este importantă, putem rula comanda de mai jos pentru a o simplifica, păstrînd relațiile de vecinătate dintre poligoane:</p>
+      <pre>
+        <code class="language-bash">
+mapshaper -i ro_uat_poligon.shp -simplify 3% keep-shapes -o ro_uat_simplificat.shp
+        </code>
+      </pre>
+      <p>În <a href="https://www.qgis.org/">QGIS</a>, putem verifica rezultatul simplificării (verde) comparativ cu datele originale (roșu). Vizual, pentru scara la care ne interesează datele, diferențele nu's semnificative, dar, în termeni de dismensiune ocupată pe disc, versiunea simplificată este de 10 ori mai "ușoară".</p>
+      <img src="images/010_osgeolive_qgis_simplificare_uat.jpg" class="img-fluid" alt="Rezultatul simplificării stratului UAT">
+      <p class="text-center"><em>Rezultatul simplificării stratului UAT</em></p>
+
+      <h6 class="tutorialTitle">2.2.2. Crerea bazei de date PostGIS</h6>
+      <p>Înainte de a importa datele în <a href="http://postgis.net">PostGIS</a>, este necesar să ne facem un spațiu de lucru și la nivelul bazei de date. Vom face acest lucru prin crearea unei baze de date, numite <code class="highlighter-rouge">alegeri</code>, folosind comanda:</p>
+      <pre>
+        <code class="language-bash">
+createdb alegeri
+        </code>
+      </pre>
+      <div class="alert alert-danger" role="alert">
+        <strong>Atenție:</strong> comanda <code class="highlighter-rouge">createdb</code> funcționează în mașina virtuală OSGeoLive deoarece utilizatorul <code class="highlighter-rouge">user</code> este definit și la nivelul bazei de date PostgreSQL. 
+      </div>
+      <p>În continuare, vom adăuga extensia <code class="highlighter-rouge">postgis</code> la baza de date și vom crea o serie de sub-directoare (scheme) folosind utilitarul în linie de comandă <code class="highlighter-rouge">psql</code> pentru a trimite comenzile <code class="highlighter-rouge">SQL</code> către <a href="https://www.postgresql.org">PostgreSQL</a>:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+CREATE EXTENSION postgis;
+CREATE SCHEMA referinta;
+CREATE SCHEMA sandbox;
+CREATE SCHEMA tur1;
+CREATE SCHEMA tur2;"
+        </code>
+      </pre>
+      <p>Mașina virtuală dispune și de un client grafic (<a href="https://www.pgadmin.org/">pgAdmin III</a> - versiunea curentă este 4.x dar mașina virtuală include o versiune anterioară) cu care putem verifica efectul comenzilor. Pentru a-l accesa mergem la <code class="highlighter-rouge">Start/Geospatial/Databases/pgAdmin III</code>. De aici, expandăm meniurile <code class="highlighter-rouge">local/Databases/alegeri/Schemas</code> și putem observa că schemele <code class="highlighter-rouge">referinta</code>, <code class="highlighter-rouge">sandbox</code>, <code class="highlighter-rouge">tur1</code> și <code class="highlighter-rouge">tur2</code> au fost create cu succes. Vom folosi schema <code class="highlighter-rouge">referinta</code> pentru a stoca datele inițiale, <code class="highlighter-rouge">referinta</code> pentru datele intermediare generice, <code class="highlighter-rouge">tur1</code> și <code class="highlighter-rouge">tur2</code> pentru cele intrmediare și finale ce au directă legătură cu cele două tururi.</p>
+      <img src="images/011_osgeolive_pgadmin.jpg" class="img-fluid" alt="Inspectarea rezultatelor comenzilor SQL folosind pgAdmin III">
+      <p class="text-center"><em>Inspectarea rezultatelor comenzilor SQL folosind pgAdmin III</em></p>
+
+      <h6 class="tutorialTitle">2.2.3. Importul datelor în PostGIS</h6>
+      <p>Pentru importul datelor vom folosi <a href="https://gdal.org">GDAL/OGR:</a></p>
+      <pre>
+        <code class="language-bash">
+ogr2ogr -f "PostgreSQL" PG:"host=localhost port=5432 dbname=alegeri user=user password=user" -lco SCHEMA=referinta -lco GEOMETRY_NAME=geom -lco SPATIAL_INDEX=yes ro_uat_simplificat.shp ro_uat_simplificat -nln uat_simplificat -nlt PROMOTE_TO_MULTI -s_srs EPSG:3844 -t_srs EPSG:3857 -skipfailures
+ogr2ogr -f "PostgreSQL" PG:"host=localhost port=5432 dbname=alegeri user=user password=user" -lco SCHEMA=referinta -lco GEOMETRY_NAME=geom -lco SPATIAL_INDEX=yes sectii.json sectii -nln sectii -a_srs EPSG:3857 -skipfailures
+ogr2ogr -f "PostgreSQL" PG:"host=localhost port=5432 dbname=alegeri user=user password=user" -lco SCHEMA=referinta pv_tur1.csv pv_tur1 -nln pv_tur1 -skipfailures
+ogr2ogr -f "PostgreSQL" PG:"host=localhost port=5432 dbname=alegeri user=user password=user" -lco SCHEMA=referinta pv_tur2.csv pv_tur2 -nln pv_tur2 -skipfailures
+        </code>
+      </pre>
+      <p>Astfel, am creat în schema <code class="highlighter-rouge">referinta</code> tabelele <code class="highlighter-rouge">uat_simplificat</code>, <code class="highlighter-rouge">sectii</code>, <code class="highlighter-rouge">pv_tur1</code> și <code class="highlighter-rouge">pv_tur2</code>. Rezultatele pot fi inspectate cu <a href="https://www.pgadmin.org/">pgAdmin</a> sau <a href="https://www.qgis.org/">QGIS</a>.</p>
+
+      <h5 class="tutorialTitle">2.3. Diverse operațiuni pre-join</h5>
+      <p>Pentru a transfera datele din procesele verbale la nivelul straturilor cu geometrie (secții, UAT-uri) sînt necesare cîteva operații de armonizare a informațiilor.</p> 
+
+      <h6 class="tutorialTitle">2.3.1. Eliminarea string-ului "JUDEȚUL" din tabela secții</h6>
+      <p>Mai întîi vom modifica valorile din coloana <code class="highlighter-rouge">judet</code> din tabela <code class="highlighter-rouge">sectii</code>. După cum se poate observa mai jos, această coloană conține valori de tipul <code class="highlighter-rouge">JUDEȚUL X</code>:</p>
+      <img src="images/012_osgeolive_pgadmin_inspect_sectii.jpg" class="img-fluid" alt="Coloana județ din tabela secții">
+      <p class="text-center"><em>Coloana <code class="highlighter-rouge">judet</code> din tabela <code class="highlighter-rouge">sectii</code></em></p>
+      <p>Deoarece avem nevoie de această coloană într-un join viitor, join cu o tabelă unde numele de județe nu conțin și sintagma <code class="highlighter-rouge">JUDEȚUL</code>, redundantă oricum, vom înlocui acest cuvînt și vom lăsa doar numele de județe în respectiva coloană. De asemenea, pentru București vom renunța la particula <code class="highlighter-rouge">MUNICIPIUL</code>. Tot prin acest bloc de interogări vom înlocui <code class="highlighter-rouge">Ş</code>-urile și <code class="highlighter-rouge">Ţ</code>-urile cu sedilă cu varianta lor corectă, cu virgulă, <code class="highlighter-rouge">Ș</code> respectiv <code class="highlighter-rouge">Ț</code>:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+UPDATE referinta.sectii SET judet = replace(judet, 'JUDEŢUL ', '');
+UPDATE referinta.sectii SET judet = replace(judet, 'MUNICIPIUL ', '');
+UPDATE referinta.sectii SET judet = replace(judet, 'Ş', 'Ș');
+UPDATE referinta.sectii SET judet = replace(judet, 'Ţ', 'Ț');"
+        </code>
+      </pre>
+
+      <h6 class="tutorialTitle">2.3.2. Eliminarea string-urilor "SECTOR X" din tabelele cu procesele verbale</h6>
+      <p>O operație similară, dar din cu totul și cu totul alte motive, o vom aplica și tabelelor <code class="highlighter-rouge">pv_tur1</code> și <code class="highlighter-rouge">pv_tur2</code>. Problema este că în tabela <code class="highlighter-rouge">sectii</code> nu avem informații cu privire la sector pentru secțiile din Municipiul București, toate aceste secții prezentînd valoarea <code class="highlighter-rouge">MUNICIPIUL BUCUREŞTI</code>. Am putea transfera atributul de secție pe baza suprapunerii cu stratul UAT. Însă, datorită simplificării de geometrie aplicate anterior, secțiile aflate în apropierea limitelor de sector ar putea fi greșit atribuite. Oricum, după cum veți vedea în pașii următori, detaliul cu privire la sector nu ne interesează acum. La reprezentarea la nivel de UAT vom repara problema. Acum pregătim datele pentru reprezentare la nivel de secție. Ca atare, vom altera coloana <code class="highlighter-rouge">județ</code> din cele două tabele, iar în loc de valorile de tip <code class="highlighter-rouge">MUNICIPIUL BUCUREŞTI - SECTOR X</code> vom introduce <code class="highlighter-rouge">BUCUREŞTI</code>. Similar acțiunii anterioare, vom corecta <code class="highlighter-rouge">Ş</code>-urile și <code class="highlighter-rouge">Ţ</code>-urile cu sedilă:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+UPDATE referinta.pv_tur1 SET județ = replace(județ, 'MUNICIPIUL BUCUREŞTI - SECTOR 1', 'BUCUREŞTI');
+UPDATE referinta.pv_tur1 SET județ = replace(județ, 'MUNICIPIUL BUCUREŞTI - SECTOR 2', 'BUCUREŞTI');
+UPDATE referinta.pv_tur1 SET județ = replace(județ, 'MUNICIPIUL BUCUREŞTI - SECTOR 3', 'BUCUREŞTI');
+UPDATE referinta.pv_tur1 SET județ = replace(județ, 'MUNICIPIUL BUCUREŞTI - SECTOR 4', 'BUCUREŞTI');
+UPDATE referinta.pv_tur1 SET județ = replace(județ, 'MUNICIPIUL BUCUREŞTI - SECTOR 5', 'BUCUREŞTI');
+UPDATE referinta.pv_tur1 SET județ = replace(județ, 'MUNICIPIUL BUCUREŞTI - SECTOR 6', 'BUCUREŞTI');
+UPDATE referinta.pv_tur1 SET județ = replace(județ, 'Ş', 'Ș');
+UPDATE referinta.pv_tur1 SET județ = replace(județ, 'Ţ', 'Ț');
+
+UPDATE referinta.pv_tur2 SET județ = replace(județ, 'MUNICIPIUL BUCUREŞTI - SECTOR 1', 'BUCUREŞTI');
+UPDATE referinta.pv_tur2 SET județ = replace(județ, 'MUNICIPIUL BUCUREŞTI - SECTOR 2', 'BUCUREŞTI');
+UPDATE referinta.pv_tur2 SET județ = replace(județ, 'MUNICIPIUL BUCUREŞTI - SECTOR 3', 'BUCUREŞTI');
+UPDATE referinta.pv_tur2 SET județ = replace(județ, 'MUNICIPIUL BUCUREŞTI - SECTOR 4', 'BUCUREŞTI');
+UPDATE referinta.pv_tur2 SET județ = replace(județ, 'MUNICIPIUL BUCUREŞTI - SECTOR 5', 'BUCUREŞTI');
+UPDATE referinta.pv_tur2 SET județ = replace(județ, 'MUNICIPIUL BUCUREŞTI - SECTOR 6', 'BUCUREŞTI');
+UPDATE referinta.pv_tur2 SET județ = replace(județ, 'Ş', 'Ș');
+UPDATE referinta.pv_tur2 SET județ = replace(județ, 'Ţ', 'Ț');"
+        </code>
+      </pre>
+
+      <h6 class="tutorialTitle">2.3.3. Corectarea codului SIRUTA pentru localitatea Băneasa în procesele verbale</h6>
+      <p>Inspectînd procesele verbale, am observat că localitatea Băneasa din Județul Constanța are atribuit un cod SIRUTA greșit (<code class="highlighter-rouge">63171</code> în loc de <code class="highlighter-rouge">61069</code>). Îl corectăm cu:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+UPDATE referinta.pv_tur1 SET siruta = REPLACE(siruta, '63171', '61069') WHERE siruta = '63171';
+UPDATE referinta.pv_tur2 SET siruta = REPLACE(siruta, '63171', '61069') WHERE siruta = '63171';"
+        </code>
+      </pre>        
+
+      <h6 class="tutorialTitle">2.3.4. Dizolvarea geometriilor sectoarelor Municipiului București</h6>
+      <p>În continuare, vom crea o nouă versiune a tabelei <code class="highlighter-rouge">uat_simplificat</code>, una în care gemetriile celor 6 sectoare din București se vor contopi în una singură în care voloarea codului <code class="highlighter-rouge">SIRUTA</code> va fi <code class="highlighter-rouge">179132</code>, pentru a se potrivi cu valoarea din tabela <code class="highlighter-rouge">sectii</code>. Pentru acesta, inițial, vom altera valorile coloanei <code class="highlighter-rouge">natcode</code> (cîmpul SIRUTA din tabela <code class="highlighter-rouge">uat_simplificat</code>), schimbînd codurile aferente sectoarelor cu codul <code class="highlighter-rouge">179132</code>. Apoi, vom crea o tabelă nou, intitulată <code class="highlighter-rouge">uat</code>, în care poligoanele cu acest cod vor fi dizolvate pentru a forma o singură geometrie:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+UPDATE referinta.uat_simplificat SET natcode = replace(natcode, '179141', '179132') WHERE natcode = '179141';
+UPDATE referinta.uat_simplificat SET natcode = replace(natcode, '179150', '179132') WHERE natcode = '179150';
+UPDATE referinta.uat_simplificat SET natcode = replace(natcode, '179169', '179132') WHERE natcode = '179169';
+UPDATE referinta.uat_simplificat SET natcode = replace(natcode, '179178', '179132') WHERE natcode = '179178';
+UPDATE referinta.uat_simplificat SET natcode = replace(natcode, '179187', '179132') WHERE natcode = '179187';
+UPDATE referinta.uat_simplificat SET natcode = replace(natcode, '179196', '179132') WHERE natcode = '179196';
+
+CREATE TABLE referinta.uat AS( 
+  SELECT geom, natcode FROM referinta.uat_simplificat WHERE natcode <> '179132' 
+  UNION 
+  SELECT ST_Union(geom), natcode FROM referinta.uat_simplificat WHERE natcode = '179132' GROUP BY natcode
+);"
+        </code>
+      </pre>
+      <p>Găsiți în imaginea de mai jos o comparație între stratul original (tabela <code class="highlighter-rouge">uat_simplificat</code>) și stratul rezultat (tabela <code class="highlighter-rouge">uat</code>):</p>
+      <img src="images/013_uat_bucuresti_diss_comparatie.jpg" class="img-fluid" alt="Comparație între tabela uat_simplificat și noua tabelă uat">
+      <p class="text-center"><em>Comparație între tabela <code class="highlighter-rouge">uat_simplificat</code> și noua tabelă <code class="highlighter-rouge">uat</code></em>.</p>
+
+      <h6 class="tutorialTitle">2.3.5. Corectarea pozițiilor secțiilor afectate de simplificarea UAT-urilor</h6>
+      <p>Cu ocazia simplificării limitelor UAT, cîteva secții aflate la aproape de limita UAT au fost trecute în UAT-ul vecin. A se vedea exemplul din imaginea de mai jos:</p>
+      <img src="images/015_uat_sectii_probleme_simplificare.png" class="img-fluid" alt="Exemplu de secție trecută într-un alt UAT după simplificarea limitelor">
+      <p class="text-center"><em>Exemplu de secție trecută într-un alt UAT după simplificarea limitelor</em></p>
+      <p>Reparăm problemele prin mutarea punctelor în cauză în interiorul UAT-ului corect:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+UPDATE referinta.sectii set geom=ST_SetSRID(ST_MakePoint(2956473, 5828325), 3857) where gid = 1727;
+UPDATE referinta.sectii set geom=ST_SetSRID(ST_MakePoint(2815232, 5725726), 3857) where gid = 3841;
+UPDATE referinta.sectii set geom=ST_SetSRID(ST_MakePoint(2872752, 5885823), 3857) where gid = 8666;
+UPDATE referinta.sectii set geom=ST_SetSRID(ST_MakePoint(2872969, 5885486), 3857) where gid = 8667;
+UPDATE referinta.sectii set geom=ST_SetSRID(ST_MakePoint(2873109, 5885614), 3857) where gid = 8665;
+UPDATE referinta.sectii set geom=ST_SetSRID(ST_MakePoint(2998782, 6004244), 3857) where gid = 9979;
+UPDATE referinta.sectii set geom=ST_SetSRID(ST_MakePoint(2577136, 5604177), 3857) where gid = 8478;
+UPDATE referinta.sectii set geom=ST_SetSRID(ST_MakePoint(2694131, 5632826), 3857) where gid = 16796;
+UPDATE referinta.sectii set geom=ST_SetSRID(ST_MakePoint(2691447, 5617885), 3857) where gid = 16793;
+UPDATE referinta.sectii set geom=ST_SetSRID(ST_MakePoint(2692424, 5449821), 3857) where gid = 7284;
+UPDATE referinta.sectii set geom=ST_SetSRID(ST_MakePoint(2749550, 5438800), 3857) where gid = 15205;
+UPDATE referinta.sectii set geom=ST_SetSRID(ST_MakePoint(2895340, 5606567), 3857) where gid = 12959;
+UPDATE referinta.sectii set geom=ST_SetSRID(ST_MakePoint(2667673, 5574127), 3857) where gid = 16906;
+UPDATE referinta.sectii set geom=ST_SetSRID(ST_MakePoint(2647556, 5510923), 3857) where gid = 7149;
+UPDATE referinta.sectii set geom=ST_SetSRID(ST_MakePoint(2758591, 5675116), 3857) where gid = 1284;"
+        </code>
+      </pre>
+      <p>Acestea fiind făcute, putem trece mai departe la realizarea datelor pentru hărțile tematice.</p>
+
+      <div>
+        <div class="float-left">
+          <p class="text-left"><a href="part1.html"><- Înapoi către Partea 1: Mașina virtuală OSGeoLive</a></p>
+        </div>
+        <div class="float-right">
+          <p class="text-right"><a href="part3.html">Înainte către Partea 3: Realizarea hărții la nivel de secție de votare (poligon) -></a></p>
+        </div>
+        <div class="clearfix"></div>
+      </div>
+
+      
+    </main>
+    <script src="assets/prism/prism.js"></script>
+    <script type="text/javascript">
+      Prism.plugins.NormalizeWhitespace.setDefaults({'break-lines': 112,});
+    </script>
+
+  </body>
+</html>

@@ -1,0 +1,142 @@
+<html>
+  <head>
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="assets/bootstrap-4.4.1-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/bootstrap-select-1.13.9/dist/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="assets/fontawesome-free-5.12.0-web/css/all.css">
+    <link rel="stylesheet" href="assets/prism/prism.css">
+
+    <script src="assets/jquery-3.4.1.min.js"></script>
+    <script src="assets/popper.min.js"></script>
+    <script src="assets/bootstrap-4.4.1-dist/js/bootstrap.min.js"></script>
+    <script src="assets/bootstrap-select-1.13.9/dist/js/bootstrap-select.min.js"></script>
+    <script src="assets/clipboard.js-master/dist/clipboard.min.js"></script>
+
+    <style>
+      .container {
+        padding-top: 20px;
+      }
+      .tutorialTitle {
+        border-bottom-style: solid;
+        border-bottom-width: 1px;
+        border-bottom-color: rgb(234, 236, 239);
+        margin-bottom: 16px;
+        padding-bottom: 9.6px;
+      }
+      code[class*="language-"],
+      pre[class*="language-"] {
+        word-wrap: normal;
+      }
+    </style>
+    
+  </head>
+  <body>
+    
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <strong><i class="fas fa-person-booth"></i>&nbsp;&nbsp;<a class="navbar-brand" href="#">Alegeri 2019 - Poveste</a></strong>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item dropdown active">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-laptop-code"></i>&nbsp;&nbsp;Povestea hărții
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="part0.html">0 - Introducere</a>
+              <a class="dropdown-item active" href="part1.html">1 - Mașina virtuală OSGeoLive</a>
+              <a class="dropdown-item" href="part2.html">2 - Datele de intrare</a>
+              <a class="dropdown-item" href="part3.html">3 - Realizarea hărții la nivel de secție de votare (poligon)</a>
+              <a class="dropdown-item" href="part4.html">4 - Se poate oare coborî mai jos de secție cu reprezentarea?</a>
+              <a class="dropdown-item" href="part5.html">5 - Hărțile clasice, la nivel de UAT și județ</a>
+              <a class="dropdown-item" href="part6.html">6 - Crearea hărții interactive</a>
+              <a class="dropdown-item" href="part7.html">7 - Utilizarea rezultatelor în OSGeoLive</a>
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-toggle-on"></i>&nbsp;&nbsp;Hartă
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="turul1.html">Turul 1</a>
+              <a class="dropdown-item" href="index.html">Turul 2</a>
+              <a class="dropdown-item" href="tur1_vs_tur2.html">Turul 1 vs Turul 2</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <main role="main" class="container">
+      <h4 class="tutorialTitle">Cartografie electorală în linie de comandă - Partea 1: Mașina virtuală OSGeoLive</h4>
+      <h5 class="tutorialTitle">Ce este și cum lucrăm cu ea?</h5>
+      <p><a href="https://live.osgeo.org/">OSGeoLive</a> este o distribuție software boot-abilă, bazată pe <a href="https://lubuntu.net/">Lubuntu</a>, ce poate fi pornită de pe DVD, stick de memorie sau prin intermediul unei mașini virtuale. Aceasta conține deja preinstalate și configurate o multitudine de aplicații software open source din zona geospațială. <a href="https://live.osgeo.org/">OSGeoLive</a> este mediul ideal pentru a testa comenzile din tutorialul nostru deoare, încărcată prin intermediul unei mașini virtuale, oferă tuturor celor interesați un mediu identic de lucru. Versiunea curentă, pe care s-au făcut toate testele din acest material, este 13.0 și poate fi descărcată de pe <a href="https://sourceforge.net/projects/osgeo-live/files/13.0/">SourceForge</a> ca disc virtual .vmdk, specific <a href="https://www.virtualbox.org">VirtualBox</a>, sau ca fișier generic .iso, compatibil cu oricare mediu de virtualizare. Personal, am folosit VirtualBox iar, după instalare și pornire (user: <code class="highlighter-rouge">user</code>, password: <code class="highlighter-rouge">user</code>) am ajuns la un ecran similar cu imaginea de mai jos (a se remarca harta istorică a Municipiul București de pe desktopul <a href="https://live.osgeo.org/">OSGeoLive</a> 13.0).</p>
+      <img src="images/002_osgeolive_start_screen.jpg" class="img-fluid" alt="Ecranul de pornire al OSGeoLive 13.0">
+      <p class="text-center"><em>Ecranul de pornire al <a href="https://live.osgeo.org/">OSGeoLive</a> 13.0.</em></p>
+      <p>Comenzile, așa cum zice și titul materialului, se vor rula în linia de comandă, folosind shell-ul <a href="https://en.wikipedia.org/wiki/Bash_(Unix_shell)">Bash</a>. Accesarea shell-ului se poate face prin intermediul iconiței verzi din bara de jos sau din meniul <code class="highlighter-rouge">Start/System Tools/LXTerminal</code> (evident, în funcție de preferințe, utilizatorii pot folosi și alt shell). După pornire, ar trebui să se obțină un rezultat similar cu cel din imaginea de mai jos.</p>
+      <img src="images/003_osgeolive_terminal.jpg" class="img-fluid" alt="Terminalul OSGeoLive este gata să accepte comenzile dumneavoastră">
+      <p class="text-center"><em>Terminalul <a href="https://live.osgeo.org/">OSGeoLive</a> este gata să accepte comenzile dumneavoastră.</em></p>
+      <h5 class="tutorialTitle">Crearea directorului de lucru</h5>
+      <p>Vom introduce primele două comenzi în <code class="highlighter-rouge">Terminal</code> (după fiecare comandă se apasă tasta <code class="highlighter-rouge">↵Enter</code>) pentru a ne crea un director de lucru (comanda <code class="highlighter-rouge">mkdir</code>) și pentru a naviga în interiorul lui (comanda <code class="highlighter-rouge">cd</code>). 
+      <pre>
+        <code class="language-bash">
+mkdir alegeri2019
+cd alegeri2019
+        </code>
+      </pre>
+      <p>Calea completă către locația în care ne găsim după executarea comenzilor este <code class="highlighter-rouge">/home/user/alegeri2019</code>, asta, deoarece, la lansare aplicației <code class="highlighter-rouge">LXTerminal</code>, locația implicită în care vom găsi este directorul <code class="highlighter-rouge">home</code> al utilizatorului curent (<code class="highlighter-rouge">user</code>).</p>
+      <h5 class="tutorialTitle">Instalarea aplicațiilor lipsă</h5>
+      <p>Explicam mai sus că <a href="https://live.osgeo.org/">OSGeoLive</a> vine deja la pachet cu numeroase aplicații geospatiale instalate și configurate. Nu este însă cazul tuturor aplicațiilor de care acest tutorial are nevoie.</p> 
+      <h6 class="tutorialTitle">Mapshaper</h6>
+      <p>O primă aplicație de acest gen este <a href="https://github.com/mbloch/mapshaper">Mapshaper</a>. Aceasta depinde însă de alte două componente software, mediul de execuție <a href="https://nodejs.org/">Node.js</a> și managerul de pachete <a href="https://nodejs.org/">Node.js</a>, <a href="https://nodejs.org/en/knowledge/getting-started/npm/what-is-npm/">npm</a>. Acestea pot fi foarte simplu instalate cu ajutorul comenzii <code class="highlighter-rouge">apt</code>, parte a managerului de pachete <a href="https://ubuntu.com">Ubuntu</a> (<a href="https://lubuntu.net/">Lubuntu</a>, cel peste care este împachetat <a href="https://live.osgeo.org/">OSGeoLive</a>, este o versiune simplificată a sistemului de operare <a href="https://ubuntu.com">Ubuntu</a>). Întotdeauna, înainte de instalarea unui packet de programe pe platforma <a href="https://ubuntu.com">Ubuntu</a> cu ajutorul <code class="highlighter-rouge">apt install</code>, este recomandarea actualizării listei cu pachete disponibile în depozitele utilizate. Pentru aceasta se rulează următoarea comandă cu <code class="highlighter-rouge">sudo</code> (rulează comanda cu drepturi de administrator) în <code class="highlighter-rouge">Terminal</code>:</p>
+      <pre>
+        <code class="language-bash">
+sudo apt update
+        </code>
+      </pre>
+      <p>Rezultatul ar trebui să fie similar cu cel din imaginea de mai jos:</p>
+      <img src="images/004_osgeolive_apt_update.jpg" class="img-fluid" alt="Actualizarea listei de pachete cu apt get">
+      <p class="text-center"><em>Actualizarea listei de pachete cu <code class="highlighter-rouge">apt get</code>.</em></p>
+      <p>Acestea fiind făcute, se poate trece la instalarea aplicațiilor Node folosind următoarele comenzi (se confirmă răspunzînd <code class="highlighter-rouge">Y</code> la întrebarea <code class="highlighter-rouge">Do you want to continue? [Y/n]</code>):</p>
+      <pre>
+        <code class="language-bash">
+sudo apt install nodejs
+sudo apt install npm
+        </code>
+      </pre>
+      <p>Dacă instalarea a decurs fără erori, putem trece la instalarea <a href="https://github.com/mbloch/mapshaper">Mapshaper</a> folosind comanda:</p>
+      <pre>
+        <code class="language-bash">
+sudo npm install -g mapshaper
+        </code>
+      </pre>
+      <p>Testarea instalării cu succes se poate face cu comanda:</p>
+      <pre>
+        <code class="language-bash">
+mapshaper -v
+        </code>
+      </pre>
+      <p>În <code class="highlighter-rouge">Terminal</code>, ar trebui să apară manualul de utilizare a comenzilor <a href="https://github.com/mbloch/mapshaper">Mapshaper</a>, identic cu imaginea de mai jos:</p>
+      <img src="images/005_osgeolive_mapshaper.jpg" class="img-fluid" alt="Confirmarea instalării corecte a Mapshaper">
+      <p class="text-center"><em>Confirmarea instalării corecte a <a href="https://github.com/mbloch/mapshaper">Mapshaper</a>.</em></p>
+
+      <div>
+        <div class="float-left">
+          <p class="text-left"><a href="part0.html"><- Înapoi către Partea 0: Introducere</a></p>
+        </div>
+        <div class="float-right">
+          <p class="text-right"><a href="part3.html">Înainte către Partea 2: Datele de intrare -></a></p>
+        </div>
+        <div class="clearfix"></div>
+      </div>
+
+    </main>
+    <script src="assets/prism/prism.js"></script>
+    <script type="text/javascript">
+      Prism.plugins.NormalizeWhitespace.setDefaults({'break-lines': 112,});
+    </script>
+
+  </body>
+</html>

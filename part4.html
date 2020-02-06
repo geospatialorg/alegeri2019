@@ -1,0 +1,666 @@
+<html>
+  <head>
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="assets/bootstrap-4.4.1-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/bootstrap-select-1.13.9/dist/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="assets/fontawesome-free-5.12.0-web/css/all.css">
+    <link rel="stylesheet" href="assets/prism/prism.css">
+
+    <script src="assets/jquery-3.4.1.min.js"></script>
+    <script src="assets/popper.min.js"></script>
+    <script src="assets/bootstrap-4.4.1-dist/js/bootstrap.min.js"></script>
+    <script src="assets/bootstrap-select-1.13.9/dist/js/bootstrap-select.min.js"></script>
+    <script src="assets/clipboard.js-master/dist/clipboard.min.js"></script>
+
+    <style>
+      .container {
+        padding-top: 20px;
+      }
+      .tutorialTitle {
+        border-bottom-style: solid;
+        border-bottom-width: 1px;
+        border-bottom-color: rgb(234, 236, 239);
+        margin-bottom: 16px;
+        padding-bottom: 9.6px;
+      }
+      code[class*="language-"],
+      pre[class*="language-"] {
+        word-wrap: normal;
+      }
+    </style>
+
+  </head>
+  <body>
+    
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <strong><i class="fas fa-person-booth"></i>&nbsp;&nbsp;<a class="navbar-brand" href="#">Alegeri 2019 - Poveste</a></strong>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item dropdown active">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-laptop-code"></i>&nbsp;&nbsp;Povestea hărții
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="part0.html">0 - Introducere</a>
+              <a class="dropdown-item" href="part1.html">1 - Mașina virtuală OSGeoLive</a>
+              <a class="dropdown-item" href="part2.html">2 - Datele de intrare</a>
+              <a class="dropdown-item" href="part3.html">3 - Realizarea hărții la nivel de secție de votare (poligon)</a>
+              <a class="dropdown-item active" href="part4.html">4 - Se poate oare coborî mai jos de secție cu reprezentarea?</a>
+              <a class="dropdown-item" href="part5.html">5 - Hărțile clasice, la nivel de UAT și județ</a>
+              <a class="dropdown-item" href="part6.html">6 - Crearea hărții interactive</a>
+              <a class="dropdown-item" href="part7.html">7 - Utilizarea rezultatelor în OSGeoLive</a>
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-toggle-on"></i>&nbsp;&nbsp;Hartă
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="turul1.html">Turul 1</a>
+              <a class="dropdown-item" href="index.html">Turul 2</a>
+              <a class="dropdown-item" href="tur1_vs_tur2.html">Turul 1 vs Turul 2</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <main role="main" class="container">
+      <h4 class="tutorialTitle">Cartografie electorală în linie de comandă - Partea 4: Se poate oare coborî mai jos de secție cu reprezentarea?</h4>
+      <h5 class="tutorialTitle">4.1. Ce s-ar mai putea face?</h5>
+      <p>Am justificat reprezentarea rezultatelor la nivel de secție (poligon) prin dorința de a înțelege mai bine distribuția culorii votului în cadrul teritoriului. Se poate merge însă mai jos de atît? Este evident că o secție în care candidatul <em>X</em> a luat 50.1% din voturi va avea aceeași culoare cu o alta în care același candidat a luat peste 90% din voturi. De aceea vom explora în continuare noi mijloace prin care ponderea voturilor poate fi mai detaliat reprezentată. Vom face asta atît la nivel de geometrie cît și prin intermediul metodei de simbolizare.</p>
+
+      <h5 class="tutorialTitle">4.2. Divizarea secțiilor la nivel de procente</h5>
+      <p>O metodă de a spațializa mai detaliat "culorile" politice o reprezintă împărțirea secției în poligoane cu suprafețe proporționale cu numărul de voturi primite de candidați. Atît că, tehnic, subdivizarea geometriei unui poligon pe baza atributelor nu este deloc o sarcină atît de simplă pe cît pare. Cel puțin în <a href="http://postgis.net">PostGIS</a> nu există o soluție la această problemă. Există mai mulți algoritmi documentați online ce pot fi implementați în <a href="https://www.python.org/">Python</a>  (eventual, cu ajutorul unor aplicații gen <a href="http://geopandas.org/">GeoPandas</a>, <a href="https://pypi.org/project/Shapely/">Shapely</a>, <a href="https://pypi.org/project/Fiona/">Fiona</a>, <a href="https://scitools.org.uk/cartopy/docs/latest/index.htm">Cartopy</a>, etc), <a href="https://www.r-project.org/">R</a> sau prin programarea unei funcții chiar în <a href="http://postgis.net">PostGIS</a>. Acest lucru depășește însă scopul tutorialului nostru. Așa că vom rezolva problema cu un mic truc, tot prin interogrări SQL (inspirat de abordarea lui <a href="https://groups.google.com/forum/#!topic/postgis-users/lqL2KO0zy28">Darafei Praliaskouski</a>). Scenariul ar fi următorul:</p>
+      <ol type="a">
+        <li>Generăm 1000 de puncte random în fiecare secție;</li>
+        <li>Grupăm punctele în grupuri de 10 folosind un algoritm de clusterizare;</li>
+        <li>Generăm centroizi pentru fiecare grup de puncte (100 de centroizi);</li>
+        <li>Folosim centroizii pentru a genera 100 de sub-poligoane în interiorul fiecărei secții folosind metoda poligoanelor Voronoi;</li>
+        <li>Decupăm poligoanele Voronoi folosind limita secției;</li>
+        <li>Se atribuie poligoane candidaților în funcție de procentele înregistrate de aceștia la nivelul secției.</li>
+      </ol>
+      <img src="images/024_scenariu_sub_sectie.jpg" class="img-fluid" alt="Scenariul pentru împărțirea secțiilor în funcție de procentul obținut de candidați">
+      <p class="text-center"><em>Scenariul pentru împărțirea secțiilor în funcție de procentul obținut de candidați.</em></p>
+
+      <h6 class="tutorialTitle">4.2.1. Generarea punctelor</h6>
+      <p>Vom genera cîte 1000 de puncte, aleatoriu distribuite, în fiecare secție utilizînd funcția <code class="highlighter-rouge">ST_GeneratePoints</code>. Rezultatul va fi stocat în tabela <code class="highlighter-rouge">sandbox.puncte_1000_sectie</code>:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+CREATE TABLE sandbox.puncte_1000_sectie AS
+  SELECT gid, geom, (ST_Dump(ST_GeneratePoints(geom, 1000))).geom AS pt
+  FROM tur2.sectii_voronoi_pv_tur2 GROUP BY gid, geom ORDER BY geom;"
+        </code>
+      </pre>
+
+      <h6 class="tutorialTitle">4.2.2. Gruparea punctelor</h6>
+      <p>Cele 1000 de puncte generate aleator vor fi grupate în clustere de către 10 utilizînd funcția <code class="highlighter-rouge">ST_ClusterKMeans</code>. Rezultatul va fi stocat în tabela <code class="highlighter-rouge">sandbox.clustere_puncte_1000_sectie</code> (de fapt, funcției i-am spus să grupeze cele 1000 de puncte în 100 de clase). Practic, funcția va adăuga în tabela cu puncte o coloană nouă, numită <code class="highlighter-rouge">cluster_id</code>, coloană ce va avea valori de la 1 la 100, fiecare valoare fiind comună pentru 10 puncte:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+CREATE TABLE sandbox.clustere_puncte_1000_sectie AS
+  SELECT gid, pt, ST_ClusterKMeans(pt, 100) OVER (partition by gid) AS cluster_id
+  FROM sandbox.puncte_1000_sectie;"
+        </code>
+      </pre>
+
+      <h6 class="tutorialTitle">4.2.3. Calcularea centroizilor pentru grupurile de puncte</h6>
+      <p>În continuare, vom folosi funcția <code class="highlighter-rouge">ST_Centroid</code> pentru a calcula centroizii celor 100 de clustere. Rezultatul va fi stocat în tabela <code class="highlighter-rouge">sandbox.centroizi_clustere_puncte_1000_sectie</code>:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+CREATE TABLE sandbox.centroizi_clustere_puncte_1000_sectie AS
+  SELECT gid, cluster_id, ST_Centroid(ST_Collect(pt)) AS geom
+  FROM sandbox.clustere_puncte_1000_sectie GROUP BY gid, cluster_id;"
+        </code>
+      </pre>
+
+      <h6 class="tutorialTitle">4.2.4. Crearea poligoanelor Voronoi</h6>
+      <p>Centroizii vor fi folosiți în continuare drept informație de intrare pentru funcția <code class="highlighter-rouge">ST_VoronoiPolygons</code>. Aceasta va încadra punctele într-o rețea de poligoane. Rezultatul va fi stocat în tabela <code class="highlighter-rouge">sandbox.voronoi_procente_sectie</code>:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+CREATE TABLE sandbox.voronoi_procente_sectie AS
+  SELECT gid, (ST_Dump(ST_VoronoiPolygons(ST_Collect(geom)))).geom
+  FROM sandbox.centroizi_clustere_puncte_1000_sectie GROUP BY gid;"
+        </code>
+      </pre>
+
+      <h6 class="tutorialTitle">4.2.5. Decuparea poligoanelor Voronoi</h6>
+      <p>Deoarece poligoanele punctelor aflate la marginea secțiilor depășesc conturul acestora, se va proceda la decuparea lor. Facem acest lucru cu ajutorul funcției <code class="highlighter-rouge">ST_Intersection</code>. Rezultatul va fi stocat în tabela <code class="highlighter-rouge">sandbox.voronoi_procente_sectie_clip</code>:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+CREATE TABLE sandbox.voronoi_procente_sectie_clip AS
+  SELECT voronoi.gid, ST_Intersection(voronoi.geom, poligoane.geom) as geom
+  FROM sandbox.voronoi_procente_sectie AS voronoi JOIN tur2.sectii_voronoi_pv_tur2 AS poligoane ON poligoane.gid = voronoi.gid;"
+        </code>
+      </pre>
+      <p>Așa am obținut <code class="highlighter-rouge">1.446.700</code> de poligoane aferente suprafeței ocupate de fiecare procent de vot exprimat în cele <code class="highlighter-rouge">14.466</code> secții pentru care am generat geometrii:</p>
+      <img src="images/025_poligoane_procent.png" class="img-fluid" alt="Poligoanele aferente procentelor din cadrul fiecărei secții">
+      <p class="text-center"><em>Poligoanele aferente procentelor din cadrul fiecărei secții.</em></p>
+
+      <h6 class="tutorialTitle">4.2.6. Recuperarea ID-ului pentru poligoane</h6>
+      <p>Centroizii generați mai devreme au avut un ID unic la nivel de secție (între 1 și 100). Acest atribut s-a pierdut cu ocazia calculării poligoanelor Voronoi. E timpul să le recuperăm. Vom face acest lucru generînd o <code class="highlighter-rouge">secvență</code> PostgreSQL:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+ALTER TABLE sandbox.voronoi_procente_sectie_clip ADD COLUMN cluster_id INT;
+
+CREATE SEQUENCE sandbox.order_cluster_id
+  START 1
+  INCREMENT 1
+  MINVALUE 1
+  MAXVALUE 100
+  CYCLE
+  OWNED BY sandbox.voronoi_procente_sectie_clip.gid;
+
+UPDATE sandbox.voronoi_procente_sectie_clip SET cluster_id = nextval('sandbox.order_cluster_id');"
+        </code>
+      </pre>
+      <p>Așa am obținut <code class="highlighter-rouge">1.446.700</code> de poligoane aferente suprafeței ocupate de fiecare procent de vot exprimat în cele <code class="highlighter-rouge">14.466</code> secții pentru care am generat geometrii:</p>
+
+      <h6 class="tutorialTitle">4.2.7. Transferul voturilor la nivel de poligoane (Turul 2)</h6>
+      <p>Acum sîntem gata să transferăm fiecărui poligon atributul candidatului cîștigător, ținînd cont de rezultatul alegerilor la nivel de secție. Vom face acest lucru prima dată pentru turul 2 de. Asta deoarece situația este mult mai simplă, fiind vorba de doar doi candidați. Metoda de transfer aleasă este de asemenea foarte simplă. După cum spuneam, în fiecare secție, asociat geometriilor pentru procente avem un ID unic cu valori de la 1 la 100. În tabela cu rezultatele votului la nivel de secție avem două cîmpuri cu procentele obținute de fiecare candidat în parte: <code class="highlighter-rouge">g1p</code> și <code class="highlighter-rouge">g2p</code>, procente între 0 și 100. De aceea, putem atribui cîștigători după următoarea formulă:</p>
+      <ul>
+        <li>Creăm o coloană nouă pentru a stoca ID-ul candidatului cîștigător (coloana <code class="highlighter-rouge">castigator</code>);</li>
+        <li>Acolo unde ID-ul de cluster al poligonului este mai mic decît procentul candidatului <code class="highlighter-rouge">X</code>, scriem ID-ul candidatului <code class="highlighter-rouge">X</code> în coloana <code class="highlighter-rouge">castigator</code>;</li>
+        <li>Acolo unde ID-ul de cluster al poligonului este mai mare decît procentul candidatului <code class="highlighter-rouge">X</code>, scriem ID-ul candidatului <code class="highlighter-rouge">Y</code> în coloana <code class="highlighter-rouge">castigator</code>;</li>
+      </ul>
+      <p>Concret, am făcut acest lucru cu următoarea interogare SQL, rezultatul fiind salvat în tabela <code class="highlighter-rouge">tur2.voronoi_procente_sectie</code>:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+CREATE TABLE tur2.voronoi_procente_sectie AS
+  SELECT * FROM sandbox.voronoi_procente_sectie_clip;
+
+ALTER TABLE tur2.voronoi_procente_sectie ADD COLUMN castigator integer;
+
+UPDATE tur2.voronoi_procente_sectie AS voronoi SET castigator = 1 FROM tur2.sectii_voronoi_pv_tur2 AS sectii WHERE voronoi.cluster_id < sectii.g1p AND voronoi.gid = sectii.gid;
+UPDATE tur2.voronoi_procente_sectie AS voronoi SET castigator = 2 FROM tur2.sectii_voronoi_pv_tur2 AS sectii WHERE voronoi.cluster_id >= sectii.g1p AND voronoi.gid = sectii.gid;"
+        </code>
+      </pre>
+      <p>Rezultatul la nivel național este prezentat mai jos (albastru - Iohannis, roșu Dăncilă):</p>
+      <img src="images/026_poligoane_procent_rezultate.png" class="img-fluid" alt="Rezultatul transferării rezultatelor de la secție la nivel de poligoane cu procente">
+      <p class="text-center"><em>Rezultatul transferării rezultatelor de la secție la nivel de poligoane cu procente.</em></p>
+      <p>Harta este însă înșelătoare la nivel de culoare cînd este văzută la scară mică. În zonele cu poligoane mici, datorită ordinii de desenare a elementelor, unele culori sînt "înghițite" de cele din jur. Situația corectă se vede la scări ceva mai mari, după cum se poate observa în imaginea de mai jos (zoom în chenarul din imaginea anterioară + adăugarea limitelor UAT).</p>
+      <img src="images/027_poligoane_procent_rezultate_zoom.png" class="img-fluid" alt="Vizualizarea la o scară ce face detaliile vizibile">
+      <p class="text-center"><em>Vizualizarea la o scară ce face detaliile vizibile.</em></p>
+      <p>Mergînd și mai aproape cu zoom-ul în zona Municipiului București, și adăugînd și limitele secțiilor, putem observa că voturile pentru Viorica Dăncilă tind să se localizeze în centrul secțiilor.</p>
+      <img src="images/028_poligoane_procent_rezultate_zoom2.png" class="img-fluid" alt="Vizualizarea la o scară ce face detaliile vizibile">
+      <p class="text-center"><em>Vizualizarea la o scară ce face detaliile vizibile.</em></p>
+      <p>Continuăm cu zoom-ul, adăugăm margini și etichete pentru poligoanele la nivel de procent. Astfel vom observa că ID-urile cu valori mari se găsesc concentrate de regulă în centrul secției, sortate de jos în sus, probabil din cauza modului în care funcționează algoritmul Voronoi. Este normal ca acele poligoane să fie roșii deoarece voturile pentru Viorica Dăncilă coboară de la 100 pînă la procentrul obținut în secție pe cînd cele ale lui Klaus Iohannis urcă de la 1 pînă la procentul obținut în secție.</p>
+      <img src="images/029_poligoane_procent_rezultate_zoom3.png" class="img-fluid" alt="Vizualizarea la nivel de poligoane procentuale">
+      <p class="text-center"><em>Vizualizarea la nivel de poligoane procentuale.</em></p>
+      <p>Evident, putem încerca să ne jucăm cu modul în care se generează indicativele poligoanelor procent sau să le reordonăm folosind un alt mod de indexare. Un test rapid se poate face prin:</p>
+      <ol>
+        <li>Crearea unei copii a tabelului (<code class="highlighter-rouge">tur2.voronoi_procente_sectie_copy</code>);</li>
+        <li>Ștergerea și recrearea coloanelor <code class="highlighter-rouge">castigator</code> și <code class="highlighter-rouge">cluster_id</code>;</li>
+        <li>Crearea unui index de tip <code class="highlighter-rouge">GiST</code> (Generalized Inverted Seach Tree);</li>
+        <li>Clusterizarea datelor folosind acest index;</li>
+        <li>Renumerotarea poligoanelor procent;</li>
+        <li>Redistribuirea rezultatului votului la nivel de poligon procentual;</li>
+      </ol> 
+      <p>Găsiți mai jos interogările SQL care fac așa ceva:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+CREATE TABLE tur2.voronoi_procente_sectie_copy AS
+  SELECT * FROM tur2.voronoi_procente_sectie;
+
+ALTER TABLE tur2.voronoi_procente_sectie_copy DROP COLUMN cluster_id;
+ALTER TABLE tur2.voronoi_procente_sectie_copy ADD COLUMN cluster_id INT;
+
+ALTER TABLE tur2.voronoi_procente_sectie_copy DROP COLUMN castigator;
+ALTER TABLE tur2.voronoi_procente_sectie_copy ADD COLUMN castigator integer;
+
+UPDATE tur2.voronoi_procente_sectie_copy SET cluster_id = nextval('sandbox.order_cluster_id');
+
+UPDATE tur2.voronoi_procente_sectie_copy AS voronoi SET castigator = 1 FROM tur2.sectii_voronoi_pv_tur2 AS sectii WHERE voronoi.cluster_id < sectii.g1p AND voronoi.gid = sectii.gid;
+UPDATE tur2.voronoi_procente_sectie_copy AS voronoi SET castigator = 2 FROM tur2.sectii_voronoi_pv_tur2 AS sectii WHERE voronoi.cluster_id >= sectii.g1p AND voronoi.gid = sectii.gid;
+
+CREATE INDEX voronoi_procente_sectie_copy_geom_idx ON tur2.voronoi_procente_sectie_copy USING GIST (geom);
+
+CLUSTER tur2.voronoi_procente_sectie_copy USING voronoi_procente_sectie_copy_geom_idx;"
+        </code>
+      </pre>
+      <p>Rezultatul, după cum se poate vedea în imaginile de mai jos, este sensibil diferit și arată potențialul unor astfel de abordări pentru a obține o distribuție mai consistență a culorilor rezultaltului în cadrul secțiilor. Acest lucru nu face însă obiectul acestui tutorial.</p>
+      <img src="images/029_poligoane_procent_rezultate_zoom3_b.png" class="img-fluid" alt="Rezultatul indexării și renumerotării poligoanelor procentuale">
+      <p class="text-center"><em>Rezultatul indexării și renumerotării poligoanelor procentuale.</em></p>
+      <iframe frameborder="0" class="juxtapose" width="100%" height="639" src="https://cdn.knightlab.com/libs/juxtapose/latest/embed/index.html?uid=c960a6f4-4905-11ea-b9b8-0edaf8f81e27"></iframe>
+      <p class="text-center"><em>Compararea interactivă a celor două tipuri de numerotări (mutați slider-ul pentru a vedea diferențele).</em></p>
+      <div class="alert alert-danger" role="alert">
+        <strong>Atenție:</strong> cei care vor încerca acasă pașii tehnici ai tutorialului nu vor obține fix aceleași geometrii. Asta deoarece totul pornește de la un set de puncte generat aleatoriu. Distribuția punctelor are efect asupra modului de clusterizare și, implicit, asupra dimensiunii și dispunerii poligoanelor procentuale. Dimensiunile nu vor fi varia cu mult, doar nu vor fi identice cu ce se prezintă aici. 
+      </div>
+      <h6 class="tutorialTitle">4.2.8. Transferul voturilor la nivel de poligoane (Turul 1)</h6>
+      <p>După cum ziceam anterior, situația pentru turul 1 este ceva mai complicată din cauza numărului de candidați. În cadrul secției dispunem de 100 de poligoane cărora trebuie să le transferăm procentele primite de candidați. Doar că voturile primite nu's rotunjite la nivel de procent. De aceea este nevoie să facem o astfel de rotunjire. Doar că simpla utilizare a funcției <code class="highlighter-rouge">ROUND</code> din PostgreSQL nu va produce rezultate mulțumitoare. Este o funcție simplă, ce va rotunji procentul candidatului la cel mai apropiat număr întreg. Asta face să ne putem găsi în situația în care suma procentelor rotunjite să fie mai mică sau mai mare decît 100. Este nevoie să aplicăm la o procedură suplimentară, ceva mai complicată. Pentru aceasta vom folosi <a href="https://en.wikipedia.org/wiki/Largest_remainder_method">Largest remainder method</a>, un algoritm gîndit special pentru alocarea proporțională a mandatelor. Programarea acestuia nu este chiar trivială dar, din fericire, am găsit o implementare a acestuia sub formă de funcție PostgreSQL, <a href="https://gist.github.com/zero5100/2f1ca10df4b415b2fac727cb2c3b2e8f">publicată sub licență open source</a>. Mai întîi înregistrăm funcția în sistemul nostru de gestiune a bazelor de date:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+DROP FUNCTION IF EXISTS sandbox.apportion_lrm(NUMERIC, JSONB, INTEGER, NUMERIC, BOOLEAN);
+CREATE FUNCTION sandbox.apportion_lrm
+  (
+    IN apportion_amt NUMERIC,
+    IN proportions JSONB,
+    IN data_scale INTEGER DEFAULT 0,
+    IN proportion_total NUMERIC DEFAULT NULL,
+    IN allow_truncate_apportion BOOLEAN DEFAULT FALSE
+  )
+RETURNS JSONB AS $BODY$
+DECLARE
+  v_apportion_amt NUMERIC;
+  v_proportions JSONB;
+  v_data_scale INTEGER;
+  v_proportion_total NUMERIC;
+  v_allow_truncate_total BOOLEAN;
+  v_apportioned_data JSONB; -- Return Var
+  v_total_needs_trunc BOOLEAN;
+  v_dist_increment NUMERIC;
+  v_proportion_data RECORD;
+  v_apportion_sum NUMERIC;
+  v_quota NUMERIC;
+  v_proportion_name TEXT;
+  v_proportion_value NUMERIC;
+  v_amt_per_quota NUMERIC;
+  v_auto_amt NUMERIC;
+  v_auto_remainder NUMERIC;
+  v_dist_count_remaining INTEGER;
+BEGIN
+  v_apportion_amt := $1;
+  v_proportions := $2;
+  v_data_scale := $3;
+  v_proportion_total := $4;
+  v_allow_truncate_total := $5;
+
+  IF (v_apportion_amt < 0) THEN
+    RAISE EXCEPTION 'apportion_lrm: Apportion amount must be >= 0. Val: %', v_apportion_amt;
+  END IF;
+
+  IF (v_data_scale IS NULL OR v_data_scale NOT BETWEEN 0 AND 14) THEN
+    RAISE EXCEPTION 'apportion_lrm: Data scale must be between 0 and 14 inclusive. Val: %', v_data_scale;
+  END IF;
+
+  IF (v_apportion_amt = 0) THEN
+    -- Nothing to apportion, return empty object
+    v_apportioned_data := '{}'::JSONB;
+    RETURN v_apportioned_data;
+  END IF;
+
+  v_total_needs_trunc := (trunc(v_apportion_amt, v_data_scale) <> v_apportion_amt);
+
+  IF (v_total_needs_trunc) THEN
+
+    -- If the flag allow_truncate_total is set
+    IF (v_allow_truncate_total) THEN
+
+      -- Truncate the total to match the data scale
+      v_apportion_amt := trunc(v_apportion_amt, v_data_scale);
+      RAISE NOTICE 'apportion_lrm: Truncating total to be apportioned to: %', v_apportion_amt;
+    ELSE
+
+      -- Raise exception if given apportion total is more precise than the provided data scale
+      RAISE EXCEPTION 'apportion_lrm: Total to be apportioned is more precise than given data scale. Scale: %, Total: %'
+        , v_data_scale, v_apportion_amt;
+    END IF;
+  END IF;
+
+  -- Calculate the size of one amount distribution (varies by scale)
+  v_dist_increment := (10 ^ -v_data_scale);
+
+  -- Proportion total not provided, sum it manually
+  IF (v_proportion_total IS NULL) THEN
+
+    -- Sum the input proportion to use as the total
+    SELECT sum(json_data.value) INTO v_proportion_total
+      FROM (
+        SELECT (value)::NUMERIC
+          FROM jsonb_each_text(v_proportions)
+      ) AS json_data;
+
+    RAISE DEBUG 'apportion_lrm: Proportion Total (calculated): %', v_proportion_total;
+  ELSE
+    RAISE DEBUG 'apportion_lrm: Proportion Total (provided): %', v_proportion_total;
+  END IF;
+
+  -- Use the Hare (simple) quota AKA Hamilton's method
+  v_quota := v_proportion_total / v_apportion_amt;
+  RAISE DEBUG 'apportion_lrm: Hare Quota: %', v_quota;
+
+  CREATE TEMP TABLE IF NOT EXISTS "apportion_data" (
+    proportion_name TEXT PRIMARY KEY,
+    amount NUMERIC,
+    remainder NUMERIC
+  ) ON COMMIT DROP;
+  TRUNCATE TABLE ONLY "apportion_data";
+
+  FOR v_proportion_data IN
+    SELECT key, value
+    FROM jsonb_each_text(v_proportions)
+  LOOP
+    v_proportion_name := (v_proportion_data.key)::TEXT;
+    v_proportion_value := (v_proportion_data.value)::NUMERIC;
+
+    RAISE DEBUG 'apportion_lrm: Proportion Name: %', v_proportion_name;
+    RAISE DEBUG 'apportion_lrm: Proportion Value: %', v_proportion_value;
+
+    v_amt_per_quota := v_proportion_value / v_quota;
+
+    -- Remove the remainder from the amount per quota to get the automatic amount
+    v_auto_amt := trunc(v_amt_per_quota, v_data_scale);
+    RAISE DEBUG 'apportion_lrm: Automatic Amount: %', v_auto_amt;
+
+    v_auto_remainder := (v_amt_per_quota - v_auto_amt);
+    RAISE DEBUG 'apportion_lrm: Automatic Remainder: %', v_auto_remainder;
+
+    INSERT INTO "apportion_data" (proportion_name, amount, remainder)
+      VALUES (v_proportion_name, v_auto_amt, v_auto_remainder);
+
+  END LOOP;
+
+  -- Calculate the total currently apportioned amount
+  v_apportion_sum := (SELECT sum(amount) FROM "apportion_data");
+  RAISE DEBUG 'apportion_lrm: Before remainder distribute. Apportioned Sum: %', v_apportion_sum;
+
+  -- Check if we need to distribute any remaining amount
+  WHILE (v_apportion_sum < v_apportion_amt) LOOP
+
+    -- Calculate the count of distributions remaining
+    v_dist_count_remaining := (
+      (v_apportion_amt - v_apportion_sum) / v_dist_increment
+    )::INTEGER;
+    RAISE DEBUG 'apportion_lrm: Distribution Count Remaining: %', v_dist_count_remaining;
+
+    -- Distribute remaining amount by adding an amount increment to the current apportion amount
+    -- with the largest proportion remainders first
+    UPDATE "apportion_data"
+      SET amount = amount + v_dist_increment
+      WHERE proportion_name IN (
+        SELECT proportion_name
+          FROM "apportion_data"
+          WHERE (amount <> 0 OR remainder <> 0)
+          ORDER BY remainder DESC
+          LIMIT v_dist_count_remaining
+      );
+
+    -- Calculate the total currently apportioned amount
+    v_apportion_sum := (SELECT sum(amount) FROM "apportion_data");
+    RAISE DEBUG 'apportion_lrm: After distribute. Apportion Sum: %', v_apportion_sum;
+
+  END LOOP;
+
+  -- Do a final sanity check on the apportion sum since we aren't allowed to violate this rule
+  IF (v_apportion_sum <> v_apportion_amt) THEN
+    RAISE EXCEPTION 'Amount not correctly distributed! Sum: % Expected: %', v_apportion_sum, v_apportion_amt;
+  END IF;
+
+  -- Convert the table data to JSON in format {input_proportion_name: apportioned_amount}
+  SELECT jsonb_object_agg(apportioned_data.proportion_name, apportioned_data.amount) INTO v_apportioned_data
+    FROM "apportion_data" AS apportioned_data;
+
+  RETURN v_apportioned_data;
+END;
+$BODY$ LANGUAGE plpgsql;"
+        </code>
+      </pre>
+
+      <p>Utilizăm această funcție pentru a crea procente rotunjite echitabil și a căror sumă face garantat 100. Rezultatul îl vom stoca în tabela <code class="highlighter-rouge">sandbox.sectii_voronoi_pv_tur1_rotunjit</code>:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+CREATE TABLE sandbox.sectii_voronoi_pv_tur1_rotunjit AS (
+SELECT election_data.geom, election_data.gid, election_data.judet, election_data.uat, election_data.localitate, election_data.siruta, election_data.institutie, election_data.adresa, election_data.id_sectii, sandbox.apportion_lrm(election_data.total_seats,
+    jsonb_build_object(
+      'g1', election_data.g1,
+      'g2', election_data.g2,
+      'g3', election_data.g3,
+      'g4', election_data.g4,
+      'g5', election_data.g5,
+      'g6', election_data.g6,
+      'g7', election_data.g7,
+      'g8', election_data.g8,
+      'g9', election_data.g9,
+      'g10', election_data.g10,
+      'g11', election_data.g11,
+      'g12', election_data.g12,
+      'g13', election_data.g3,
+      'g14', election_data.g14
+    )
+  ) AS procente_rotunjite
+  FROM (
+    SELECT
+      sectie.geom, sectie.gid, sectie.judet, sectie.uat, sectie.localitate, sectie.siruta, sectie.institutie, sectie.adresa,
+      sectie.id_sectii,
+      100 AS total_seats, 
+      ROUND(sectie.g1::numeric, 0) AS g1,
+      ROUND(sectie.g2::numeric, 0) AS g2,
+      ROUND(sectie.g3::numeric, 0) AS g3,
+      ROUND(sectie.g4::numeric, 0) AS g4,
+      ROUND(sectie.g5::numeric, 0) AS g5,
+      ROUND(sectie.g6::numeric, 0) AS g6,
+      ROUND(sectie.g7::numeric, 0) AS g7,
+      ROUND(sectie.g8::numeric, 0) AS g8,
+      ROUND(sectie.g9::numeric, 0) AS g9,
+      ROUND(sectie.g10::numeric, 0) AS g10,
+      ROUND(sectie.g11::numeric, 0) AS g11,
+      ROUND(sectie.g12::numeric, 0) AS g12,
+      ROUND(sectie.g13::numeric, 0) AS g13,
+      ROUND(sectie.g14::numeric, 0) AS g14
+        FROM tur1.sectii_voronoi_pv_tur1 AS sectie
+  ) AS election_data);" 
+        </code>
+      </pre>
+      <p>Ignorați warning-ul de tip <code class="highlighter-rouge">"NOTICE:  relation "apportion_data" already exists, skipping"</code>. Funcția stochează procentele rotunjite în coloana <code class="highlighter-rouge">procente_rotunjite</code> în format <a href="https://www.json.org/json-en.html">JSON</a>. Conținutul unei astfel de înregistrări este de forma <code class="highlighter-rouge">{"g1": 34, "g2": 3, "g3": 8, "g4": 0, "g5": 37, "g6": 1, "g7": 0, "g8": 1, "g9": 0, "g10": 6, "g11": 1, "g12": 1, "g13": 8, "g14": 0}</code>.</p>
+      <p>Transferarea voturilor către poligoanele se face printr-o procedură foarte simplă și rudimentară (cu siguranță că există multe metode mult mai elegante pentru această operațiune). Procentele se alocă pe intervalul de ID-uri cuprinse între suma candidaților anteriori și suma candidaților anteriori și a celui curent. Rezultatele au fost salvate în tabela <code class="highlighter-rouge">tur1.voronoi_procente_sectie</code>:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+CREATE TABLE tur1.voronoi_procente_sectie AS
+  SELECT * FROM sandbox.voronoi_procente_sectie_clip;
+
+ALTER TABLE tur1.voronoi_procente_sectie ADD COLUMN castigator integer;
+
+UPDATE tur1.voronoi_procente_sectie AS voronoi SET castigator = 1 FROM sandbox.sectii_voronoi_pv_tur1_rotunjit AS sectii WHERE voronoi.cluster_id <= (sectii.procente_rotunjite->>'g1')::integer AND voronoi.gid = sectii.gid;
+
+UPDATE tur1.voronoi_procente_sectie AS voronoi SET castigator = 2 FROM sandbox.sectii_voronoi_pv_tur1_rotunjit AS sectii WHERE voronoi.cluster_id > (sectii.procente_rotunjite->>'g1')::integer AND   voronoi.cluster_id <= ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer) AND voronoi.gid = sectii.gid;
+
+UPDATE tur1.voronoi_procente_sectie AS voronoi SET castigator = 3 FROM sandbox.sectii_voronoi_pv_tur1_rotunjit AS sectii WHERE voronoi.cluster_id > ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer) AND   voronoi.cluster_id <= ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer) AND voronoi.gid = sectii.gid;
+
+UPDATE tur1.voronoi_procente_sectie AS voronoi SET castigator = 4 FROM sandbox.sectii_voronoi_pv_tur1_rotunjit AS sectii WHERE voronoi.cluster_id > ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer) AND   voronoi.cluster_id <= ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer + (sectii.procente_rotunjite->>'g4')::integer) AND voronoi.gid = sectii.gid;
+
+UPDATE tur1.voronoi_procente_sectie AS voronoi SET castigator = 5 FROM sandbox.sectii_voronoi_pv_tur1_rotunjit AS sectii WHERE voronoi.cluster_id > ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer + (sectii.procente_rotunjite->>'g4')::integer) AND   voronoi.cluster_id <= ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer + (sectii.procente_rotunjite->>'g4')::integer + (sectii.procente_rotunjite->>'g5')::integer) AND voronoi.gid = sectii.gid;
+
+UPDATE tur1.voronoi_procente_sectie AS voronoi SET castigator = 6 FROM sandbox.sectii_voronoi_pv_tur1_rotunjit AS sectii WHERE voronoi.cluster_id > ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer + (sectii.procente_rotunjite->>'g4')::integer + (sectii.procente_rotunjite->>'g5')::integer) AND   voronoi.cluster_id <= ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer + (sectii.procente_rotunjite->>'g4')::integer + (sectii.procente_rotunjite->>'g5')::integer + (sectii.procente_rotunjite->>'g6')::integer) AND voronoi.gid = sectii.gid;
+
+UPDATE tur1.voronoi_procente_sectie AS voronoi SET castigator = 7 FROM sandbox.sectii_voronoi_pv_tur1_rotunjit AS sectii WHERE voronoi.cluster_id > ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer + (sectii.procente_rotunjite->>'g4')::integer + (sectii.procente_rotunjite->>'g5')::integer + (sectii.procente_rotunjite->>'g6')::integer) AND   voronoi.cluster_id <= ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer + (sectii.procente_rotunjite->>'g4')::integer + (sectii.procente_rotunjite->>'g5')::integer + (sectii.procente_rotunjite->>'g6')::integer + (sectii.procente_rotunjite->>'g7')::integer) AND voronoi.gid = sectii.gid;
+
+UPDATE tur1.voronoi_procente_sectie AS voronoi SET castigator = 8 FROM sandbox.sectii_voronoi_pv_tur1_rotunjit AS sectii WHERE voronoi.cluster_id > ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer + (sectii.procente_rotunjite->>'g4')::integer + (sectii.procente_rotunjite->>'g5')::integer + (sectii.procente_rotunjite->>'g6')::integer + (sectii.procente_rotunjite->>'g7')::integer) AND   voronoi.cluster_id <= ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer + (sectii.procente_rotunjite->>'g4')::integer + (sectii.procente_rotunjite->>'g5')::integer + (sectii.procente_rotunjite->>'g6')::integer + (sectii.procente_rotunjite->>'g7')::integer + (sectii.procente_rotunjite->>'g8')::integer) AND voronoi.gid = sectii.gid;
+
+UPDATE tur1.voronoi_procente_sectie AS voronoi SET castigator = 9 FROM sandbox.sectii_voronoi_pv_tur1_rotunjit AS sectii WHERE voronoi.cluster_id > ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer + (sectii.procente_rotunjite->>'g4')::integer + (sectii.procente_rotunjite->>'g5')::integer + (sectii.procente_rotunjite->>'g6')::integer + (sectii.procente_rotunjite->>'g7')::integer + (sectii.procente_rotunjite->>'g8')::integer) AND   voronoi.cluster_id <= ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer + (sectii.procente_rotunjite->>'g4')::integer + (sectii.procente_rotunjite->>'g5')::integer + (sectii.procente_rotunjite->>'g6')::integer + (sectii.procente_rotunjite->>'g7')::integer + (sectii.procente_rotunjite->>'g8')::integer + (sectii.procente_rotunjite->>'g9')::integer) AND voronoi.gid = sectii.gid;
+
+UPDATE tur1.voronoi_procente_sectie AS voronoi SET castigator = 10 FROM sandbox.sectii_voronoi_pv_tur1_rotunjit AS sectii WHERE voronoi.cluster_id > ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer + (sectii.procente_rotunjite->>'g4')::integer + (sectii.procente_rotunjite->>'g5')::integer + (sectii.procente_rotunjite->>'g6')::integer + (sectii.procente_rotunjite->>'g7')::integer + (sectii.procente_rotunjite->>'g8')::integer + (sectii.procente_rotunjite->>'g9')::integer) AND   voronoi.cluster_id <= ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer + (sectii.procente_rotunjite->>'g4')::integer + (sectii.procente_rotunjite->>'g5')::integer + (sectii.procente_rotunjite->>'g6')::integer + (sectii.procente_rotunjite->>'g7')::integer + (sectii.procente_rotunjite->>'g8')::integer + (sectii.procente_rotunjite->>'g9')::integer + (sectii.procente_rotunjite->>'g10')::integer) AND voronoi.gid = sectii.gid;
+
+UPDATE tur1.voronoi_procente_sectie AS voronoi SET castigator = 11 FROM sandbox.sectii_voronoi_pv_tur1_rotunjit AS sectii WHERE voronoi.cluster_id > ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer + (sectii.procente_rotunjite->>'g4')::integer + (sectii.procente_rotunjite->>'g5')::integer + (sectii.procente_rotunjite->>'g6')::integer + (sectii.procente_rotunjite->>'g7')::integer + (sectii.procente_rotunjite->>'g8')::integer + (sectii.procente_rotunjite->>'g9')::integer + (sectii.procente_rotunjite->>'g10')::integer) AND   voronoi.cluster_id <= ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer + (sectii.procente_rotunjite->>'g4')::integer + (sectii.procente_rotunjite->>'g5')::integer + (sectii.procente_rotunjite->>'g6')::integer + (sectii.procente_rotunjite->>'g7')::integer + (sectii.procente_rotunjite->>'g8')::integer + (sectii.procente_rotunjite->>'g9')::integer + (sectii.procente_rotunjite->>'g10')::integer + (sectii.procente_rotunjite->>'g11')::integer) AND voronoi.gid = sectii.gid;
+
+UPDATE tur1.voronoi_procente_sectie AS voronoi SET castigator = 12 FROM sandbox.sectii_voronoi_pv_tur1_rotunjit AS sectii WHERE voronoi.cluster_id > ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer + (sectii.procente_rotunjite->>'g4')::integer + (sectii.procente_rotunjite->>'g5')::integer + (sectii.procente_rotunjite->>'g6')::integer + (sectii.procente_rotunjite->>'g7')::integer + (sectii.procente_rotunjite->>'g8')::integer + (sectii.procente_rotunjite->>'g9')::integer + (sectii.procente_rotunjite->>'g10')::integer + (sectii.procente_rotunjite->>'g11')::integer) AND   voronoi.cluster_id <= ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer + (sectii.procente_rotunjite->>'g4')::integer + (sectii.procente_rotunjite->>'g5')::integer + (sectii.procente_rotunjite->>'g6')::integer + (sectii.procente_rotunjite->>'g7')::integer + (sectii.procente_rotunjite->>'g8')::integer + (sectii.procente_rotunjite->>'g9')::integer + (sectii.procente_rotunjite->>'g10')::integer + (sectii.procente_rotunjite->>'g11')::integer + (sectii.procente_rotunjite->>'g12')::integer) AND voronoi.gid = sectii.gid;
+
+UPDATE tur1.voronoi_procente_sectie AS voronoi SET castigator = 13 FROM sandbox.sectii_voronoi_pv_tur1_rotunjit AS sectii WHERE voronoi.cluster_id > ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer + (sectii.procente_rotunjite->>'g4')::integer + (sectii.procente_rotunjite->>'g5')::integer + (sectii.procente_rotunjite->>'g6')::integer + (sectii.procente_rotunjite->>'g7')::integer + (sectii.procente_rotunjite->>'g8')::integer + (sectii.procente_rotunjite->>'g9')::integer + (sectii.procente_rotunjite->>'g10')::integer + (sectii.procente_rotunjite->>'g11')::integer + (sectii.procente_rotunjite->>'g12')::integer) AND   voronoi.cluster_id <= ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer + (sectii.procente_rotunjite->>'g4')::integer + (sectii.procente_rotunjite->>'g5')::integer + (sectii.procente_rotunjite->>'g6')::integer + (sectii.procente_rotunjite->>'g7')::integer + (sectii.procente_rotunjite->>'g8')::integer + (sectii.procente_rotunjite->>'g9')::integer + (sectii.procente_rotunjite->>'g10')::integer + (sectii.procente_rotunjite->>'g11')::integer + (sectii.procente_rotunjite->>'g12')::integer + (sectii.procente_rotunjite->>'g13')::integer) AND voronoi.gid = sectii.gid;
+
+UPDATE tur1.voronoi_procente_sectie AS voronoi SET castigator = 14 FROM sandbox.sectii_voronoi_pv_tur1_rotunjit AS sectii WHERE voronoi.cluster_id > ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer + (sectii.procente_rotunjite->>'g4')::integer + (sectii.procente_rotunjite->>'g5')::integer + (sectii.procente_rotunjite->>'g6')::integer + (sectii.procente_rotunjite->>'g7')::integer + (sectii.procente_rotunjite->>'g8')::integer + (sectii.procente_rotunjite->>'g9')::integer + (sectii.procente_rotunjite->>'g10')::integer + (sectii.procente_rotunjite->>'g11')::integer + (sectii.procente_rotunjite->>'g12')::integer + (sectii.procente_rotunjite->>'g13')::integer) AND   voronoi.cluster_id <= ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer + (sectii.procente_rotunjite->>'g4')::integer + (sectii.procente_rotunjite->>'g5')::integer + (sectii.procente_rotunjite->>'g6')::integer + (sectii.procente_rotunjite->>'g7')::integer + (sectii.procente_rotunjite->>'g8')::integer + (sectii.procente_rotunjite->>'g9')::integer + (sectii.procente_rotunjite->>'g10')::integer + (sectii.procente_rotunjite->>'g11')::integer + (sectii.procente_rotunjite->>'g12')::integer + (sectii.procente_rotunjite->>'g13')::integer + (sectii.procente_rotunjite->>'g14')::integer) AND voronoi.gid = sectii.gid;"
+        </code>
+      </pre>
+      <p>Rezultatul, o 
+        <strong><span style="background-color: #1f78b4; color:#ffffff">s</span><span style="background-color: #729b6f; color:#ffffff">i</span><span style="background-color: #ff7f00; color:#ffffff">m</span><span style="background-color: #33a02c; color:#ffffff">f</span><span style="background-color: #e31a1c; color:#ffffff">o</span><span style="background-color: #d5b43c; color:#ffffff">n</span><span style="background-color: #c43c39; color:#ffffff">i</span><span style="background-color: #5eccf3; color:#ffffff">e</span><span style="background-color: #91522d; color:#ffffff"> a </span><span style="background-color: #429998; color:#ffffff">c</span><span style="background-color: #8d5a99; color:#ffffff">u</span><span style="background-color: #f835e8; color:#ffffff">l</span><span style="background-color: #e15989; color:#ffffff">o</span><span style="background-color: #1f78b4; color:#ffffff">r</span><span style="background-color: #ff7f00; color:#ffffff">i</span><span style="background-color: #33a02c; color:#ffffff">l</span><span style="background-color: #e31a1c; color:#ffffff">o</span><span style="background-color: #d5b43c; color:#ffffff">r</span></strong>. Găsiți mai jos un exemplu despre cum arată spațializarea la nivel de sub-secție în județele cu majoritate maghiară, unde verdele absolut (voturile pentru Kelemen Hunor) din reprezentările la nivel de UAT capătă ceva mai multe nuanțe:</p>
+      <img src="images/030_tur1_harghita_covasna.png" class="img-fluid" alt="Exemplu: distribuția voturilor în poligoanele la nivel de procente în zona Harghita/Covasna">
+      <p class="text-center"><em>Exemplu: distribuția voturilor în poligoanele la nivel de procente în zona Harghita/Covasna.</em></p>
+      <p>Neavînd experiență în zona cartografiei electorale sau analizelor statistice electorale, autorul nu știe dacă aceste reprezentări aduc sau nu o valoare reală în înțelegerea mecanismelor carea au generat aceste rezultate. Bunul simț zice însă că se pot corela cu alți indicatori statistici (ex: număr de locuitori, nivel de educație, bunăstare economică, vîrstă, context politic, etc. În continuare, avem o comparație interactivă a culorilor de vot înregistrate la nivel de secție în turul 1 vs. culorile la nivel de poligon procentual. Astfel de reprezentări nu schimbă realitatea seacă a votului, doar atrag atenția asupra nuanțelor referitoare la distribuția voturilor:</p>
+      <iframe frameborder="0" class="juxtapose" width="100%" height="642" src="https://cdn.knightlab.com/libs/juxtapose/latest/embed/index.html?uid=09d7032c-4906-11ea-b9b8-0edaf8f81e27"></iframe>
+      <p class="text-center"><em>Compararea interactivă a rezultatelor spațializate la nivel de stație vs cele la nivel de poligoane procentuale (mutați slider-ul pentru a vedea diferențele).</em></p>
+
+      <h5 class="tutorialTitle">4.3. Un punct pentru fiecare vot</h5>
+      <p>Am generat mai devreme puncte aleatorii în interiorul secțiilor de votare pentru a genera acele poligoane procentuale. Am putea merge mai departe pe aceeași idee și a genera astfel de puncte care să reprezinte chiar voturile înregistrate la nivelul secției. Evident, poziția nu va fi cea reală, dar ne oferă o nouă metodă vizuală de analiză a distribuției voturilor. Avînd experiența anterioară în generarea de puncte aleatorii, această operație este destul de simplă și directă.</p>
+
+      <h6 class="tutorialTitle">4.3.1. Crearea punctelor pentru turul 2</h6>
+      <p>Vom începe cu turul 2 pentru că este mai simplu, dat fiind că avem doar doi candidați. Am ales să generăm punctele în două tabele intermediare separate, cîte una pentru fiecare candidat, pe care apoi le unim într-o tabelă comună, intitulată <code class="highlighter-rouge">fiecare_vot_tur2</code>. La final, creăm un index spațial de tip <code class="highlighter-rouge">GIST</code> și clusterizăm setul final folosind acest index. Acest lucru ne va ajuta la o vizualizare rapidă a datelor:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+CREATE TABLE sandbox.voturi_iohannis_tur2 AS
+  SELECT (ST_Dump(ST_GeneratePoints(geom, g1))).geom AS geom
+  FROM tur2.sectii_voronoi_pv_tur2;
+
+CREATE TABLE sandbox.voturi_dancila_tur2 AS
+  SELECT (ST_Dump(ST_GeneratePoints(geom, g2))).geom AS geom
+  FROM tur2.sectii_voronoi_pv_tur2;
+
+CREATE TABLE tur2.fiecare_vot_tur2 (id serial primary key, castigator integer);
+SELECT AddGeometryColumn('tur2', 'fiecare_vot_tur2', 'geom', 3857, 'point', 2);
+INSERT INTO tur2.fiecare_vot_tur2 (castigator, geom) (SELECT 1, geom FROM sandbox.voturi_iohannis_tur2);
+INSERT INTO tur2.fiecare_vot_tur2 (castigator, geom) (SELECT 2, geom FROM sandbox.voturi_dancila_tur2);
+
+CREATE INDEX fiecare_vot_tur2_idx ON tur2.fiecare_vot_tur2 USING GIST (geom);
+CLUSTER tur2.fiecare_vot_tur2 USING fiecare_vot_tur2_idx;
+
+DROP TABLE sandbox.voturi_iohannis_tur2;
+DROP TABLE sandbox.voturi_dancila_tur2;
+
+ALTER TABLE tur2.fiecare_vot_tur2 ADD COLUMN id serial primary key;"
+        </code>
+      </pre>
+      <p>Rezultatul, <code class="highlighter-rouge">10030773</code> de puncte răspîndite prin toată țara și în entitatea ce reprezintă diaspora:</p>
+      <img src="images/032_puncte_tur2.png" class="img-fluid" alt="Exemplu: fiecare punct semnifică un vot">
+      <p class="text-center"><em>Exemplu: fiecare punct semnifică un vot.</em></p>
+      <p>Problema, după cum se poate observa mai sus, este dată de scara la care se face vizualizare și de ordinea de randare a celor două straturi (sau a elementelor dacă au fost combinate într-un singur strat). În imagine putem observa mult albastru în secțiile mici, cu densitate mare de votanți. În realitate, proporția de albastru este mult mai mică dar, datorită ordinii de randare (albastru la sfîrșit), apare mult mai pregnant. Puteți folosi aplicația interactivă de mai jos pentru a vedea cît de mult le acoperă punctele albastre pe cele roșii.</p>
+      <iframe frameborder="0" class="juxtapose" width="100%" height="642" src="https://cdn.knightlab.com/libs/juxtapose/latest/embed/index.html?uid=983637a0-4906-11ea-b9b8-0edaf8f81e27"></iframe>
+      <p class="text-center"><em>Compararea interactivă a distribuției voturilor (mutați slider-ul pentru a vedea diferențele).</em></p>
+
+      <h6 class="tutorialTitle">4.3.2. Crearea punctelor pentru turul 1</h6>
+      <p>Procedăm identic pentru a crea punctele corespunzătoare voturilor celor 14 candidați. Însă, pentru a eficientiza procesul de scriere a interogărilor SQL, vom face o buclă în <code class="highlighter-rouge">Bash</code>:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+CREATE TABLE tur1.fiecare_vot_tur1 (id serial primary key, castigator integer);
+SELECT AddGeometryColumn('tur1', 'fiecare_vot_tur1', 'geom', 3857, 'point', 2);"
+candidati=( "iohannis" "paleologu" "barna" "kelemen" "dancila" "ivan"  "peia" "popescu" "banu" "diaconu" "staenovici" "bruynseels" "catarama" "cumpanasu" )
+id_candidat=1
+for candidat in "${candidati[@]}"
+do
+  psql -h localhost -p 5432 -U user -d alegeri -c "
+  CREATE TABLE sandbox.voturi_${candidat}_tur1 AS
+    SELECT (ST_Dump(ST_GeneratePoints(geom, g${id_candidat}))).geom AS geom
+    FROM tur1.sectii_voronoi_pv_tur1;
+  INSERT INTO tur1.fiecare_vot_tur1 (castigator, geom) (SELECT ${id_candidat}, geom FROM sandbox.voturi_${candidat}_tur1);
+  DROP TABLE sandbox.voturi_${candidat}_tur1;"
+  ((id_candidat++))
+done
+psql -h localhost -p 5432 -U user -d alegeri -c "
+CREATE INDEX fiecare_vot_tur1_idx ON tur1.fiecare_vot_tur1 USING GIST (geom);
+CLUSTER tur1.fiecare_vot_tur1 USING fiecare_vot_tur1_idx;
+
+ALTER TABLE tur1.fiecare_vot_tur1 ADD COLUMN id serial primary key;"
+        </code>
+      </pre>
+      <p>Rezultatul este ceva mai colorat decît la turul 2:</p>
+      <img src="images/034_puncte_tur3.png" class="img-fluid" alt="Exemplu: fiecare punct semnifică un vot">
+      <p class="text-center"><em>Exemplu: fiecare punct semnifică un vot.</em></p>      
+
+      <h5 class="tutorialTitle">4.4. "Land Doesn’t Vote, People Do"</h5>
+      <p>Preluam acest citat în partea introductivă a acestui material. Există mai multe metode de a pune această sintagmă într-o hartă. Pentru că reprezentările cartografice clasice nu țin de subiectul acestui tutorial, vom face ceva extrem de eficient și de simplu care își găsește locul sub acest titlu. E vorba de colorarea pe hartă doar a acelor zone care conțin locuitori. Pe  <a href="http://www.geo-spatial.org/">geo-spatial.org</a> există un <a href="http://www.geo-spatial.org/download/romania-seturi-vectoriale#statistica">set de date</a> cu privire la <code class="highlighter-rouge">populația rezidentă pe griduri de 1km<sup>2</sup></code>. Setul de date a fost obținut prin combinarea datelor corespunzătoare recensămîntului din 20 octombrie 2011, descărcate de pe situl <a href="http://www.insse.ro/cms/ro/content/statistici-teritoriale">INS</a>, cu gridul descărcat de la <a href="http://www.efgs.info/wp-content/uploads/Data/GRID/Grid_ETRS89_LAEA_RO_1K.zip">http://www.efgs.info/wp-content/uploads/Data/GRID/Grid_ETRS89_LAEA_RO_1K.zip</a>. Pe noi nu ne interesează valorile de populație din fiecare celulă a gridului ci gridul în sine, deoarece reprezintă o "mască" a locurilor unde se găsesc cetățeni și ne dorim să distribuim culorile politice ale votului din 2019 doar in zonele acoperite de acest grid. Prezentăm în continuare comenzile necesare pentru descărcarea datelor și importul în baza de date.</p>
+      <pre>
+        <code class="language-bash">
+wget -O ro_pop.zip http://www.geo-spatial.org/file_download/29431
+
+unzip ro_pop.zip
+
+ogr2ogr -f "PostgreSQL" PG:"host=localhost port=5432 dbname=alegeri user=user password=user" \
+-lco SCHEMA=referinta -lco GEOMETRY_NAME=geom -lco SPATIAL_INDEX=yes geostat_grid_1k_pop_2014_sparse.shp \
+geostat_grid_1k_pop_2014_sparse -nlt PROMOTE_TO_MULTI -nln ro_pop -s_srs EPSG:3844 -t_srs EPSG:3857 \
+-skipfailures
+        </code>
+      </pre>
+      <p>Gridul (numit <a href="https://ec.europa.eu/eurostat/web/gisco/geodata/reference-data/population-distribution-demography/geostat">GEOSTAT</a>) conține dreptunghiuri de 1x1km<sup>2</sup> pentru zonele unde se găsește populație înregistrată. Celule pentru România pot fi observate în figura de mai jos:</p>
+      <img src="images/035_grid_pop.jpg" class="img-fluid" alt="Celulele cu populație din gridul GEOSTAT România">
+      <p class="text-center"><em>Celulele cu populație din gridul GEOSTAT România.</em></p>
+      <p>Dacă schimbăm scara de afișare, celulele încep să apară:</p>
+      <img src="images/035_grid_pop_zoom.jpg" class="img-fluid" alt="Celulele cu populație din gridul GEOSTAT România">
+      <p class="text-center"><em>Celulele cu populație din gridul GEOSTAT România: detaliu.</em></p>
+      <p>Vom dizolva aceste celule pentru a obține o mască cu care vom decupa straturile cu secțiile de votare de la cele două tururi:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+CREATE TABLE sandbox.ro_pop_diss AS
+  SELECT (ST_Dump(ST_Multi(ST_Union(geom)))).geom AS geom
+  FROM referinta.ro_pop;"
+        </code>
+      </pre>
+      <p>Masca vectorială este gata de utilizare:</p>
+      <img src="images/036_grid_pop_zoom_diss.jpg" class="img-fluid" alt="Masca vectorială obținută prin dizolvarea celulelor gridului">
+      <p class="text-center"><em>Masca vectorială obținută prin dizolvarea celulelor gridului.</em></p>
+      <p>Interogările de decupare sînt foarte simple. Am ales să dizolvăm și rezultatul în funcție de valoarea cîmpului <code class="highlighter-rouge">castigator</code>. Restul de cîmpuri nu ne interesează, așa că nu le-am inclus. Rezultatele finale au fost scrise în tabelele <code class="highlighter-rouge">tur1.sectii_voronoi_pv_tur1_clip_pop</code> și <code class="highlighter-rouge">tur2.sectii_voronoi_pv_tur2_clip_pop</code>:</p>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+CREATE TABLE tur1.sectii_voronoi_pv_tur1_clip_pop AS
+  SELECT ST_Union(ST_Intersection(mask.geom, sectii.geom)) as geom, sectii.castigator 
+  FROM tur1.sectii_voronoi_pv_tur1 AS sectii, sandbox.ro_pop_diss AS mask  WHERE st_intersects(mask.geom, sectii.geom) GROUP BY sectii.castigator;
+
+CREATE TABLE tur2.sectii_voronoi_pv_tur2_clip_pop AS
+  SELECT ST_Union(ST_Intersection(mask.geom, sectii.geom)) as geom, sectii.castigator 
+  FROM tur2.sectii_voronoi_pv_tur2 AS sectii, sandbox.ro_pop_diss AS mask  WHERE st_intersects(mask.geom, sectii.geom) GROUP BY sectii.castigator;"
+        </code>
+      </pre>
+      <p>Astfel, am colorat hărțile doar arealele populate. Rezultatule pentru cele două tururi pot fi comparate interactiv în aplicație de mai jos:</p>    
+      <iframe frameborder="0" class="juxtapose" width="100%" height="814" src="https://cdn.knightlab.com/libs/juxtapose/latest/embed/index.html?uid=22858b40-4907-11ea-b9b8-0edaf8f81e27"></iframe>
+      <p class="text-center"><em>Compararea interactivă a rezultatelor pentru zonele locuite în cele două tururi (mutați slider-ul pentru a vedea diferențele).</em></p>
+      <div>
+        <div class="float-left">
+          <p class="text-left"><a href="part3.html"><- Înapoi către Partea 3: Realizarea hărții la nivel de secție de votare (poligon)</a></p>
+        </div>
+        <div class="float-right">
+          <p class="text-right"><a href="part5.html">Înainte către Partea 5: Hărțile clasice, la nivel de UAT și județ -></a></p>
+        </div>
+        <div class="clearfix"></div>
+      </div>
+
+      
+    </main>
+    <script src="assets/prism/prism.js"></script>
+    <script type="text/javascript">
+      Prism.plugins.NormalizeWhitespace.setDefaults({'break-lines': 112,});
+    </script>
+
+
+  </body>
+</html>

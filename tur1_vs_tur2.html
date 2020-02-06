@@ -1,0 +1,876 @@
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    
+    <link rel="stylesheet" href="style/style.css" />
+    <link rel="stylesheet" href="assets/leaflet/leaflet.css" />
+    <link rel="stylesheet" href="assets/bootstrap-4.4.1-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/bootstrap-select-1.13.9/dist/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="assets/jquery-ui-1.12.1/jquery-ui.css">
+    <link rel="stylesheet" href="assets/fontawesome-free-5.12.0-web/css/all.css">
+    
+    <script src="assets/leaflet/leaflet.js"></script>
+    <script src="assets/Leaflet.VectorGrid.bundled.js"></script>
+    <script src="assets/leaflet-control-swipe.js"></script>
+    <script src="assets/d3/d3.min.js"></script>
+    <script src="assets/topojson-client.min.js"></script>
+    <script src="assets/jquery-3.4.1.min.js"></script>
+    <script src="assets/jquery-ui-1.12.1/jquery-ui.js"></script>
+    <script src="assets/popper.min.js"></script>
+    <script src="assets/bootstrap-4.4.1-dist/js/bootstrap.min.js"></script>
+    <script src="assets/bootstrap-select-1.13.9/dist/js/bootstrap-select.min.js"></script>
+    <script src="assets/Chart.bundle.min.js"></script>
+
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <strong><i class="fas fa-person-booth"></i>&nbsp;&nbsp;<a class="navbar-brand" href="#">Alegeri 2019 - Turul 1 vs. Turul 2</a></strong>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-laptop-code"></i>&nbsp;&nbsp;Povestea hărții
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="part0.html">0 - Introducere</a>
+              <a class="dropdown-item" href="part1.html">1 - Mașina virtuală OSGeoLive</a>
+              <a class="dropdown-item" href="part2.html">2 - Datele de intrare</a>
+              <a class="dropdown-item" href="part3.html">3 - Realizarea hărții la nivel de secție de votare (poligon)</a>
+              <a class="dropdown-item" href="part4.html">4 - Se poate oare coborî mai jos de secție cu reprezentarea?</a>
+              <a class="dropdown-item" href="part5.html">5 - Hărțile clasice, la nivel de UAT și județ</a>
+              <a class="dropdown-item" href="part6.html">6 - Crearea hărții interactive</a>
+              <a class="dropdown-item" href="part7.html">7 - Utilizarea rezultatelor în OSGeoLive</a>
+            </div>
+          </li>
+          <li class="nav-item dropdown active">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-toggle-on"></i>&nbsp;&nbsp;Hartă
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="turul1.html">Turul 1</a>
+              <a class="dropdown-item active" href="index.html">Turul 2</a>
+              <a class="dropdown-item" href="#">Turul 1 vs Turul 2</a>
+            </div>
+          </li>
+        </ul>
+
+        &nbsp;&nbsp;  &nbsp;&nbsp; 
+        <p alt="Rezultat" title="Rezultat"><i class="fas fa-poll"></i> &nbsp;&nbsp;</p>
+        <form>
+          <div class="form-row align-items-center">
+            <div class="col-auto my-1">
+              <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Rezultate</label>
+              <select class="custom-select mr-sm-2" id="rezultat">
+                <option value="1" selected>Secții</option>
+                <option value="2">UAT-uri</option>
+                <option value="3">Județe</option>
+                <option value="4">Doar zonele populate</option>
+                <option value="5">Fiecare procent (secție)</option>
+                <option value="6">Fiecare procent (UAT)</option>
+                <option value="7">Fiecare procent (județ)</option>
+              </select>
+            </div>
+          </div>
+        </form>
+
+        &nbsp;&nbsp;  &nbsp;&nbsp; 
+        <p alt="Straturi de referință" title="Straturi de referință"><i class="fas fa-layer-group"></i> &nbsp;&nbsp;</p>
+        <form style="z-index: 2000;">
+          <select class="selectpicker" multiple data-live-search="false" data-none-selected-text="Nimic selectat" id="straturi">
+            <option value="1">Contur secții</option>
+            <option value="2">Contur UAT-uri</option>
+            <option value="3">Contur județe</option>
+            <option value="4">Localizare secții</option>
+          </select>
+        </form>
+
+        &nbsp;&nbsp;  &nbsp;&nbsp;
+        <p alt="Hartă fundal" title="Hartă fundal"><i class="fas fa-map"></i> &nbsp;&nbsp;</p>
+        <form>
+          <div class="form-row align-items-center">
+            <div class="col-auto my-1">
+              <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Rezultate alegeri</label>
+              <select class="custom-select mr-sm-2" id="fundal">
+                <option value="1" selected>OSM Light</option>
+                <option value="2">OSM Normal</option>
+                <option value="3">Fără fundal</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+    </nav>
+
+
+    <div style="" id="loadingDiv"><div class="loader">Încărcare...</div><p><center>Așteptați o clipă, încărcăm <strong>10.031.762</strong> de voturi (well, exagerăm puțin, 182.648 au fost declarate nule)...</center></p></div>
+
+    <div class="map" id="mapcon"></div>
+    
+    <script type="text/javascript">
+
+      $(window).on('load', function(){
+        setTimeout(removeLoader, 2000);
+      });
+      function removeLoader(){
+        $( '#loadingDiv' ).fadeOut(500, function() {
+          $( '#loadingDiv' ).remove();
+        });  
+      }
+
+      var graficRezultateTur1 = function(labels, data) {
+        var dataLength = labels ? labels.length : 0;
+        var backgroundColors = ['rgba(31, 120, 180, 1)',
+          'rgba(114, 155, 111, 1)',
+          'rgba(255, 127, 0, 1)',
+          'rgba(51, 160, 44, 1)',
+          'rgba(227, 26, 28, 1)',
+          'rgba(213, 180, 60, 1)',
+          'rgba(125, 139, 143, 1)',
+          'rgba(196, 60, 57, 1)',
+          'rgba(94, 204, 243, 1)',
+          'rgba(145, 82, 45, 1)',
+          'rgba(66, 153, 152, 1)',
+          'rgba(141, 90, 153, 1)',
+          'rgba(248, 53, 232, 1)',
+          'rgba(225, 89, 137, 1)'];
+        var colors = [];
+        for (var i = 0; i < dataLength; i++) {
+          colors.push(backgroundColors[i]);
+        };
+        var ctx = document.getElementById('myChart');
+        var myChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'nr. de voturi',
+              data: data,
+              backgroundColor: colors,
+              borderColor: colors,
+              borderWidth: 1
+            }]
+          },
+          options: {
+            animation: false,
+            scales: {
+              xAxes: [{
+                ticks: {
+                  autoSkip: false,
+                  fontSize: 11,
+                  maxRotation: 90,
+                  minRotation: 90
+                }
+              }],
+              yAxes: [{
+                ticks: {
+                  fontSize: 10,
+                  beginAtZero: true
+                }
+              }]
+            }
+          }
+        });
+      };
+
+      var graficRezultateTur2 = function(labels, data) {
+        var dataLength = labels ? labels.length : 0;
+        var backgroundColors = ['rgba(31, 120, 180, 0.9)',
+          'rgba(227, 26, 28, 0.9)'];
+        var colors = [];
+        for (var i = 0; i < dataLength; i++) {
+          colors.push(backgroundColors[i]);
+        };
+        var ctx = document.getElementById('myChart');
+        var myChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'nr. de voturi',
+              data: data,
+              backgroundColor: colors,
+              borderColor: colors,
+              borderWidth: 1
+            }]
+          },
+          options: {
+            animation: false,
+            scales: {
+              xAxes: [{
+                ticks: {
+                  autoSkip: false,
+                  fontSize: 11,
+                  maxRotation: 90,
+                  minRotation: 90
+                }
+              }],
+              yAxes: [{
+                ticks: {
+                  fontSize: 10,
+                  beginAtZero: true
+                }
+              }]
+            }
+          }
+        });
+      };
+
+      function titleCase(str) {
+        str = str.toLowerCase().split(' ');
+        for (var i = 0; i < str.length; i++) {
+          str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1); 
+        }
+        return str.join(' ');
+      }
+
+
+      $(function(){
+        $('#slider').slider({
+          max: 1,
+          min: 0,
+          value: 0.5,
+          step: 0.1
+        });
+      });
+
+      var neighbors;
+      var getsections = {};
+      var geojson;
+      window.onload = function () {
+        var neighbors
+
+        function styleSectii(feature) {
+          return {
+            fillColor: getColorFill(feature.properties.castigator),
+            weight: 0.9,
+            opacity: 1,
+            color: getColor(feature.properties.castigator),
+            dashArray: '0.5',
+            fillOpacity: 1
+          };
+        }
+
+        function styleSectii2(feature) {
+          return {
+            fillColor: getColorFill2(feature.properties.castigator),
+            weight: 0.9,
+            opacity: 1,
+            color: getColor2(feature.properties.castigator),
+            dashArray: '0.5',
+            fillOpacity: 1
+          };
+        }
+
+        function styleContur(feature) {
+          return {
+            fillColor: '#ffffff',
+            opacity: 1,
+            weight: 1,
+            color: '#000000',
+            dashArray: '0.5',
+            fillOpacity: 0
+          };
+        }
+
+        var optiuniSectiiPunct = {
+          radius: 2,
+          fillColor: '#000000',
+          color: '#000000',
+          weight: 1,
+          opacity: 1,
+          fillOpacity: 1,
+          pane: 'sectii_punct'
+        };
+
+        function styleFiecareProcent(castigator) {
+          return {
+            fillColor: getColor(castigator),
+            weight: 0.9,
+            opacity: 1,
+            color: getColor(castigator),
+            dashArray: '0.5',
+            fillOpacity: 1,
+            fill: true
+          };
+        }
+
+        function styleFiecareProcentTur1(castigator) {
+          return {
+            fillColor: getColor2(castigator),
+            weight: 0.9,
+            opacity: 1,
+            color: getColor2(castigator),
+            dashArray: '0.5',
+            fillOpacity: 1,
+            fill: true
+          };
+        }
+
+        function getColor(d) {
+          return d == 1 ? '#1f78b4' :
+          d == 2  ? '#e31a1c':
+          '#33a02c';
+        }
+
+        function getColorFill(d) {
+          return d == 1 ? '#8dbbda' :
+          d == 2  ? '#f38b8b':
+          '#97d093';
+        }
+
+        function getColor2(d) {
+          return d == 1 ? '#1f78b4' :
+          d == 2  ? '#729b6f':
+          d == 3  ? '#ff7f00':
+          d == 4  ? '#33a02c':
+          d == 5  ? '#e31a1c':
+          d == 6  ? '#d5b43c':
+          d == 7  ? '#7d8b8f':
+          d == 8  ? '#c43c39':
+          d == 9  ? '#5eccf3':
+          d == 10  ? '#91522d':
+          d == 11  ? '#429998':
+          d == 12  ? '#8d5a99':
+          d == 13  ? '#f835e8':
+          d == 0  ? '#33a02c':
+          '#e15989';
+        }
+
+        function getColorFill2(d) {
+          return d == 1 ? '#8dbbda' :
+          d == 2  ? '#b7cdb6':
+          d == 3  ? '#ffc07a':
+          d == 4  ? '#97d093':
+          d == 5  ? '#f38b8b':
+          d == 6  ? '#ebda9a':
+          d == 7  ? '#bec5c7':
+          d == 8  ? '#e29d9b':
+          d == 9  ? '#ace5fa':
+          d == 10  ? '#c9a895':
+          d == 11  ? '#9fcccb':
+          d == 12  ? '#c7abcd':
+          d == 13  ? '#fd97f5':
+          d == 0  ? '#33a02c':
+          '#f1abc4';
+        }
+
+        var req = new XMLHttpRequest();
+        var url = 'data/data_tur2.topojson';
+
+        req.open('GET', url, true);
+        req.onreadystatechange = handler;
+        req.send();
+        topoob = {};
+        getsections = {};
+        responseText = req.responseText
+
+        var req2 = new XMLHttpRequest();
+        var url2 = 'data/data_tur1.topojson';
+
+        req2.open('GET', url2, true);
+        req2.onreadystatechange = handler;
+        req2.send();
+        topoob2 = {};
+        getsections2 = {};
+        responseText2 = req2.responseText
+
+        function parseTopoJSON(layer, style, onEachF, pane) {
+          topoob = JSON.parse(req.responseText)
+          neighbors = topojson.neighbors(topoob.objects[layer].geometries);
+          getsections = topojson.feature(topoob, topoob.objects[layer])
+          getsections.features = getsections.features.map(function(fm,i){
+            var ret = fm;
+            ret.indie = i;
+            return ret
+          });
+          content = L.geoJson(getsections, {style: style, onEachFeature: onEachF, pane: pane});
+          return content;
+        }
+
+        function parseTopoJSON2(layer, style, onEachF, pane) {
+          topoob2 = JSON.parse(req2.responseText)
+          neighbors2 = topojson.neighbors(topoob2.objects[layer].geometries);
+          getsections2 = topojson.feature(topoob2, topoob2.objects[layer])
+          getsections2.features = getsections2.features.map(function(fm,i){
+            var ret = fm;
+            ret.indie = i;
+            return ret
+          });
+          content = L.geoJson(getsections2, {style: style, onEachFeature: onEachF, pane: pane});
+          return content;
+        }
+        
+        function handler(){
+          if(req.readyState === XMLHttpRequest.DONE && req2.readyState === XMLHttpRequest.DONE){
+
+            function hideShowLayers (visibleLayers) {
+              var layers = ['sectii_rez', 'sectii_rez1', 'uat_rez', 'uat_rez1', 'judete_rez', 'judete_rez1', 'pop_rez', 'pop_rez1', 'fiecare_procent_sectie', 'fiecare_procent_sectie1', 'fiecare_procent_uat', 'fiecare_procent_uat1', 'fiecare_procent_judete', 'fiecare_procent_judete1', 'fiecare_procent_judete', 'fiecare_procent_judete1'];
+              var layersLength = layers.length;
+              for (var i = 0; i < layersLength; i++) {
+                if (visibleLayers.indexOf(layers[i]) !== -1){
+                  map.addLayer(eval(layers[i]));
+                }
+                else{
+                  map.removeLayer(eval(layers[i]));
+                }
+              }
+            }
+
+            var layer = 'terrain';
+            var map = new L.Map('mapcon',
+            {
+              center: new L.LatLng(46, 26),
+              zoom: 7
+            });
+            map.createPane('sectii_rez');
+            map.createPane('uat_rez');
+            map.createPane('judete_rez');
+            map.createPane('pop_rez');
+            map.createPane('sectii_contur');
+            map.createPane('uat_contur');
+            map.createPane('judete_contur');
+            map.createPane('sectii_punct');
+            map.createPane('fiecare_procent_sectie');
+            map.createPane('fiecare_procent_uat');
+            map.createPane('fiecare_procent_judete');
+
+            var lightOSM = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+              maxZoom: 18,
+              zIndex: 1,
+              attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            });
+
+            var normalOSM = L.tileLayer( 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+              subdomains: ['a','b','c']
+            });
+
+            var blankBasemap = L.tileLayer('');
+
+            map.addLayer(lightOSM, normalOSM, blankBasemap);
+
+            //Încărcare straturi din TopoJSON
+            sectii_rez = parseTopoJSON('sectii_voronoi_pv_tur2', styleSectii,  onEachFeature, 'sectii_rez');
+            sectii_rez1 = parseTopoJSON2('sectii_voronoi_pv_tur1', styleSectii2, onEachFeature, 'swipePane');
+            uat_rez = parseTopoJSON('uat_pv_cumulat_tur2', styleSectii, onEachFeature, 'uat_rez');
+            uat_rez1 = parseTopoJSON2('uat_pv_cumulat_tur1', styleSectii2, onEachFeature, 'swipePane');
+            judete_rez = parseTopoJSON('judete_pv_cumulat_tur2', styleSectii, onEachFeature, 'judete_rez');
+            judete_rez1 = parseTopoJSON2('judete_pv_cumulat_tur1', styleSectii2, onEachFeature, 'swipePane');
+            pop_rez = parseTopoJSON('sectii_voronoi_pv_tur2_clip_pop', styleSectii, '', 'pop_rez');
+            pop_rez1 = parseTopoJSON2('sectii_voronoi_pv_tur1_clip_pop', styleSectii2, '', 'swipePane');
+            sectii_contur = parseTopoJSON('sectii_voronoi_pv_tur2', styleContur, '', 'sectii_contur');
+            uat_contur = parseTopoJSON('uat_pv_cumulat_tur2', styleContur, '', 'uat_contur');
+            judete_contur = parseTopoJSON('judete_pv_cumulat_tur2', styleContur, '', 'judete_contur');
+
+            //Încărcare secții punct
+            topoob = JSON.parse(req.responseText)
+            neighbors = topojson.neighbors(topoob.objects.sectii_punct_tur2.geometries);
+            getsections = topojson.feature(topoob, topoob.objects.sectii_punct_tur2)
+            getsections.features = getsections.features.map(function(fm,i){
+              var ret = fm;
+              ret.indie = i;
+              return ret
+            });
+            sectii_punct = L.geoJson(getsections, {pointToLayer: function (feature, latlng) {return L.circleMarker(latlng, optiuniSectiiPunct)}});
+
+            fiecare_procent_sectie = L.vectorGrid.protobuf('http://localhost:8082/geoserver/gwc/service/tms/1.0.0/alegeri:fiecare_procent_sectie_tur2@EPSG%3A3857@pbf/{z}/{x}/{-y}.pbf', {
+              rendererFactory: L.svg.tile,
+              maxNativeZoom: 16,
+              minZoom: 11,
+              pane: 'fiecare_procent_sectie',
+              getFeatureId: function(f) {
+                return f.properties.id;
+              },
+              vectorTileLayerStyles: {
+                fiecare_procent_sectie_tur2: properties => {
+                  return styleFiecareProcent(properties.castigator, false)
+                }
+              }
+            });
+
+            fiecare_procent_sectie1 = L.vectorGrid.protobuf('http://localhost:8082/geoserver/gwc/service/tms/1.0.0/alegeri:fiecare_procent_sectie_tur1@EPSG%3A3857@pbf/{z}/{x}/{-y}.pbf', {
+              rendererFactory: L.svg.tile,
+              maxNativeZoom: 16,
+              minZoom: 11,
+              pane: 'swipePane',
+              getFeatureId: function(f) {
+                return f.properties.id;
+              },
+              vectorTileLayerStyles: {
+                fiecare_procent_sectie_tur1: properties => {
+                  return styleFiecareProcentTur1(properties.castigator, false)
+                }
+              }
+            });
+
+            fiecare_procent_uat = L.vectorGrid.protobuf('http://localhost:8082/geoserver/gwc/service/tms/1.0.0/alegeri:fiecare_procent_uat_tur2@EPSG%3A3857@pbf/{z}/{x}/{-y}.pbf', {
+              rendererFactory: L.svg.tile,
+              maxNativeZoom: 16,
+              minZoom: 10,
+              pane: 'fiecare_procent_uat',
+              getFeatureId: function(f) {
+                return f.properties.id;
+              },
+              vectorTileLayerStyles: {
+                fiecare_procent_uat_tur2: properties => {
+                  return styleFiecareProcent(properties.castigator, false)
+                }
+              }
+            });
+
+            fiecare_procent_uat1 = L.vectorGrid.protobuf('http://localhost:8082/geoserver/gwc/service/tms/1.0.0/alegeri:fiecare_procent_uat_tur1@EPSG%3A3857@pbf/{z}/{x}/{-y}.pbf', {
+              rendererFactory: L.svg.tile,
+              maxNativeZoom: 16,
+              minZoom: 10,
+              pane: 'swipePane',
+              getFeatureId: function(f) {
+                return f.properties.id;
+              },
+              vectorTileLayerStyles: {
+                fiecare_procent_uat_tur1: properties => {
+                  return styleFiecareProcentTur1(properties.castigator, false)
+                }
+              }
+            });
+
+            fiecare_procent_judete = L.vectorGrid.protobuf('http://localhost:8082/geoserver/gwc/service/tms/1.0.0/alegeri:fiecare_procent_judete_tur2@EPSG%3A3857@pbf/{z}/{x}/{-y}.pbf', {
+              rendererFactory: L.svg.tile,
+              pane: 'fiecare_procent_judete',
+              getFeatureId: function(f) {
+                return f.properties.id;
+              },
+              vectorTileLayerStyles: {
+                fiecare_procent_judete_tur2: properties => {
+                  return styleFiecareProcent(properties.castigator, false)
+                }
+              }
+            });
+
+            fiecare_procent_judete1 = L.vectorGrid.protobuf('http://localhost:8082/geoserver/gwc/service/tms/1.0.0/alegeri:fiecare_procent_judete_tur1@EPSG%3A3857@pbf/{z}/{x}/{-y}.pbf', {
+              rendererFactory: L.svg.tile,
+              pane: 'swipePane',
+              getFeatureId: function(f) {
+                return f.properties.id;
+              },
+              vectorTileLayerStyles: {
+                fiecare_procent_judete_tur1: properties => {
+                  return styleFiecareProcentTur1(properties.castigator, false)
+                }
+              }
+            });
+
+            map.getPane('sectii_rez').style.zIndex = 1200;
+            map.getPane('uat_rez').style.zIndex = 1199;
+            map.getPane('judete_rez').style.zIndex = 1198;
+            map.getPane('pop_rez').style.zIndex = 1197;
+            map.getPane('fiecare_procent_sectie').style.zIndex = 1198;
+            map.getPane('fiecare_procent_uat').style.zIndex = 1199;
+            map.getPane('fiecare_procent_judete').style.zIndex = 1200;
+            map.getPane('sectii_contur').style.zIndex = 1523;
+            map.getPane('uat_contur').style.zIndex = 1524;
+            map.getPane('judete_contur').style.zIndex = 1525;
+            map.getPane('sectii_punct').style.zIndex = 1526;
+            map.getPane('swipePane').style.zIndex = 1500;
+            
+            map.addLayer(sectii_rez);
+            map.addLayer(sectii_rez1);
+
+            var swipe = L.control.swipe();
+            swipe.addTo(map);
+
+            var legend = L.control({position: 'bottomleft'});
+            legend.onAdd = function (map) {
+              var div = L.DomUtil.create('div', 'info legend'),
+              grades = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 0],
+              labels = ['Klaus-Werner Iohannis', 'Theodor Paleologu', 'Ilie-Dan Barna', 'Hunor Kelemen', 'Vasilica-Viorica Dăncilă', 'Cătălin-Sorin Ivan', 'Ninel Peia', 'Sebastian-Constantin Popescu', 'John-Ion Banu', 'Mircea Diaconu', 'Bogdan-Dragos-Aureliu Marian Stanoevici', 'Ramona-Ioana Bruynseels', 'Viorel Cataramă', 'Alexandru Cumpănașu', 'Egalitate (turul 2)'];
+              for (var i = 0; i < grades.length; i++) {
+                div.innerHTML +=
+                '<i style="background:' + getColor2(grades[i]) + '"></i> ' +
+                labels[i] + '<br>';
+              }
+              return div;
+            };
+            legend.addTo(map);
+
+            function highlightFeature(e){
+              var layer = e.target;
+              if (e.target.options.pane == 'pop_rez')
+              layer.setStyle({
+                  fillOpacity: .7
+                })
+              else{
+                layer.setStyle({
+                  weight: 2,
+                  color: '#ffffff',
+                  dashArray: '',
+                  fillOpacity: .7
+                })
+              }
+              if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                layer.bringToFront();
+              }
+              info.update(layer.feature.properties, e.target.options.pane);
+            }
+
+            function resetHighlight(e){
+              if (e.target.options.pane == 'sectii_rez')
+                sectii_rez.resetStyle(e.target);
+              if (e.target.options.pane == 'swipePane')
+                sectii_rez1.resetStyle(e.target);
+              if (e.target.options.pane == 'uat_rez')
+                uat_rez.resetStyle(e.target);
+              if (e.target.options.pane == 'judete_rez')
+                judete_rez.resetStyle(e.target);
+              if (e.target.options.pane == 'pop_rez')
+                pop_rez.resetStyle(e.target);
+              if (e.target.options.pane == 'fiecare_vot')
+                fiecare_vot.resetStyle(e.target);
+              if (e.target.options.pane == 'fiecare_procent_sectie')
+                fiecare_procent_sectie.resetStyle(e.target);
+              if (e.target.options.pane == 'fiecare_procent_uat')
+                fiecare_procent_uat.resetStyle(e.target);
+              if (e.target.options.pane == 'fiecare_procent_judete')
+                fiecare_procent_judete.resetStyle(e.target);
+              info.update(e.target.properties, e.target.options.pane);
+              $('#myChart').css('display', 'none');
+              $('#rezultate_info').css('display', 'none');
+            }
+
+            function zoomToFeature(e) {
+                map.fitBounds(e.target.getBounds());
+            }
+
+            function onEachFeature(feature, layer){
+              layer.on({
+                mouseover: highlightFeature,
+                mouseout: resetHighlight, click: zoomToFeature})
+            }
+
+            var info = L.control();
+            info.onAdd = function(map) {
+              this._div = L.DomUtil.create('div', 'info');
+              this.update();
+              return this._div;
+            }
+
+            info.update = function(props, strat){
+              if (props && props.g3){
+                var labels = ['Klaus-Werner Iohannis', 'Theodor Paleologu', 'Ilie-Dan Barna', 'Hunor Kelemen', 'Vasilica-Viorica Dăncilă', 'Cătălin-Sorin Ivan', 'Ninel Peia', 'Sebastian-Constantin Popescu', 'John-Ion Banu', 'Mircea Diaconu', 'Bogdan-Dragos-Aureliu Marian Stanoevici', 'Ramona-Ioana Bruynseels', 'Viorel Cataramă', 'Alexandru Cumpănașu'];
+                var data = [props.g1, props.g2, props.g3, props.g4, props.g5, props.g6, props.g7, props.g8, props.g9, props.g10, props.g11, props.g12, props.g13, props.g14];
+              }
+              if (props && !props.g3){
+                var labels = ['Klaus-Werner Iohannis', 'Vasilica-Viorica Dăncilă'];
+                var data = [props.g1, props.g2];
+              }
+
+              if (strat == 'sectii_rez'){
+                this._div.innerHTML = "<div id='rezultate_info' style='width: 350px'>" +
+                "<h4>Secții de votare</h4>" +
+                (props ? 'Localitate: ' + titleCase(props.localitate) + '</br>' : "") +
+                (props ? 'Județul: ' + titleCase(props.judet) + '</br>' : "") +
+                (props ? 'Număr secție (secții): ' + props.id_sectii + '</br>' : "") +
+                (props ? 'Klaus-Werner Iohannis: ' + props.g1 + ' (' + props.g1p +' %)</br>' : "") +
+                (props ? 'Vasilica-Viorica Dăncilă: ' + props.g2 + ' (' + props.g2p +' %)</br>' : "") +
+                "<canvas id='myChart' width='10' height='10'></canvas>" +
+                "</div>";
+                graficRezultateTur2(labels, data);
+              }
+              if (strat == 'swipePane' && map.hasLayer(sectii_rez1)){
+                this._div.innerHTML = "<div id='rezultate_info' style='width: 350px;'>" +
+                "<h4>Secții de votare</h4>" +
+                (props ? 'Localitate: ' + titleCase(props.localitate) + '</br>' : "") +
+                (props ? 'Județul: ' + titleCase(props.judet) + '</br>' : "") +
+                (props ? 'Număr secție (secții): ' + props.id_sectii + '</br>' : "") +
+                (props ? 'Klaus-Werner Iohannis: ' + props.g1 + ' (' + props.g1p +' %)</br>' : "") +
+                (props ? 'Theodor Paleologu: ' + props.g2 + ' (' + props.g2p +' %)</br>' : "") +
+                (props ? 'Ilie-Dan Barna: ' + props.g3 + ' (' + props.g3p +' %)</br>' : "") +
+                (props ? 'Hunor Kelemen: ' + props.g4 + ' (' + props.g4p +' %)</br>' : "") +
+                (props ? 'Vasilica-Viorica Dăncilă: ' + props.g5 + ' (' + props.g5p +' %)</br>' : "") +
+                (props ? 'Cătălin-Sorin Ivan: ' + props.g6 + ' (' + props.g6p +' %)</br>' : "") +
+                (props ? 'Ninel Peia: ' + props.g7 + ' (' + props.g7p +' %)</br>' : "") +
+                (props ? 'Sebastian-Constantin Popescu: ' + props.g8 + ' (' + props.g8p +' %)</br>' : "") +
+                (props ? 'John-Ion Banu: ' + props.g9 + ' (' + props.g9p +' %)</br>' : "") +
+                (props ? 'Mircea Diaconu: ' + props.g10 + ' (' + props.g10p +' %)</br>' : "") +
+                (props ? 'Bogdan-Dragos-Aureliu Marian Stanoevici: ' + props.g11 + ' (' + props.g11p +' %)</br>' : "") +
+                (props ? 'Ramona-Ioana Bruynseels: ' + props.g12 + ' (' + props.g12p +' %)</br>' : "") +
+                (props ? 'Viorel Cataramă: ' + props.g13 + ' (' + props.g13p +' %)</br>' : "") +
+                (props ? 'Alexandru Cumpănașu: ' + props.g14 + ' (' + props.g14p +' %)</br>' : "") +
+                "<canvas id='myChart' width='10' height='10'></canvas>" +
+                "</div>";
+                graficRezultateTur1(labels, data);
+              }
+              if (strat == 'uat_rez'){
+              this._div.innerHTML = "<div id='rezultate_info' style='width: 350px;'>>" +
+                "<h4>UAT-uri</h4>" +
+                (props ? 'Localitate: ' + titleCase(props.name) + '</br>' : "") +
+                (props ? 'Județul: ' + titleCase(props.county) + '</br>' : "") +
+                (props ? 'Voturi Klaus Iohannis: ' + props.g1 + ' (' + props.g1p +' %)</br>' : "") +
+                (props ? 'Voturi Viorica Dăncilă: ' + props.g2 + ' (' + props.g2p +' %)</br>' : "") +
+                "<canvas id='myChart' width='10' height='10'></canvas>" +
+                "</div>";
+                graficRezultateTur2(labels, data);
+              }
+              if (strat == 'swipePane' && map.hasLayer(uat_rez1)){
+                this._div.innerHTML = "<div id='rezultate_info' style='width: 350px;'>" +
+                "<h4>Secții de votare</h4>" +
+                (props ? 'Localitate: ' + titleCase(props.name) + '</br>' : "") +
+                (props ? 'Județul: ' + titleCase(props.county) + '</br>' : "") +
+                (props ? 'Klaus-Werner Iohannis: ' + props.g1 + ' (' + props.g1p +' %)</br>' : "") +
+                (props ? 'Theodor Paleologu: ' + props.g2 + ' (' + props.g2p +' %)</br>' : "") +
+                (props ? 'Ilie-Dan Barna: ' + props.g3 + ' (' + props.g3p +' %)</br>' : "") +
+                (props ? 'Hunor Kelemen: ' + props.g4 + ' (' + props.g4p +' %)</br>' : "") +
+                (props ? 'Vasilica-Viorica Dăncilă: ' + props.g5 + ' (' + props.g5p +' %)</br>' : "") +
+                (props ? 'Cătălin-Sorin Ivan: ' + props.g6 + ' (' + props.g6p +' %)</br>' : "") +
+                (props ? 'Ninel Peia: ' + props.g7 + ' (' + props.g7p +' %)</br>' : "") +
+                (props ? 'Sebastian-Constantin Popescu: ' + props.g8 + ' (' + props.g8p +' %)</br>' : "") +
+                (props ? 'John-Ion Banu: ' + props.g9 + ' (' + props.g9p +' %)</br>' : "") +
+                (props ? 'Mircea Diaconu: ' + props.g10 + ' (' + props.g10p +' %)</br>' : "") +
+                (props ? 'Bogdan-Dragos-Aureliu Marian Stanoevici: ' + props.g11 + ' (' + props.g11p +' %)</br>' : "") +
+                (props ? 'Ramona-Ioana Bruynseels: ' + props.g12 + ' (' + props.g12p +' %)</br>' : "") +
+                (props ? 'Viorel Cataramă: ' + props.g13 + ' (' + props.g13p +' %)</br>' : "") +
+                (props ? 'Alexandru Cumpănașu: ' + props.g14 + ' (' + props.g14p +' %)</br>' : "") +
+                "<canvas id='myChart' width='10' height='10'></canvas>" +
+                "</div>";
+                graficRezultateTur1(labels, data);
+              }
+              if (strat == 'judete_rez'){
+                this._div.innerHTML = "<div id='rezultate_info' style='width: 350px;'>>" +
+                "<h4>Județe</h4>" +
+                (props ? 'Județul: ' + titleCase(props.county) + '</br>' : "") +
+                (props ? 'Voturi Klaus Iohannis: ' + props.g1 + ' (' + props.g1p +' %)</br>' : "") +
+                (props ? 'Voturi Viorica Dăncilă: ' + props.g2 + ' (' + props.g2p +' %)</br>' : "") +
+                "<canvas id='myChart' width='10' height='10'></canvas>" +
+                "</div>";
+                graficRezultateTur2(labels, data); 
+              }
+             if (strat == 'swipePane' && map.hasLayer(judete_rez1)){
+                this._div.innerHTML = "<div id='rezultate_info' style='width: 350px;'>" +
+                "<h4>Secții de votare</h4>" +
+                (props ? 'Județul: ' + titleCase(props.county) + '</br>' : "") +
+                (props ? 'Klaus-Werner Iohannis: ' + props.g1 + ' (' + props.g1p +' %)</br>' : "") +
+                (props ? 'Theodor Paleologu: ' + props.g2 + ' (' + props.g2p +' %)</br>' : "") +
+                (props ? 'Ilie-Dan Barna: ' + props.g3 + ' (' + props.g3p +' %)</br>' : "") +
+                (props ? 'Hunor Kelemen: ' + props.g4 + ' (' + props.g4p +' %)</br>' : "") +
+                (props ? 'Vasilica-Viorica Dăncilă: ' + props.g5 + ' (' + props.g5p +' %)</br>' : "") +
+                (props ? 'Cătălin-Sorin Ivan: ' + props.g6 + ' (' + props.g6p +' %)</br>' : "") +
+                (props ? 'Ninel Peia: ' + props.g7 + ' (' + props.g7p +' %)</br>' : "") +
+                (props ? 'Sebastian-Constantin Popescu: ' + props.g8 + ' (' + props.g8p +' %)</br>' : "") +
+                (props ? 'John-Ion Banu: ' + props.g9 + ' (' + props.g9p +' %)</br>' : "") +
+                (props ? 'Mircea Diaconu: ' + props.g10 + ' (' + props.g10p +' %)</br>' : "") +
+                (props ? 'Bogdan-Dragos-Aureliu Marian Stanoevici: ' + props.g11 + ' (' + props.g11p +' %)</br>' : "") +
+                (props ? 'Ramona-Ioana Bruynseels: ' + props.g12 + ' (' + props.g12p +' %)</br>' : "") +
+                (props ? 'Viorel Cataramă: ' + props.g13 + ' (' + props.g13p +' %)</br>' : "") +
+                (props ? 'Alexandru Cumpănașu: ' + props.g14 + ' (' + props.g14p +' %)</br>' : "") +
+                "<canvas id='myChart' width='10' height='10'></canvas>" +
+                "</div>";
+                graficRezultateTur1(labels, data);
+              }
+              if (strat == 'fiecare_vot' || strat == 'fiecare_procent_sectie' || strat == 'fiecare_procent_uat' || strat == 'fiecare_procent_judete' || strat == 'pop_rez'){
+                if (props && props.castigator == 1)
+                  castigatorVot = 'Klaus Iohannis';
+                if (props && props.castigator == 2)
+                  castigatorVot = 'Viorica Dăncilă';
+                if (props && props.castigator == 0)
+                  castigatorVot = 'Egalitate';
+                this._div.innerHTML = "<div id='rezultate_info'>" +
+                "<h4>Vot individual</h4>" +
+                (props ? castigatorVot + '</br>' : "")
+              }
+            }
+            info.addTo(map);
+
+
+
+            $('#rezultat').change(function () {
+              if ($('#rezultat').val() == '1'){  
+                hideShowLayers(['sectii_rez', 'sectii_rez1']);
+              }
+              if ($('#rezultat').val() == '2'){  
+                hideShowLayers(['uat_rez', 'uat_rez1']);
+              }
+              if ($('#rezultat').val() == '3'){  
+                hideShowLayers(['judete_rez', 'judete_rez1']);
+              }
+              if ($('#rezultat').val() == '4'){  
+                hideShowLayers(['pop_rez', 'pop_rez1']);
+              }
+              if ($('#rezultat').val() == '5'){  
+                map.flyTo([46, 26], 13)
+                hideShowLayers(['fiecare_procent_sectie', 'fiecare_procent_sectie1']);
+              }
+              if ($('#rezultat').val() == '6'){  
+                map.flyTo([46, 26], 12)
+                hideShowLayers(['fiecare_procent_uat', 'fiecare_procent_uat1']);
+              }
+              if ($('#rezultat').val() == '7'){  
+                hideShowLayers(['fiecare_procent_judete', 'fiecare_procent_judete1']);
+              }
+            });
+
+            $('select').on('changed.bs.select', 
+              function(e, clickedIndex, newValue, oldValue) {
+                if (clickedIndex == '0' && newValue == true)
+                  map.addLayer(sectii_contur);
+                if (clickedIndex == '0' && newValue == false)
+                  map.removeLayer(sectii_contur);
+                if (clickedIndex == '1' && newValue == true)
+                  map.addLayer(uat_contur);
+                if (clickedIndex == '1' && newValue == false)
+                  map.removeLayer(uat_contur);
+                if (clickedIndex == '2' && newValue == true)
+                  map.addLayer(judete_contur);
+                if (clickedIndex == '2' && newValue == false)
+                  map.removeLayer(judete_contur);
+                if (clickedIndex == '3' && newValue == true)
+                  map.addLayer(sectii_punct);
+                if (clickedIndex == '3' && newValue == false)
+                  map.removeLayer(sectii_punct);
+            });
+
+            $('#slider').on('slidechange', function( event, ui ) {
+              sectii_rez.setStyle({fillOpacity: $('#slider').slider('value')});
+              uat_rez.setStyle({fillOpacity: $('#slider').slider('value')});
+              judete_rez.setStyle({fillOpacity: $('#slider').slider('value')});
+              pop_rez.setStyle({fillOpacity: $('#slider').slider('value')});
+              if ($('#rezultat').val() == '5'){
+                map.removeLayer(fiecare_procent_sectie);
+                map.addLayer(fiecare_procent_sectie);
+              }
+              if ($('#rezultat').val() == '6'){
+                map.removeLayer(fiecare_procent_uat);
+                map.addLayer(fiecare_procent_uat);
+              }
+              if ($('#rezultat').val() == '7'){
+                map.removeLayer(fiecare_procent_judete);
+                map.addLayer(fiecare_procent_judete);
+              }
+            });
+
+           $('#fundal').change(function () {
+              if ($('#fundal').val() == '1'){  
+                map.addLayer(lightOSM);
+                map.removeLayer(normalOSM);
+                map.removeLayer(blankBasemap);
+              }
+              if ($('#fundal').val() == '2'){  
+                map.addLayer(normalOSM);
+                map.removeLayer(lightOSM);
+                map.removeLayer(blankBasemap);
+              }
+              if ($('#fundal').val() == '3'){  
+                map.addLayer(blankBasemap);
+                map.removeLayer(lightOSM);
+                map.removeLayer(normalOSM);
+              }
+            });
+            $('#rezultate_uat_info').css('display', 'none');
+          }
+        }
+      }
+    </script>
+  </body>
+</html>

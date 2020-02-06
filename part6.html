@@ -1,0 +1,1023 @@
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="assets/bootstrap-4.4.1-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/bootstrap-select-1.13.9/dist/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="assets/fontawesome-free-5.12.0-web/css/all.css">
+    <link rel="stylesheet" href="assets/prism/prism.css">
+    <link rel="stylesheet" href="assets/leaflet/leaflet.css" />
+
+    <script src="assets/jquery-3.4.1.min.js"></script>
+    <script src="assets/popper.min.js"></script>
+    <script src="assets/bootstrap-4.4.1-dist/js/bootstrap.min.js"></script>
+    <script src="assets/bootstrap-select-1.13.9/dist/js/bootstrap-select.min.js"></script>
+    <script src="assets/clipboard.js-master/dist/clipboard.min.js"></script>
+
+    <style>
+      .map {
+        width:100%;
+        height: 600px;
+        }
+      .info {
+          padding: 6px 8px;
+          font: 14px/16px Arial, Helvetica, sans-serif;
+          background: white;
+          background: rgba(255,255,255,0.8);
+          box-shadow: 0 0 15px rgba(0,0,0,0.2);
+          border-radius: 5px;
+      }
+      .info h4 {
+          margin: 0 0 5px;
+          color: #777;
+      }
+      .container {
+        padding-top: 20px;
+      }
+      .tutorialTitle {
+        border-bottom-style: solid;
+        border-bottom-width: 1px;
+        border-bottom-color: rgb(234, 236, 239);
+        margin-bottom: 16px;
+        padding-bottom: 9.6px;
+      }
+      code[class*="language-"],
+      pre[class*="language-"] {
+        word-wrap: normal;
+      }
+    </style>
+  
+  </head>
+  <body>
+    
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <strong><i class="fas fa-person-booth"></i>&nbsp;&nbsp;<a class="navbar-brand" href="#">Alegeri 2019 - Poveste</a></strong>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item dropdown active">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-laptop-code"></i>&nbsp;&nbsp;Povestea hărții
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="part0.html">0 - Introducere</a>
+              <a class="dropdown-item" href="part1.html">1 - Mașina virtuală OSGeoLive</a>
+              <a class="dropdown-item" href="part2.html">2 - Datele de intrare</a>
+              <a class="dropdown-item" href="part3.html">3 - Realizarea hărții la nivel de secție de votare (poligon)</a>
+              <a class="dropdown-item" href="part4.html">4 - Se poate oare coborî mai jos de secție cu reprezentarea?</a>
+              <a class="dropdown-item" href="part5.html">5 - Hărțile clasice, la nivel de UAT și județ</a>
+              <a class="dropdown-item active" href="part6.html">6 - Crearea hărții interactive</a>
+              <a class="dropdown-item" href="part7.html">7 - Utilizarea rezultatelor în OSGeoLive</a>
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-toggle-on"></i>&nbsp;&nbsp;Hartă
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="turul1.html">Turul 1</a>
+              <a class="dropdown-item" href="index.html">Turul 2</a>
+              <a class="dropdown-item" href="tur1_vs_tur2.html">Turul 1 vs Turul 2</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <main role="main" class="container">
+      <h4 class="tutorialTitle">Cartografie electorală în linie de comandă - Partea 6: Crearea hărții interactive</h4>
+      
+      <h5 class="tutorialTitle">6.1. Găsirea unui format eficient pentru publicarea datelor</h5>
+      <p>Există mai multe modalități a publica datele noastre prin intermediul unei aplicații cartografice web. Una foarte la îndemînă este să le publicăm prin intermediul unui serviciu WMS pe care să-l accesăm apoi prin intermediul unui client web, ajutați de o bibliotecă JavaScript precum <a href="https://openlayers.org/">OpenLayers</a> sau <a href="https://leafletjs.com/">Leaflet</a>. Necazul cu WMS este că stă prost la interactivitate în mediul web. E drept, are o metodă, intitulată <code class="highlighter-rouge">getFeatureInfo</code>, cu ajutorul căreia putem interoga tabela de atribute asociată geometriilor. Acesta este un mecanism prea lent pentru genul nostru de hartă, unde ne dorim o interactivitate foarte mare (rezultatele să fie afișate și actualizate instantaneu pe măsură ce mouse-ul se plimbă peste suprafața hărții). Un format foarte popular, ce permite încărcarea directă a datelor în aplicațiile web, este <a href="https://geojson.org/">GeoJSON</a>. Conversia în format GeoJSON o putem face cu comanda <code class="highlighter-rouge">ogr2ogr</code> din a href="https://gdal.org">GDAL/OGR</a>. Vom face un test folosind datele la nivel de secție pentru turul 2:</p>
+      <pre>
+        <code class="language-bash">
+ogr2ogr -f "GeoJSON" -lco resize=yes -lco ENCODING=UTF-8 -s_srs EPSG:3857 -t_srs EPSG:4326 \
+test.geojson "PG:host=localhost dbname=alegeri user=user password=user port=5432" \
+-sql "select geom, localitate, uat, judet, g1, g2, cast(g1p as numeric(6,2)), 
+cast(g2p as numeric(6,2)), castigator from tur2.sectii_voronoi_pv_tur2"
+        </code>
+      </pre>
+      <p>Avem însă o problemă cu dimensiunea. Fișierul rezultat are 13 MB, cam mult pentru a putea fi transferat eficient către utilizator și din perspectiva faptului că avem de integrat și alte date, mai complexe. Înainte însă de a abandona complet acest format, mai facem o încercare cu <a href="https://github.com/topojson/topojson">TopoJSON</a>. Acesta este o extensie a GeoJSON care beneficiază de suport pentru topologie și stochează o singură dată muchiile comune (arce). Din păcate, GDAL/OGR nu are suport pentru scrierea de date în format TopoJSON (le poate doar citi). De aceea vom face acest lucru în doi pași:</p>
+      <ul>
+        <li>Vom exporta din PostGIS, cu GDAL/OGR, datele în format Shapefile;</li>
+        <li>Cu ajutorul Mapshaper convertim fișierele Shapefile în format TopoJSON.</li>
+      </ul>
+      Comenzile de test arată așa:
+      <pre>
+        <code class="language-bash">
+ogr2ogr -f "ESRI Shapefile" -lco resize=yes -lco ENCODING=UTF-8 -s_srs EPSG:3857 -t_srs EPSG:4326 \
+test.shp "PG:host=localhost dbname=alegeri user=user password=user port=5432" \
+-sql "select geom, localitate, uat, judet, id_sectii, g1, g2, cast(g1p as numeric(6,2)), 
+cast(g2p as numeric(6,2)), castigator from tur2.sectii_voronoi_pv_tur2"
+
+mapshaper -i test.shp -o format=topojson test.topojson
+        </code>
+      </pre>
+      <p>Aceleași date, în format TopoJSON, au ajuns la 5.5 MB. Suficient cît să se încarce într-un timp rezonabil în aplicația client.</p>
+
+      <h5 class="tutorialTitle">6.2. Aducerea datelor în harta web</h5>
+      <p>Am ales să utilizăm biblioteca <a href="https://leafletjs.com/">Leaflet</a> pentru a reprezenta interactiv datele noastre într-o aplicație cartografică interactivă web. Aceasta poate manipula date TopoJSON dacă este utilizată împreună cu biblioteca <a href="topojson-client">topojson-client</a>. După cum ziceam, nu vom intra în detaliile realizării propriu-zise a hărții (programare JavaScript). Vom prezenta însă pașii importanți.</p> 
+
+      <h6 class="tutorialTitle">6.2.1. Crearea hărții de bază</h6>
+      <p>Pentru început vom crea o hartă și vom aduce acolo un strat de bază:</p>
+      <pre>
+        <code class="language-javascript">
+var map = new L.Map('harta',
+{
+  center: new L.LatLng(46, 25),
+  zoom: 7
+});
+
+var lightOSM = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+  maxZoom: 18,
+  zIndex: 1,
+  attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+});
+
+map.addLayer(lightOSM);
+        </code>
+      </pre>
+
+      <h6 class="tutorialTitle">6.2.2. Încărcarea datelor</h6>
+      <p>Apoi, vom încărca fișierul TopoJSON în hartă:</p>
+      <pre>
+        <code class="language-javascript">
+var req = new XMLHttpRequest();
+var url = 'data/test.topojson'
+
+req.open('GET', url, true);
+req.onreadystatechange = handler;
+req.send();
+var topoob = {};
+getsections = {};
+
+function handler(){
+  if(req.readyState === XMLHttpRequest.DONE){
+    topoob = JSON.parse(req.responseText)
+    neighbors = topojson.neighbors(topoob.objects.test.geometries);
+    getsections = topojson.feature(topoob, topoob.objects.test)
+    getsections.features = getsections.features.map(function(fm,i){
+      var ret = fm;
+        ret.indie = i;
+        return ret
+      });
+    sectii1 = L.geoJson(getsections, {});
+  }
+
+  map.addLayer(sectii);
+}
+        </code>
+      </pre>
+      <div class="map" id="harta_01"></div>
+      <h6 class="tutorialTitle">6.2.3. Simbolizarea datelor</h6>
+      <p>Harta vă permite să faceți zoom și pan dar nu prezintă alte funcționalități. Putem observa însă că Leaflet se mișcă destul de repede în randarea on-the-fly a unor geometrii relativ complexe. Ca să înțelegem ce este cu aceste geometrii, haideți să le simbolizăm în funcție de candidatul ce a cîștigat în fiecare secție. Pentru aceasta construim o funcție care returnează culoarea roșie (<code class="highlighter-rouge" style="background-color: #e31a1c; color: #ffffff">#e31a1c</code>) sau albastră (<code class="highlighter-rouge" style="background-color: #1f78b4; color: #ffffff">#1f78b4</code>), în funcție de atributul <code class="highlighter-rouge">castigator</code>. Secțiile unde s-a înregistrat egalitate le vom reprezenta cu verde (<code class="highlighter-rouge" style="background-color: #33a02c; color: #ffffff">#33a02c</code>). Toate poligoanele vor avea opeacitatea culorii de umplere setată la 50%. Astfel, se pot observa detaliile din harta de bază.</p>
+      <pre>
+        <code class="language-javascript">
+function styleSectii(feature) {
+  return {
+    fillColor: getColor(feature.properties.castigator),
+    weight: 0.9,
+    opacity: 1,
+    color: getColor(feature.properties.castigator),
+    dashArray: '0.5',
+    fillOpacity: 0.5
+  };
+}
+
+function getColor(d) {
+  return d == 1 ? '#1f78b4' :
+  d == 2  ? '#e31a1c':
+  '#33a02c';
+}
+        </code>
+      </pre>
+      <div class="map" id="harta_02"></div>
+      <h6 class="tutorialTitle">6.2.4. Interacțiunea cu datele</h6>
+      <p>Lucrurile încep să arate din ce în ce mai bine. Mai rămîne să adăugăm interactivitate și să afișăm atributele asociate cu aceste geometrii. Prin interactivitate înțelegem "răspuns" în hartă la următoarele evenimente la nivel de secție:</p>
+      <ul>
+        <li><code class="highlighter-rouge">mouseover</code>: evidențiem (prin modul de simbolizare) secția atunci cînd cursorul mouse-ului se găsește în interiorul acesteia;</li>
+        <li><code class="highlighter-rouge">mouseout</code>: readucem secția la modul implicit de simbolizare atunci cînd cursorul mouse-ului părăsește suprafața acesteia;</li>
+        <li><code class="highlighter-rouge">click</code>: facem zoom la nivel de secție cînd se execută click în interiorul acesteia.</li>
+      </ul>
+      <p>La crearea unui strat, Leaflet are o opțiune, numită <code class="highlighter-rouge">onEachFeature</code>, ce permite atașarea unei funcții (am numit-o tot <code class="highlighter-rouge">onEachFeature</code>) ce poate fi apelată atunci cînd interacționăm cu fiecare din geometriile încărcate. Aceasta este perfectă pentru a apela alte funcții, în funcție de tipurile de interacțiune descrise mai sus:</p>
+      <pre>
+        <code class="language-javascript">
+function onEachFeature(feature, layer){
+  layer.on({
+    mouseover: highlightFeature,
+    mouseout: resetHighlight, click: zoomToFeature})
+}
+        </code>
+      </pre>
+      <p>De aici, apelăm funcția <code class="highlighter-rouge">highlightFeature</code> atunci cînd cursorul se găsește pe suprafața secției:</p>
+      <pre>
+        <code class="language-javascript">
+function highlightFeature(e){
+  var layer = e.target;
+  layer.setStyle({
+    weight: 2,
+    color: '#ffffff',
+    dashArray: '',
+    fillOpacity: .7
+  })
+  if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+    layer.bringToFront();
+  }
+  info.update(layer.feature.properties);
+}
+        </code>
+      </pre>
+      <p>Secția unde se înregistrează evenimentul <code class="highlighter-rouge">mouseover</code> își va crește gradul de opacitate (70%) și își va schimba grosimea (2 pixeli) și culoarea (alb) liniei de contur. O dată ce se înregistrează evenimentul <code class="highlighter-rouge">mouseout</code>, se apelează funcția <code class="highlighter-rouge">resetHighlight</code>, care readuce secția la modul implicit de simbolizare:</p>
+      <pre>
+        <code class="language-javascript">
+function resetHighlight(e){
+  sectii.resetStyle(e.target);
+  info.update();
+}
+        </code>
+      </pre>
+      <p>În sfîrșit, în cazul în care se înregistrează evenimentul <code class="highlighter-rouge">click</code> (stînga) se apelează funcția <code class="highlighter-rouge">zoomToFeature</code>:</p>
+      <pre>
+        <code class="language-javascript">
+function zoomToFeature(e) {
+    map.fitBounds(e.target.getBounds());
+}
+        </code>
+      </pre>
+      <p>Ultima funcționalitate de care avem nevoie ține de afișarea rezultatelor înregistrate în cadrul secției precum și a informațiilor despre secție (indicativ, localitate, județ). În caz că nu s-a observat, ultima instrucțiune din funcția <code class="highlighter-rouge">onEachFeature</code> se prezenta ca: <code class="highlighter-rouge">info.update(layer.feature.properties);</code>. Prin această instrucțiune se apelează o nouă funcție ce injectează într-un container HTML de tip <code class="highlighter-rouge">div</code> informațiile relevante pentru secția peste care se găsește cursorul mouse-ului:</p>
+      <pre>
+        <code class="language-javascript">
+var info = L.control();
+info.onAdd = function(map) {
+  this._div = L.DomUtil.create('div', 'info');
+  this.update();
+  return this._div;
+}
+
+info.update = function(props){
+  this._div.innerHTML = "<div id='rezultate_info'>" +
+  "<h4>Secții de votare</h4>" +
+  (props ? 'Localitate: ' + titleCase(props.localitate) + '</br>' : "") +
+  (props ? 'Județul: ' + titleCase(props.judet) + '</br>' : "") +
+  (props ? 'Număr secție (secții): ' + props.id_sectii + '</br>' : "") +
+  (props ? 'Voturi Klaus Iohannis: ' + props.g1 + ' (' + props.g1p +' %)</br>' : "") +
+  (props ? 'Voturi Viorica Dăncilă: ' + props.g2 + ' (' + props.g2p +' %)</br>' : "") +
+  "</div>" 
+}
+info.addTo(map);
+        </code>
+      </pre>
+      <div class="map" id="harta_03"></div>
+      <p>Observăm că viteza de reacție este foarte bună în afișarea interactivă combinată a geometriilor și a atributelor.</p>
+
+      <h5 class="tutorialTitle">6.3. Exportul datelor</h5>
+      <p>Am văzut că TopoJSON oferă o performanță bună în termeni de dimensiune a fișierelor și viteză de afișare. Pe lîngă aceasta, putem stoca mai multe straturi într-un sigur astfel de fișier. Vom crea două astfel de fișiere, cîte unul pentru fiecare tur, intitulate <code class="highlighter-rouge">data_tur1.topojson</code>, respectiv <code class="highlighter-rouge">data_tur2.topojson</code>. În acestea vom importa datele la nivel de secție (inclusiv locația punctuală a secțiilor), UAT și județ pentru fiecare tur:</p>
+      <pre>
+        <code class="language-bash">
+ogr2ogr -f "ESRI Shapefile" -lco resize=yes -lco ENCODING=UTF-8 -s_srs EPSG:3857 -t_srs EPSG:4326 \
+sectii_voronoi_pv_tur1.shp "PG:host=localhost dbname=alegeri user=user password=user port=5432" \
+-sql "select geom, localitate, uat, judet, id_sectii, g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, \
+g12, g13, g14, cast(g1p as numeric(6,2)), cast(g2p as numeric(6,2)), cast(g3p as numeric(6,2)), \
+cast(g4p as numeric(6,2)), cast(g5p as numeric(6,2)), cast(g6p as numeric(6,2)), cast(g7p as \
+numeric(6,2)), cast(g8p as numeric(6,2)), cast(g9p as numeric(6,2)), cast(g10p as numeric(6,2)), \
+cast(g11p as numeric(6,2)), cast(g12p as numeric(6,2)), cast(g13p as numeric(6,2)), cast(g14p as \
+numeric(6,2)), castigator from tur1.sectii_voronoi_pv_tur1"
+
+ogr2ogr -f "ESRI Shapefile" -lco resize=yes -lco ENCODING=UTF-8 -s_srs EPSG:3857 -t_srs EPSG:4326 \
+uat_pv_cumulat_tur1.shp "PG:host=localhost dbname=alegeri user=user password=user port=5432" -sql \
+"select geom, name, county, g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12, g13, g14, cast(g1p \
+as numeric(6,2)), cast(g2p as numeric(6,2)), cast(g3p as numeric(6,2)), cast(g4p as numeric(6,2)), \
+cast(g5p as numeric(6,2)), cast(g6p as numeric(6,2)), cast(g7p as numeric(6,2)), cast(g8p as \
+numeric(6,2)), cast(g9p as numeric(6,2)), cast(g10p as numeric(6,2)), cast(g11p as numeric(6,2)), \
+cast(g12p as numeric(6,2)), cast(g13p as numeric(6,2)), cast(g14p as numeric(6,2)), castigator from \
+tur1.uat_pv_cumulat_tur1"
+
+ogr2ogr -f "ESRI Shapefile" -lco resize=yes -lco ENCODING=UTF-8 -s_srs EPSG:3857 -t_srs EPSG:4326 \
+judete_pv_cumulat_tur1.shp "PG:host=localhost dbname=alegeri user=user password=user port=5432" \
+-sql "select geom, county, g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12, g13, g14, cast(g1p \
+as numeric(6,2)), cast(g2p as numeric(6,2)), cast(g3p as numeric(6,2)), cast(g4p as numeric(6,2)), \
+cast(g5p as numeric(6,2)), cast(g6p as numeric(6,2)), cast(g7p as numeric(6,2)), cast(g8p as \
+numeric(6,2)), cast(g9p as numeric(6,2)), cast(g10p as numeric(6,2)), cast(g11p as numeric(6,2)), \
+cast(g12p as numeric(6,2)), cast(g13p as numeric(6,2)), cast(g14p as numeric(6,2)), castigator from \
+tur1.judete_pv_cumulat_tur1"
+
+ogr2ogr -f "ESRI Shapefile" -lco resize=yes -lco ENCODING=UTF-8 -s_srs EPSG:3857 -t_srs EPSG:4326 \
+sectii_voronoi_pv_tur1_clip_pop.shp "PG:host=localhost dbname=alegeri user=user password=user port=5432" \
+-sql "select geom, castigator from tur1.sectii_voronoi_pv_tur1_clip_pop"
+
+ogr2ogr -f "ESRI Shapefile" -lco resize=yes -lco ENCODING=UTF-8 -s_srs EPSG:3857 -t_srs EPSG:4326 \
+sectii_punct_tur1.shp "PG:host=localhost dbname=alegeri user=user password=user port=5432" \
+-sql "select geom from tur1.sectii_pv_tur1"
+
+mapshaper -i judete_pv_cumulat_tur1.shp uat_pv_cumulat_tur1.shp sectii_voronoi_pv_tur1.shp sectii_punct_tur1.shp \
+sectii_voronoi_pv_tur1_clip_pop.shp combine-files -o format=topojson data_tur1.topojson
+
+
+ogr2ogr -f "ESRI Shapefile" -lco resize=yes -lco ENCODING=UTF-8 -s_srs EPSG:3857 -t_srs EPSG:4326 \
+sectii_voronoi_pv_tur2.shp "PG:host=localhost dbname=alegeri user=user password=user port=5432" \
+-sql "select geom, localitate, uat, judet, id_sectii, g1, g2, cast(g1p as numeric(6,2)), \
+cast(g2p as numeric(6,2)), castigator from tur2.sectii_voronoi_pv_tur2"
+
+ogr2ogr -f "ESRI Shapefile" -lco resize=yes -lco ENCODING=UTF-8 -s_srs EPSG:3857 -t_srs EPSG:4326 \
+uat_pv_cumulat_tur2.shp "PG:host=localhost dbname=alegeri user=user password=user port=5432" \
+-sql "select geom, name, county, g1, g2, cast(g1p as numeric(6,2)), cast(g2p as numeric(6,2)), \
+castigator from tur2.uat_pv_cumulat_tur2"
+
+ogr2ogr -f "ESRI Shapefile" -lco resize=yes -lco ENCODING=UTF-8 -s_srs EPSG:3857 -t_srs EPSG:4326 \
+judete_pv_cumulat_tur2.shp "PG:host=localhost dbname=alegeri user=user password=user port=5432" \
+-sql "select geom, county, g1, g2, cast(g1p as numeric(6,2)), cast(g2p as numeric(6,2)), \
+castigator from tur2.judete_pv_cumulat_tur2"
+
+ogr2ogr -f "ESRI Shapefile" -lco resize=yes -lco ENCODING=UTF-8 -s_srs EPSG:3857 -t_srs EPSG:4326 \
+sectii_voronoi_pv_tur2_clip_pop.shp "PG:host=localhost dbname=alegeri user=user password=user port=5432" \
+-sql "select geom, castigator from tur2.sectii_voronoi_pv_tur2_clip_pop"
+
+ogr2ogr -f "ESRI Shapefile" -lco resize=yes -lco ENCODING=UTF-8 -s_srs EPSG:3857 -t_srs EPSG:4326 \
+sectii_punct_tur2.shp "PG:host=localhost dbname=alegeri user=user password=user port=5432" \
+-sql "select geom from tur2.sectii_pv_tur2"
+
+mapshaper -i judete_pv_cumulat_tur2.shp uat_pv_cumulat_tur2.shp sectii_voronoi_pv_tur2.shp sectii_punct_tur2.shp \
+ sectii_voronoi_pv_tur2_clip_pop.shp combine-files -o format=topojson data_tur2.topojson
+        </code>
+      </pre>
+
+      <h5 class="tutorialTitle">6.4. Aducerea datelor <strong>mari</strong> în harta web</h5>
+      <p>Este evident că varianta cu TopoJSON funcționează doar pentru seturile de date cu dimensiuni medii și mici. Nu am putea încărca eficient în hartă seturile de date la nivel de procent în cadrul secției sau voturile individuale. Dimensiunile respectivelor seturi sînt de ordinul sutelor de MB și n-ar fi practic să mergem pe această soluție. Pentru acestea avem nevoie de o componentă server-side iar cel mai simplu ar fi să publicăm datele prin intermediul unui serviciu de tip <a href="https://www.opengeospatial.org/standards/wms">WMS</a>/<a href="https://www.opengeospatial.org/standards/wmts">WMST</a>. În felul acesta, se rezolvă problema transferului eficient a datelor în hartă dar soluția vine și cu un cost, pierzîndu-se interactivitatea. Alternativa, pentru păstrarea interactivității, ar fi publicarea datelor printr-un serviciu de transfer vectorial al datelor, cum este <a href="https://www.opengeospatial.org/standards/wfs">WFS</a> sau utilizarea uneia din soluțiile de tip <a href="https://en.wikipedia.org/wiki/Vector_tiles">vector tiles</a>. Evident, și aceste soluții au minusuri, legate în special de viteza de transfer. Pentru a le utiliza eficient, sînt necesare o serie de optimizări:</p>
+      <ul>
+        <li>Generalizarea datelor pentru afișarea la scări mici;</li>
+        <li>Optimizarea tabelei de atribute (reprezentarea eficientă, eliminarea cîmpurilor mai puțin importante, etc.) sau chiar aplearea la o metrodă hibridă (ex.: încărcarea gemetriilor de pe server și unirea lor cu atribute la nivel de client - se aplică eficient doar cu anumite tipuri de informații);</li>
+        <li>Pregenerarea geometriilor și stocarea pe server într-o zonă de tip <code class="highlighter-rouge">cache</code>. Această abordare este posibilă doar cu opțiunea <code class="highlighter-rouge">vector tiles</code>, neffind posibilă și în <code class="highlighter-rouge">WFS</code>.</li>
+      </ul>
+      <p>Pentru că volumul de date utilizat de noi este semnificativ, vom merge pe soluția <code class="highlighter-rouge">vector tiles</code>, datorită posibilității de a le pregenera sau face cache on-the-fly. Pentru vector tiles există mai multe specificații (probabil, cea mai cunoscută este <a href="https://github.com/mapbox/vector-tile-spec">Mapbox Vector Tile Specification</a>) și mai multe aplicații (ex: <a href="http://tilestache.org/">TileStache</a>, <a href="https://github.com/mapbox/tilelive-vector">tilelive-vector</a>, <a href="https://github.com/mapbox/geojson-vt">geojson-vt</a>, <a href="http://geoserver.org/">GeoServer</a>) care pot produce aceste date, atît dinamic cît și static. Dintre acestea am ales să lucrăm cu <a href="http://geoserver.org/">GeoServer</a>, deoarece se găsește deja preinstalat pe mașina virtuală <a href="https://live.osgeo.org">OSGeo Live</a>.</p>
+
+      <h6 class="tutorialTitle">6.3.1. Configurarea GeoServer</h6>
+      <p>Publicarea datelor în format <code class="highlighter-rouge">vector tiles</code> necesită cîteva activități de configurare. Țineți cont că instanța locală a GeoServer nu pornește o dată cu sistemul de operare. Trebuie să facem manual acest lucru. Să facem însă mai întîi configurările despre care vorbeam. Vom începe cu suportul pentru <code class="highlighter-rouge">vector tiles</code>. Acesta nu există în distribuția de bază dar se poate adăuga prin intermediul unui plugin. Vom descărca acest plugin (cu grijă să selectăm versiunea compatibilă cu instanța GeoServer de pe mașina virtuală) și îl vom instala (cuvîntul instalare e pretențios, aceasta se face prin simpla dezarhivare și copiere a fișierelor ce alcătuiesc pluginul în directorul cu biblioteci a GeoServer: 
+      <pre>
+        <code class="language-bash">
+wget http://sourceforge.net/projects/geoserver/files/GeoServer/2.15.1/extensions/geoserver-2.15.1-vectortiles-plugin.zip
+
+sudo unzip -n geoserver-2.15.1-vectortiles-plugin.zip -d /usr/local/lib/geoserver-2.15.1/lib/
+        </code>
+      </pre>
+      <p>Următorul pas este activarea mecanismului <a href="https://docs.geoserver.org/latest/en/user/production/container.html#production-container-enable-cors">Cross-Origin Resource Sharing (CORS)</a> pentru a permite accesarea resurselor GeoServer din afara domeniului pe care acesta rulează implicit. Pe mașina virtuală, GeoServer a fost configurat să funcționeze pe portul <code class="highlighter-rouge">8082</code>. Tot aici, serverul web rulează folosind portul <code class="highlighter-rouge">80</code>. Din cauza politicii restrictive implicite de securitate, aplicațiile web publicate pe portul <code class="highlighter-rouge">80</code> nu vor putea accesa resursele GeoServer de pe <code class="highlighter-rouge">8082</code>. Pentru a permite acest lucru este necesar să modificăm fișierul <code class="highlighter-rouge">web.xml</code> din rădăcina GeoServer. Deschidem acest fișier cu editorul <a href="https://www.nano-editor.org/">nano</a>:
+      <pre>
+        <code class="language-bash">
+sudo nano /usr/local/lib/geoserver-2.15.1/webapps/geoserver/WEB-INF/web.xml
+        </code>
+      </pre>
+      <p>Navigăm la final și adăugăm liniile de mai jos, fix înainte de linia unde se închide tag-ul <code class="highlighter-rouge">&lt;/web-app&gt;</code>:</p>
+      <pre>
+        <code class="language-xml">
+&lt;filter&gt;
+  &lt;filter-name&gt;cross-origin&lt;/filter-name&gt;
+  &lt;filter-class&gt;org.eclipse.jetty.servlets.CrossOriginFilter&lt;/filter-class&gt;
+&lt;/filter&gt;
+&lt;filter-mapping&gt;
+  &lt;filter-name&gt;cross-origin&lt;/filter-name&gt;
+  &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+&lt;/filter-mapping&gt;
+        </code>
+      </pre>
+      <p>Salvăm modificările apăsînd combinația de taste <code class="highlighter-rouge">ctrl+O</code> și părăsim fișierul cu combinația <code class="highlighter-rouge">ctrl+X</code>. Cu acestea făcute, din consolă, vom porni instanța locală de GeoServer:</p>
+      <pre>
+        <code class="language-bash">
+sudo /usr/local/lib/geoserver-2.15.1/bin/startup.sh
+        </code>
+      </pre>
+      <p>În funcție de resursele alocate mașinii virtuale, instanța de GeoServer ar trebui să pornească în 20-50 de secunde. Dacă totul merge cum trebuie, la final ar trebui să se afișeze un mesaj de genul <code class="highlighter-rouge">INFO:oejs.Server:main: Started @38617ms</code>.</p>
+
+      <h6 class="tutorialTitle">6.3.2. Găsirea unui flux pentru publicarea datelor în GeoServer</h6>
+      <p>GeoServer dispune de o interfață web prietenoasă și intuitivă ce permite cu ușurință publicarea datelor stocate în PostGIS. Totuși, pentru că ne găsim la un tutorial <em>în linie de comandă</em>, vom face aceste lucruri folosind <a href="https://docs.geoserver.org/latest/en/user/rest/index.html">API-ul REST al GeoServer</a>. Prima dată vom crea un <code class="highlighter-rouge">workspace</code> dedicat scopului nostru, workspace intitulat <code class="highlighter-rouge">alegeri</code>:</p>
+      <pre>
+        <code class="language-bash">
+curl -u admin:geoserver -v -XPOST -H &quot;accept: application/xml&quot; -H &quot;content-type: application/xml&quot; \
+-d &quot;&lt;workspace&gt;&lt;name&gt;geospatial&lt;/name&gt;&lt;/workspace&gt;&quot; http://localhost:8082/geoserver/rest/workspaces
+        </code>
+      </pre>   
+      <p>Dacă totul a funcționat bine ar trebui să primiți un mesaj asemănător cu cel de mai jos:</p>
+      <pre>
+        <code class="language-rest">
+*   Trying 127.0.0.1...
+* TCP_NODELAY set
+* Connected to localhost (127.0.0.1) port 8082 (#0)
+* Server auth using Basic with user 'admin'
+> POST /geoserver/rest/workspaces HTTP/1.1
+> Host: localhost:8082
+> Authorization: Basic YWRtaW46Z2Vvc2VydmVy
+> User-Agent: curl/7.58.0
+> accept: application/xml
+> content-type: application/xml
+> Content-Length: 46
+>
+* upload completely sent off: 46 out of 46 bytes
+< HTTP/1.1 201 Created
+< Set-Cookie: JSESSIONID=node01h703590m5rp9pesues9niqd85.node0;Path=/geoserver
+< Expires: Thu, 01 Jan 1970 00:00:00 GMT
+< Location: http://localhost:8082/geoserver/rest/workspaces/geospatial
+< Content-Type: application/xml;charset=ISO-8859-1
+< Content-Length: 10
+< Server: Jetty(9.4.12.v20180830)
+<
+* Connection #0 to host localhost left intact
+        </code>
+      </pre>
+      <p>În continuare, vom crea un depozit de date nou (<code class="highlighter-rouge">data store</code>), corespunzător schemei <code class="highlighter-rouge">tur1</code> din PostGIS:</p>
+      <pre>
+        <code class="language-bash">
+curl -u admin:geoserver -v -XPOST -H &quot;accept: application/xml&quot; -H &quot;content-type: application/xml&quot; \
+-d &quot;
+&lt;dataStore&gt;
+  &lt;name&gt;tur1&lt;/name&gt;
+  &lt;type&gt;PostGIS&lt;/type&gt;
+  &lt;description&gt;Store PostGIS pentru turul 1&lt;/description&gt;
+  &lt;connectionParameters&gt;
+    &lt;entry key='host'&gt;localhost&lt;/entry&gt;
+    &lt;entry key='port'&gt;5432&lt;/entry&gt;
+    &lt;entry key='database'&gt;alegeri&lt;/entry&gt;
+    &lt;entry key='user'&gt;user&lt;/entry&gt;
+    &lt;entry key='passwd'&gt;user&lt;/entry&gt;
+    &lt;entry key='schema'&gt;tur1&lt;/entry&gt;
+    &lt;entry key='dbtype'&gt;postgis&lt;/entry&gt;
+    &lt;entry key='validate connections'&gt;true&lt;/entry&gt;
+    &lt;entry key='Connection timeout'&gt;20&lt;/entry&gt;
+    &lt;entry key='min connections'&gt;1&lt;/entry&gt;
+    &lt;entry key='max connections'&gt;10&lt;/entry&gt;
+    &lt;entry key='Loose bbox'&gt;true&lt;/entry&gt;
+    &lt;entry key='fetch size'&gt;1000&lt;/entry&gt;
+    &lt;entry key='Max open prepared statements'&gt;50&lt;/entry&gt;
+    &lt;entry key='Estimated extends'&gt;true&lt;/entry&gt;
+    &lt;entry key='Expose primary keys'&gt;true&lt;/entry&gt;
+  &lt;/connectionParameters&gt;
+  &lt;__default&gt;false&lt;/__default&gt;
+  &lt;/dataStore&gt;&quot; \
+  http://localhost:8082/geoserver/rest/workspaces/alegeri/datastores
+        </code>
+      </pre> 
+      <p>Depozitul fiind creat, se pot publica straturile individuale. Vom începe cu stratul corespunzător procentelor la nivel de secție, <code class="highlighter-rouge">voronoi_procente_sectie</code> pentru turul 1:</p>
+      <pre>
+        <code class="language-bash">
+curl -u admin:geoserver -v -XPOST -H &quot;Content-type: text/xml&quot; -d &quot;
+&lt;featureType&gt;
+  &lt;nativeName&gt;voronoi_procente_sectie&lt;/nativeName&gt;
+  &lt;name&gt;fiecare_procent_sectie_tur1&lt;/name&gt;
+  &lt;title&gt;Fiecare procent din turul 1 sectie&lt;/title&gt;
+&lt;/featureType&gt;&quot; \
+http://localhost:8082/geoserver/rest/workspaces/alegeri/datastores/tur1/featuretypes
+        </code>
+      </pre>   
+      <p>Stratul este de acum disponibil pentru accesare prin intermediul serviciilor de la adresa <code class="highlighter-rouge">http://localhost:8082/geoserver</code>, în workspace-ul <code class="highlighter-rouge">alegeri</code>, sub numele <code class="highlighter-rouge">fiecare_procent_tur1</code>. Totuși, informația nu poate fi accesată în format <code class="highlighter-rouge">vector tiles</code> deoarece nu face parte din setările implicite, după cum se poate observa din imaginea de mai jos:</p>
+      <img src="images/044_tile_cahe_default.png" class="img-fluid" alt="Setările implicite din GeoServer cu privire la livrarea datelor în format application/vnd.mapbox-vector-tile">
+      <p class="text-center"><em>Setările implicite din GeoServer cu privire la livrarea datelor în format <code class="highlighter-rouge">application/vnd.mapbox-vector-tile</code>.</em></p>
+      <p>Pentru a modifica această setare, vom folosi metoda <code class="highlighter-rouge">GET</code> din API-ul REST GeoServer pentru a descărca, în format <code class="highlighter-rouge">XML</code> lista actuală de setări a stratului:</p>
+      <pre>
+        <code class="language-bash">
+curl -X GET &quot;http://localhost:8082/geoserver/gwc/rest/layers/alegeri:fiecare_procent_sectie_tur1.xml&quot; \
+-H  &quot;accept: application/xml&quot; -H  &quot;content-type: application/xml&quot; &gt; fiecare_procent_sectie_tur1.xml
+        </code>
+      </pre> 
+      <p>Vom deschide fișierul respectiv cu <a href="https://www.nano-editor.org/">nano</a>:</p>
+      <pre>
+        <code class="language-bash">
+sudo nano fiecare_procent_sectie_tur1.xml
+        </code>
+      </pre>
+      <p>Rezultatul este prezentat mai jos:</p>
+      <pre>
+        <code class="language-xml">
+<?xml version="1.0" encoding="UTF-8"?>
+&lt;GeoServerLayer&gt;
+  &lt;id&gt;LayerInfoImpl-12776bc0:16fd8e57986:-3872&lt;/id&gt;
+  &lt;enabled&gt;true&lt;/enabled&gt;
+  &lt;inMemoryCached&gt;true&lt;/inMemoryCached&gt;
+  &lt;name&gt;alegeri:fiecare_procent_tur1&lt;/name&gt;
+  &lt;mimeFormats&gt;
+    &lt;string&gt;application/json;type=utfgrid&lt;/string&gt;
+    &lt;string&gt;image/png&lt;/string&gt;
+    &lt;string&gt;image/vnd.jpeg-png&lt;/string&gt;
+    &lt;string&gt;image/jpeg&lt;/string&gt;
+    &lt;string&gt;image/gif&lt;/string&gt;
+    &lt;string&gt;image/png8&lt;/string&gt;
+  &lt;/mimeFormats&gt;
+  &lt;gridSubsets&gt;
+    &lt;gridSubset&gt;
+      &lt;gridSetName&gt;EPSG:3857&lt;/gridSetName&gt;
+    &lt;/gridSubset&gt;
+    &lt;gridSubset&gt;
+      &lt;gridSetName&gt;EPSG:900913&lt;/gridSetName&gt;
+    &lt;/gridSubset&gt;
+    &lt;gridSubset&gt;
+      &lt;gridSetName&gt;EPSG:4326&lt;/gridSetName&gt;
+    &lt;/gridSubset&gt;
+  &lt;/gridSubsets&gt;
+  &lt;metaWidthHeight&gt;
+    &lt;int&gt;4&lt;/int&gt;
+    &lt;int&gt;4&lt;/int&gt;
+  &lt;/metaWidthHeight&gt;
+  &lt;expireCache&gt;0&lt;/expireCache&gt;
+  &lt;expireClients&gt;0&lt;/expireClients&gt;
+  &lt;parameterFilters&gt;
+    &lt;styleParameterFilter&gt;
+      &lt;key&gt;STYLES&lt;/key&gt;
+      &lt;defaultValue&gt;&lt;/defaultValue&gt;
+    &lt;/styleParameterFilter&gt;
+  &lt;/parameterFilters&gt;
+  &lt;gutter&gt;0&lt;/gutter&gt;
+&lt;/GeoServerLayer&gt;
+        </code>
+      </pre>
+      <p>Pentru a activa suportul pentru <code class="highlighter-rouge">vector tiles</code> vom insera linia <code class="highlighter-rouge">&lt;string&gt;application/vnd.mapbox-vector-tile&lt;/string&gt;</code> în secțiunea <code class="highlighter-rouge">&lt;mimeFormats&gt;</code> și vom salva modificările apăsînd combinația de taste <code class="highlighter-rouge">ctrl+O</code>. Vom părăsi fișierul cu combinația <code class="highlighter-rouge">ctrl+X</code>. Apoi, vom rula, folosind metoda <code class="highlighter-rouge">PUT</code>, o comandă de actualizare prin intermediul API-ului REST al GeoServer:</p>
+      <pre>
+        <code class="language-bash">
+curl -v -u admin:geoserver -v -XPUT -H "Content-type: text/xml" -d @fiecare_procent_sectie_tur1.xml \
+"http://localhost:8082/geoserver/gwc/rest/layers/alegeri:fiecare_procent_sectie_tur1.xml"
+        </code>
+      </pre>
+      <h6 class="tutorialTitle">6.3.3. Încărcarea datelor vector tile în harta web</h6>
+      <p>Structura aceasta de tip tile vectorial este semnificativ diferită de un strat normal și prezintă mult mai multe provocări în utilizare comparativ cu fișierele tiled de tip raster (ex: un element dintr-un strat se poate întinde pe mai multe tile-uri dar el trebuie să poată fi simbolizat și interogat ca și cum ar avea o geometrie unitară, nu una spartă în mai multe bucăți). Leaflet (prin intermediul pluginului <a href="https://github.com/Leaflet/Leaflet.VectorGrid">VectorGrid</a>) este capabil să ofere utilizatorului o experiență unitară dar cele două tipuri de straturi vectoriale se încarcă și se manipulează diferit. De exemplu, pentru încărcarea în hartă folosim ceva de genul:</p>
+      <pre>
+        <code class="language-javascript">
+fiecare_procent = L.vectorGrid.protobuf('http://localhost:8082/geoserver/gwc/service/tms/1.0.0/alegeri:fiecare_procent_tur1@EPSG%3A3857@pbf/{z}/{x}/{-y}.pbf', {
+  rendererFactory: L.svg.tile,
+  interactive: true,
+  maxNativeZoom: 16,
+  minZoom: 11,
+  pane: 'fiecare_procent',
+  getFeatureId: function(f) {
+    return f.properties.id;
+  },
+  vectorTileLayerStyles: {
+    fiecare_procent_tur1: properties => {
+      return styleFiecareProcent(properties.castigator, false)
+    }
+  }
+});
+        </code>
+      </pre>
+      <p>Interacțiunea la evenimentele <code class="highlighter-rouge">mouseover</code> și <code class="highlighter-rouge">mouseout</code> o facem după cum este ilustrat în continuare:</p>
+      <pre>
+        <code class="language-javascript">
+fiecare_procent.on('mouseover', function(e) {
+  var properties = e.layer.properties;
+  clearHighlightVectorGrid();
+  highlightVectorGrid = properties.id;
+  var style = {
+    fillColor: getColor(properties.castigator),
+    weight: 1,
+    opacity: 1,
+    color: getColor(properties.castigator),
+    fillOpacity: 1,
+    fill: true
+  };
+  fiecare_procent.setFeatureStyle(properties.id, style);
+  info.update(e.layer.properties, 'fiecare_procent');
+});
+
+fiecare_procent.on('mouseout', function(e) {
+  var properties = e.layer.properties;
+  clearHighlightVectorGrid();
+  highlightVectorGrid = properties.id;
+  var style = {
+    fillColor: getColor(properties.castigator),
+    weight: 0.9,
+    opacity: 1,
+    color: getColor(properties.castigator),
+    dashArray: '0.5',
+    fillOpacity: $("#slider").slider("value"),
+    fill: true
+  };
+  fiecare_procent.setFeatureStyle(properties.id, style);
+});
+        </code>
+      </pre>
+
+      <h6 class="tutorialTitle">6.3.4. Publicarea tuturor datelor</h6>
+      <p>Vom publica și restul datelor folosind procedura descrisă anterior. Vom începe cu crearea celui de al doilea datastore, corespunzător schemei <code class="highlighter-rouge">tur2</code> din PostGIS:</p>
+      <pre>
+        <code class="language-xml">
+<?xml version="1.0" encoding="UTF-8"?>
+curl -u admin:geoserver -v -XPOST -H &quot;accept: application/xml&quot; -H &quot;content-type: application/xml&quot; \
+-d &quot;
+&lt;dataStore&gt;
+  &lt;name&gt;tur2&lt;/name&gt;
+  &lt;type&gt;PostGIS&lt;/type&gt;
+  &lt;description&gt;Store PostGIS pentru turul 2&lt;/description&gt;
+  &lt;connectionParameters&gt;
+    &lt;entry key='host'&gt;localhost&lt;/entry&gt;
+    &lt;entry key='port'&gt;5432&lt;/entry&gt;
+    &lt;entry key='database'&gt;alegeri&lt;/entry&gt;
+    &lt;entry key='user'&gt;user&lt;/entry&gt;
+    &lt;entry key='passwd'&gt;user&lt;/entry&gt;
+    &lt;entry key='schema'&gt;tur2&lt;/entry&gt;
+    &lt;entry key='dbtype'&gt;postgis&lt;/entry&gt;
+    &lt;entry key='validate connections'&gt;true&lt;/entry&gt;
+    &lt;entry key='Connection timeout'&gt;20&lt;/entry&gt;
+    &lt;entry key='min connections'&gt;1&lt;/entry&gt;
+    &lt;entry key='max connections'&gt;10&lt;/entry&gt;
+    &lt;entry key='Loose bbox'&gt;true&lt;/entry&gt;
+    &lt;entry key='fetch size'&gt;1000&lt;/entry&gt;
+    &lt;entry key='Max open prepared statements'&gt;50&lt;/entry&gt;
+    &lt;entry key='Estimated extends'&gt;true&lt;/entry&gt;
+    &lt;entry key='Expose primary keys'&gt;true&lt;/entry&gt;
+  &lt;/connectionParameters&gt;
+  &lt;__default&gt;false&lt;/__default&gt;
+  &lt;/dataStore&gt;&quot; \
+  http://localhost:8082/geoserver/rest/workspaces/alegeri/datastores
+        </code>
+      </pre>
+      <p>Apoi, unul cîte unul, vom publica seturile de date. Începem cu procentele la nivel de secție pentru turul 2:</p>
+      <pre>
+        <code class="language-bash">
+<?xml version="1.0" encoding="UTF-8"?>
+curl -u admin:geoserver -v -XPOST -H &quot;Content-type: text/xml&quot; -d &quot;
+&lt;featureType&gt;
+  &lt;nativeName&gt;voronoi_procente_sectie&lt;/nativeName&gt;
+  &lt;name&gt;fiecare_procent_sectie_tur2&lt;/name&gt;
+  &lt;title&gt;Fiecare procent din turul 2 sectie&lt;/title&gt;
+&lt;/featureType&gt;&quot; \
+http://localhost:8082/geoserver/rest/workspaces/alegeri/datastores/tur2/featuretypes
+
+curl -X GET &quot;http://localhost:8082/geoserver/gwc/rest/layers/alegeri:fiecare_procent_sectie_tur2.xml&quot; \
+-H  &quot;accept: application/xml&quot; -H  &quot;content-type: application/xml&quot; &gt; fiecare_procent_sectie_tur2.xml
+
+sudo nano fiecare_procent_sectie_tur2.xml
+
+#se adaugă &lt;string&gt;application/vnd.mapbox-vector-tile&lt;/string&gt; &icirc;n secțiunea &lt;mimeFormats&gt;
+
+curl -v -u admin:geoserver -v -XPUT -H &quot;Content-type: text/xml&quot; -d @fiecare_procent_sectie_tur2.xml \
+ &quot;http://localhost:8082/geoserver/gwc/rest/layers/alegeri:fiecare_procent_sectie_tur2.xml&quot;
+        </code>
+      </pre>
+      <p>Continuăm cu cele la nivel de UAT pentru cele două tururi:</p>
+      <pre>
+        <code class="language-bash">
+<?xml version="1.0" encoding="UTF-8"?>
+curl -u admin:geoserver -v -XPOST -H &quot;Content-type: text/xml&quot; -d &quot;
+&lt;featureType&gt;
+  &lt;nativeName&gt;voronoi_procente_uat&lt;/nativeName&gt;
+  &lt;name&gt;fiecare_procent_uat_tur1&lt;/name&gt;
+  &lt;title&gt;Fiecare procent din turul 1 UAT&lt;/title&gt;
+&lt;/featureType&gt;&quot; \
+http://localhost:8082/geoserver/rest/workspaces/alegeri/datastores/tur1/featuretypes
+
+curl -X GET &quot;http://localhost:8082/geoserver/gwc/rest/layers/alegeri:fiecare_procent_uat_tur1.xml&quot; \
+-H  &quot;accept: application/xml&quot; -H  &quot;content-type: application/xml&quot; &gt; fiecare_procent_uat_tur1.xml
+
+sudo nano fiecare_procent_uat_tur1.xml
+
+#se adaugă &lt;string&gt;application/vnd.mapbox-vector-tile&lt;/string&gt; &icirc;n secțiunea &lt;mimeFormats&gt;
+
+curl -v -u admin:geoserver -v -XPUT -H &quot;Content-type: text/xml&quot; -d @fiecare_procent_uat_tur1.xml \
+ &quot;http://localhost:8082/geoserver/gwc/rest/layers/alegeri:fiecare_procent_uat_tur1.xml&quot;
+
+
+curl -u admin:geoserver -v -XPOST -H &quot;Content-type: text/xml&quot; -d &quot;
+&lt;featureType&gt;
+  &lt;nativeName&gt;voronoi_procente_uat&lt;/nativeName&gt;
+  &lt;name&gt;fiecare_procent_uat_tur2&lt;/name&gt;
+  &lt;title&gt;Fiecare procent din turul 2 UAT&lt;/title&gt;
+&lt;/featureType&gt;&quot; \
+http://localhost:8082/geoserver/rest/workspaces/alegeri/datastores/tur2/featuretypes
+
+curl -X GET &quot;http://localhost:8082/geoserver/gwc/rest/layers/alegeri:fiecare_procent_uat_tur2.xml&quot; \
+-H  &quot;accept: application/xml&quot; -H  &quot;content-type: application/xml&quot; &gt; fiecare_procent_uat_tur2.xml
+
+sudo nano fiecare_procent_uat_tur2.xml
+
+#se adaugă &lt;string&gt;application/vnd.mapbox-vector-tile&lt;/string&gt; &icirc;n secțiunea &lt;mimeFormats&gt;
+
+curl -v -u admin:geoserver -v -XPUT -H &quot;Content-type: text/xml&quot; -d @fiecare_procent_uat_tur2.xml \
+ &quot;http://localhost:8082/geoserver/gwc/rest/layers/alegeri:fiecare_procent_uat_tur2.xml&quot;
+        </code>
+      </pre>
+      <p>Apoi, județele:</p>
+      <pre>
+        <code class="language-bash">
+<?xml version="1.0" encoding="UTF-8"?>
+curl -u admin:geoserver -v -XPOST -H &quot;Content-type: text/xml&quot; -d &quot;
+&lt;featureType&gt;
+  &lt;nativeName&gt;voronoi_procente_judete&lt;/nativeName&gt;
+  &lt;name&gt;fiecare_procent_judete_tur1&lt;/name&gt;
+  &lt;title&gt;Fiecare procent din turul 1 județe&lt;/title&gt;
+&lt;/featureType&gt;&quot; \
+http://localhost:8082/geoserver/rest/workspaces/alegeri/datastores/tur1/featuretypes
+
+curl -X GET &quot;http://localhost:8082/geoserver/gwc/rest/layers/alegeri:fiecare_procent_judete_tur1.xml&quot; \
+-H  &quot;accept: application/xml&quot; -H  &quot;content-type: application/xml&quot; &gt; fiecare_procent_judete_tur1.xml
+
+sudo nano fiecare_procent_judete_tur1.xml
+
+#se adaugă &lt;string&gt;application/vnd.mapbox-vector-tile&lt;/string&gt; &icirc;n secțiunea &lt;mimeFormats&gt;
+
+curl -v -u admin:geoserver -v -XPUT -H &quot;Content-type: text/xml&quot; -d @fiecare_procent_judete_tur1.xml \
+ &quot;http://localhost:8082/geoserver/gwc/rest/layers/alegeri:fiecare_procent_judete_tur1.xml&quot;
+
+
+curl -u admin:geoserver -v -XPOST -H &quot;Content-type: text/xml&quot; -d &quot;
+&lt;featureType&gt;
+  &lt;nativeName&gt;voronoi_procente_judete&lt;/nativeName&gt;
+  &lt;name&gt;fiecare_procent_judete_tur2&lt;/name&gt;
+  &lt;title&gt;Fiecare procent din turul 2 județe&lt;/title&gt;
+&lt;/featureType&gt;&quot; \
+http://localhost:8082/geoserver/rest/workspaces/alegeri/datastores/tur2/featuretypes
+
+curl -X GET &quot;http://localhost:8082/geoserver/gwc/rest/layers/alegeri:fiecare_procent_judete_tur2.xml&quot; \
+-H  &quot;accept: application/xml&quot; -H  &quot;content-type: application/xml&quot; &gt; fiecare_procent_judete_tur2.xml
+
+sudo nano fiecare_procent_judete_tur2.xml
+
+#se adaugă &lt;string&gt;application/vnd.mapbox-vector-tile&lt;/string&gt; &icirc;n secțiunea &lt;mimeFormats&gt;
+
+curl -v -u admin:geoserver -v -XPUT -H &quot;Content-type: text/xml&quot; -d @fiecare_procent_judete_tur2.xml \
+ &quot;http://localhost:8082/geoserver/gwc/rest/layers/alegeri:fiecare_procent_judete_tur2.xml&quot;
+        </code>
+      </pre>
+      <p>Toate voturile:</p>
+      <pre>
+        <code class="language-bash">
+<?xml version="1.0" encoding="UTF-8"?>
+curl -u admin:geoserver -v -XPOST -H &quot;Content-type: text/xml&quot; -d &quot;
+&lt;featureType&gt;
+  &lt;nativeName&gt;fiecare_vot_tur1&lt;/nativeName&gt;
+  &lt;name&gt;fiecare_vot_tur1&lt;/name&gt;
+  &lt;title&gt;Fiecare vot din turul 1&lt;/title&gt;
+&lt;/featureType&gt;&quot; \
+http://localhost:8082/geoserver/rest/workspaces/alegeri/datastores/tur1/featuretypes
+
+curl -X GET &quot;http://localhost:8082/geoserver/gwc/rest/layers/alegeri:fiecare_vot_tur1.xml&quot; \
+-H  &quot;accept: application/xml&quot; -H  &quot;content-type: application/xml&quot; &gt; fiecare_vot_tur1.xml
+
+sudo nano fiecare_vot_tur1.xml
+
+#se adaugă &lt;string&gt;application/vnd.mapbox-vector-tile&lt;/string&gt; &icirc;n secțiunea &lt;mimeFormats&gt;
+
+curl -v -u admin:geoserver -v -XPUT -H &quot;Content-type: text/xml&quot; -d @fiecare_vot_tur1.xml \
+ &quot;http://localhost:8082/geoserver/gwc/rest/layers/alegeri:fiecare_vot_tur1.xml&quot;
+
+
+curl -u admin:geoserver -v -XPOST -H &quot;Content-type: text/xml&quot; -d &quot;
+&lt;featureType&gt;
+  &lt;nativeName&gt;fiecare_vot_tur2&lt;/nativeName&gt;
+  &lt;name&gt;fiecare_vot_tur2&lt;/name&gt;
+  &lt;title&gt;Fiecare vot din turul 2&lt;/title&gt;
+&lt;/featureType&gt;&quot; \
+http://localhost:8082/geoserver/rest/workspaces/alegeri/datastores/tur2/featuretypes
+
+curl -X GET &quot;http://localhost:8082/geoserver/gwc/rest/layers/alegeri:fiecare_vot_tur2.xml&quot; \
+-H  &quot;accept: application/xml&quot; -H  &quot;content-type: application/xml&quot; &gt; fiecare_vot_tur2.xml
+
+sudo nano fiecare_vot_tur2.xml
+
+#se adaugă &lt;string&gt;application/vnd.mapbox-vector-tile&lt;/string&gt; &icirc;n secțiunea &lt;mimeFormats&gt;
+
+curl -v -u admin:geoserver -v -XPUT -H &quot;Content-type: text/xml&quot; -d @fiecare_vot_tur2.xml \
+ &quot;http://localhost:8082/geoserver/gwc/rest/layers/alegeri:fiecare_vot_tur2.xml&quot;
+        </code>
+      </pre>
+
+      <h5 class="tutorialTitle">6.5. Concluzii</h5>
+      Avem toate datele și funcționalitățile de bază dorite. Nu mai rămîne decît să împachetăm totul într-o aplicație coerentă.
+
+
+      <div>
+        <div class="float-left">
+          <p class="text-left"><a href="part5.html"><- Înapoi către Partea 5: Hărțile clasice, la nivel de UAT și județ</a></p>
+        </div>
+        <div class="float-right">
+          <p class="text-right"><a href="part7.html">Înainte către Partea 7: Utilizarea rezultatelor în OSGeoLive -></a></p>
+        </div>
+        <div class="clearfix"></div>
+      </div>
+    </main>
+    <script src="assets/prism/prism.js"></script>
+    <script src="assets/leaflet/leaflet.js"></script>
+    <script src="assets/d3/d3.min.js"></script>
+    <script src="assets/topojson-client.min.js"></script>
+
+    <script type="text/javascript">
+      Prism.plugins.NormalizeWhitespace.setDefaults({'break-lines': 112,});
+    </script>
+
+    <script type="text/javascript">
+
+
+
+      function titleCase(str) {
+        str = str.toLowerCase().split(' ');
+        for (var i = 0; i < str.length; i++) {
+          str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1); 
+        }
+        return str.join(' ');
+      }
+
+      var god;
+      var neighbors;
+      var getsections = {};
+      var geojson;
+      window.onload = function () {
+        var neighbors
+
+        function styleSectii(feature) {
+          return {
+            fillColor: getColor(feature.properties.castigator),
+            weight: 0.9,
+            opacity: 1,
+            color: getColor(feature.properties.castigator),
+            dashArray: '0.5',
+            fillOpacity: 0.5
+          };
+        }
+
+        function getColor(d) {
+          return d == 1 ? '#1f78b4' :
+          d == 2  ? '#e31a1c':
+          '#33a02c';
+        }
+
+        var req = new XMLHttpRequest();
+        var url = 'data/test.topojson'
+
+        req.open('GET', url, true);
+        req.onreadystatechange = handler;
+        req.send();
+        var topoob = {};
+        getsections = {};
+        
+        function handler(){
+          if(req.readyState === XMLHttpRequest.DONE){
+            var layer = "terrain";
+
+
+            var map1 = new L.Map('harta_01',
+            {
+              center: new L.LatLng(46, 25),
+              zoom: 7
+            });
+            map1.createPane('statii');
+
+            var map2 = new L.Map('harta_02',
+            {
+              center: new L.LatLng(46, 25),
+              zoom: 7
+            });
+            map2.createPane('statii');
+
+
+            var map = new L.Map('harta_03',
+            {
+              center: new L.LatLng(46, 25),
+              zoom: 7
+            });
+            map.createPane('statii');
+
+            var lightOSM = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+              maxZoom: 18,
+              zIndex: 1,
+              attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            });
+
+            var lightOSM1 = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+              maxZoom: 18,
+              zIndex: 1,
+              attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            });
+
+            var lightOSM2 = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+              maxZoom: 18,
+              zIndex: 1,
+              attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            });
+
+            var blankBasemap = L.tileLayer('');
+
+            map.addLayer(lightOSM, blankBasemap);
+            map1.addLayer(lightOSM1, blankBasemap);
+            map2.addLayer(lightOSM2, blankBasemap);
+
+            //Încărcare secții 1
+            try {
+              topoob = JSON.parse(req.responseText)
+              neighbors = topojson.neighbors(topoob.objects.test.geometries);
+              getsections = topojson.feature(topoob, topoob.objects.test)
+              getsections.features = getsections.features.map(function(fm,i){
+                var ret = fm;
+                ret.indie = i;
+                return ret
+              });
+              sectii1 = L.geoJson(getsections, {});
+            }
+            catch(e){
+              sectii1 = {};
+            }
+
+            //Încărcare secții 2
+            try {
+              topoob = JSON.parse(req.responseText)
+              neighbors = topojson.neighbors(topoob.objects.test.geometries);
+              getsections = topojson.feature(topoob, topoob.objects.test)
+              getsections.features = getsections.features.map(function(fm,i){
+                var ret = fm;
+                ret.indie = i;
+                return ret
+              });
+              sectii2 = L.geoJson(getsections, {style: styleSectii});
+            }
+            catch(e){
+              sectii2 = {};
+            }
+
+            //Încărcare secții 
+            try {
+              topoob = JSON.parse(req.responseText)
+              neighbors = topojson.neighbors(topoob.objects.test.geometries);
+              getsections = topojson.feature(topoob, topoob.objects.test)
+              getsections.features = getsections.features.map(function(fm,i){
+                var ret = fm;
+                ret.indie = i;
+                return ret
+              });
+              sectii = L.geoJson(getsections, {style: styleSectii, onEachFeature: onEachFeature, pane: 'statii'});
+            }
+            catch(e){
+              sectii = {};
+            }
+
+            map.addLayer(sectii);
+            map1.addLayer(sectii1);
+            map2.addLayer(sectii2);
+            
+
+            function highlightFeature(e){
+              var layer = e.target;
+              layer.setStyle({
+                weight: 2,
+                color: '#ffffff',
+                dashArray: '',
+                fillOpacity: .7
+              })
+              if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                layer.bringToFront();
+              }
+              info.update(layer.feature.properties);
+            }
+
+
+            function resetHighlight(e){
+              sectii.resetStyle(e.target);
+              info.update();
+            }
+
+            function zoomToFeature(e) {
+                map.fitBounds(e.target.getBounds());
+            }
+
+            function onEachFeature(feature, layer){
+              layer.on({
+                mouseover: highlightFeature,
+                mouseout: resetHighlight, click: zoomToFeature})
+            }
+            
+            var info = L.control();
+            info.onAdd = function(map) {
+              this._div = L.DomUtil.create('div', 'info');
+              this.update();
+              return this._div;
+            }
+
+            info.update = function(props){
+              this._div.innerHTML = "<div id='rezultate_info'>" +
+              "<h4>Secții de votare</h4>" +
+              (props ? 'Localitate: ' + titleCase(props.localitate) + '</br>' : "") +
+              (props ? 'Județul: ' + titleCase(props.judet) + '</br>' : "") +
+              (props ? 'Număr secție (secții): ' + props.id_sectii + '</br>' : "") +
+              (props ? 'Voturi Klaus Iohannis: ' + props.g1 + ' (' + props.g1p +' %)</br>' : "") +
+              (props ? 'Voturi Viorica Dăncilă: ' + props.g2 + ' (' + props.g2p +' %)</br>' : "") +
+              "</div>"
+            }
+            info.addTo(map);
+
+
+            var legend = L.control({position: 'bottomright'});
+            legend.onAdd = function (map) {
+              var div = L.DomUtil.create('div', 'info legend'),
+              grades = [1, 2, 0],
+              labels = ['Klaus Iohannis', 'Viorica Dăncilă', 'Egalitate'];
+              for (var i = 0; i < grades.length; i++) {
+                div.innerHTML +=
+                '<i style="background:' + getColor(grades[i]) + '"></i> ' +
+                labels[i] + '<br>';
+              }
+              return div;
+            };
+            //legend.addTo(map);
+
+            $(".leaflet-control-layers").css("display", "none");
+            $("#rezultate_uat_info").css("display", "none");
+          }
+        }
+      }
+    </script>
+
+
+  </body>
+</html>
