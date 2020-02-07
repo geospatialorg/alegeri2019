@@ -79,9 +79,29 @@
       <h4 class="tutorialTitle">Cartografie electorală în linie de comandă - Partea 7: Utilizarea rezultatelor în OSGeoLive</h4>
 
       <h5 class="tutorialTitle">7.1. Expunerea datelor în serverul web al OSGeoLive</h5>
-      <p>Pînă acum, am lucrat în directorul <code class="highlighter-rouge">/home/user/alegeri2019</code>. Avem nevoie să ne mutăm datele exportate în format TopoJSON într-un director ce este expus prin serverul web instalat pe mașina virtuală OSGeoLive. Din această locație datele vor putea fi "consumate" de clientul cartografic web.</p>
+      <p>Pînă acum, am lucrat în directorul <code class="highlighter-rouge">/home/user/alegeri2019</code>. Avem nevoie să ne mutăm datele exportate în format TopoJSON într-un director ce este expus prin serverul web instalat pe mașina virtuală OSGeoLive. Din această locație datele vor putea fi "consumate" de clientul cartografic web. Pentru aceasta e suficient să folosim comanda <code class="highlighter-rouge">cp</code> pentru a duce fișierele <code class="highlighter-rouge">data_tur1.topojson</code> și <code class="highlighter-rouge">data_tur2.topojson</code> în <code class="highlighter-rouge">/var/www/html/alegeri2019/data</code>. Nu o vom face acum deoare datele vor fi automat aduse de pe repository-ul GitHub, lucru explicat în capitolul următor.</p>
 
+      <h5 class="tutorialTitle">7.1. Replicarea aplicației wep pe OSGeoLive</h5>
+      <p>Aplicația cartografică, precum și acest tutorial, au fost publicate pe <a href="https://github.com/geospatialorg/alegeri2019">GitHub</a>. Pentru a le replica pe mașina noastră virtuală OSGeoLive, avem nevoie de un client <code class="highlighter-rouge">Git</code>. Pentru aceasta vom rula următoarea comandă Bash:</p>
 
+      <pre>
+        <code class="language-bash">
+sudo apt install git-all
+        </code>
+      </pre>
+
+      <p>Apoi, tot de acolo, vom naviga în rădăcina serverului web și vom descărca aplicația folosind comanda <code class="highlighter-rouge">clone</code></p>
+
+      <pre>
+        <code class="language-bash">
+cd /var/www/html
+sudo git clone https://github.com/geospatialorg/alegeri2019.git
+        </code>
+      </pre>
+
+      <div class="alert alert-info" role="alert">
+        <strong>Notă:</strong> rulăm cu <code class="highlighter-rouge">sudo</code> comanda de clonare deoarece utilizatorul <code class="highlighter-rouge">user</code> nu are drepturi de scriere în directorul <code class="highlighter-rouge">/var/www/html</code>.
+      </div>
       <div>
         <div class="float-left">
           <p class="text-right"><a href="part6.html"><- Înapoi către Partea 6: Crearea hărții interactive</a></p>
