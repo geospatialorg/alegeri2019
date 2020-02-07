@@ -81,7 +81,7 @@
       <h5 class="tutorialTitle">7.1. Expunerea datelor în serverul web al OSGeoLive</h5>
       <p>Pînă acum, am lucrat în directorul <code class="highlighter-rouge">/home/user/alegeri2019</code>. Avem nevoie să ne mutăm datele exportate în format TopoJSON într-un director ce este expus prin serverul web instalat pe mașina virtuală OSGeoLive. Din această locație datele vor putea fi "consumate" de clientul cartografic web. Pentru aceasta e suficient să folosim comanda <code class="highlighter-rouge">cp</code> pentru a duce fișierele <code class="highlighter-rouge">data_tur1.topojson</code> și <code class="highlighter-rouge">data_tur2.topojson</code> în <code class="highlighter-rouge">/var/www/html/alegeri2019/data</code>. Nu o vom face acum deoare datele vor fi automat aduse de pe repository-ul GitHub, lucru explicat în capitolul următor.</p>
 
-      <h5 class="tutorialTitle">7.1. Replicarea aplicației wep pe OSGeoLive</h5>
+      <h5 class="tutorialTitle">7.2. Replicarea aplicației wep pe OSGeoLive</h5>
       <p>Aplicația cartografică, precum și acest tutorial, au fost publicate pe <a href="https://github.com/geospatialorg/alegeri2019">GitHub</a>. Pentru a le replica pe mașina noastră virtuală OSGeoLive, avem nevoie de un client <code class="highlighter-rouge">Git</code>. Pentru aceasta vom rula următoarea comandă Bash:</p>
 
       <pre>
@@ -90,7 +90,7 @@ sudo apt install git-all
         </code>
       </pre>
 
-      <p>Apoi, tot de acolo, vom naviga în rădăcina serverului web și vom descărca aplicația folosind comanda <code class="highlighter-rouge">clone</code></p>
+      <p>Apoi, tot de acolo, vom naviga în rădăcina serverului web și vom descărca aplicația folosind comanda <code class="highlighter-rouge">clone</code>:</p>
 
       <pre>
         <code class="language-bash">
@@ -102,6 +102,33 @@ sudo git clone https://github.com/geospatialorg/alegeri2019.git
       <div class="alert alert-info" role="alert">
         <strong>Notă:</strong> rulăm cu <code class="highlighter-rouge">sudo</code> comanda de clonare deoarece utilizatorul <code class="highlighter-rouge">user</code> nu are drepturi de scriere în directorul <code class="highlighter-rouge">/var/www/html</code>.
       </div>
+
+      <p>Dacă totul a funcționat bine, putem deschide navigatorul instalat pe mașina virtuală (Firefox) și merge la adresa: <code class="highlighter-rouge">http://localhost/alegeri2019</code>. Rezultatul ar trebui să fie similar cu cel din imaginea de mai jos:</p>
+
+      <img src="images/046_screenshot_aplicatie_cartografica.jpg" class="img-fluid" alt="Aplicația cartografică web deschisă în browser">
+      <p class="text-center"><em>Aplicația cartografică web deschisă în browser.</em></p>
+
+      <p>Hărțile pentru turul 1 și 2, se vor mișca fluent sau ceva mai sacadat, în funcție de resursele alocate mașinii virtuale. În schimb, slider-ul din harta <code class="highlighter-rouge">Turul 1 vs Turul 2</code> se va mișca foarte lent, se pare că datorită unui bug. Există două rezolvări pentru această problemă.</p>
+
+      <h6 class="tutorialTitle">7.2.1. Instalarea unui navigator alternativ</h6>
+      <p>Alte browsere nu au problema Firefox cu acel slider. Am testat cu <a href="https://www.google.com/chrome/">Google Chrome</a> și am constatat că acesta nu are această problemă. Instalarea am făcut-o cu comenzile:</p>
+      
+      <pre>
+        <code class="language-bash">
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+sudo dpkg -i google-chrome-stable_current_amd64.deb
+        </code>
+      </pre>      
+
+      <h6 class="tutorialTitle">7.2.2. Accesarea serverului web al mașinii virtuale dintr-un browser al mașinii gazdă</h6>
+      <p>Este soluția cea mai bună, deoarece nu necesită alocarea de resurse computaționale deosebite mașinii virtuale. Pentru a face legătura cu serverul web al mașinii virtuale trebuie facem un forward al portului <code class="highlighter-rouge">80</code> al mașinii virtuale, unde rulează serverul HTTP, către un port accesibil pe mașina gazdă. Acest lucru se poate realiza din <code class="highlighter-rouge">Settings/Network/Advanced/Port Forwardings</code>. Aici, în coloana <code class="highlighter-rouge">Guest Port</code> vom pune valoarea <code class="highlighter-rouge">80</code>, iar în coloana <code class="highlighter-rouge">Host port</code> vom pune un port ce știm că nu este utilizat, de exemplu <code class="highlighter-rouge">8889</code>, după cum se poate observa în captura de ecran de mai jos:</p>
+      <img src="images/047_port_forwarding.jpg" class="img-fluid" alt="Modificarea setărilor VirtualBox pentru a accesa serverul web de pe mașina gazdă">
+      <p class="text-center"><em>Modificarea setărilor VirtualBox pentru a accesa serverul web de pe mașina gazdă.</em></p>
+      <p>De acum, e suficient să scriem <a href="http://localhost:8889/alegeri2019">http://localhost:8889/alegeri2019</a> în bara de adresă din navigator pentru a accesa aplicația.</p>
+
+      <h5 class="tutorialTitle">7.3. Final de tutorial</h5>
+      <p>Cu acestea, tutorialul nostru în problema cartografiei electorale în linie de comandă se încheie. Vă mulțumim că ne-ați urmărit pînă în acest punct. Pentru întrebări și sugestii ne puteți scrie pe <a href="mailto:contact@geo-spatial.org">e-mail</a>, <a href="mailto:geo-spatial@yahoogroups.com">lista de discuții</a> sau pe <a href="http://bit.ly/2OepMRe">canalul Slack</a>.</p>
+
       <div>
         <div class="float-left">
           <p class="text-right"><a href="part6.html"><- Înapoi către Partea 6: Crearea hărții interactive</a></p>
