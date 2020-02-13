@@ -1,0 +1,103 @@
+<html>
+  <head>
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="assets/bootstrap-4.4.1-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/bootstrap-select-1.13.9/dist/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="assets/fontawesome-free-5.12.0-web/css/all.css">
+    <link rel="stylesheet" href="assets/prism/prism.css">
+
+    <script src="assets/jquery-3.4.1.min.js"></script>
+    <script src="assets/popper.min.js"></script>
+    <script src="assets/bootstrap-4.4.1-dist/js/bootstrap.min.js"></script>
+    <script src="assets/bootstrap-select-1.13.9/dist/js/bootstrap-select.min.js"></script>
+    <script src="assets/clipboard.js-master/dist/clipboard.min.js"></script>
+
+    <style>
+      .container {
+        padding-top: 20px;
+      }
+      .tutorialTitle {
+        border-bottom-style: solid;
+        border-bottom-width: 1px;
+        border-bottom-color: rgb(234, 236, 239);
+        margin-bottom: 16px;
+        padding-bottom: 9.6px;
+      }
+      code[class*="language-"],
+      pre[class*="language-"] {
+        word-wrap: normal;
+      }
+    </style>
+    
+  </head>
+  <body>
+    
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <strong><i class="fas fa-person-booth"></i>&nbsp;&nbsp;<a class="navbar-brand" href="#">Alegeri 2019 - Download date</a></strong>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-laptop-code"></i>&nbsp;&nbsp;Povestea hărții
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="part0.html">0 - Introducere</a>
+              <a class="dropdown-item" href="part1.html">1 - Mașina virtuală OSGeoLive</a>
+              <a class="dropdown-item" href="part2.html">2 - Datele de intrare</a>
+              <a class="dropdown-item" href="part3.html">3 - Realizarea hărții la nivel de secție de votare (poligon)</a>
+              <a class="dropdown-item" href="part4.html">4 - Se poate oare coborî mai jos de secție cu reprezentarea?</a>
+              <a class="dropdown-item" href="part5.html">5 - Hărțile clasice, la nivel de UAT și județ</a>
+              <a class="dropdown-item" href="part6.html">6 - Crearea hărții interactive</a>
+              <a class="dropdown-item" href="part7.html">7 - Utilizarea rezultatelor în OSGeoLive</a>
+            </div>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="download.html"><i class="fas fa-download"></i>&nbsp;&nbsp;Download</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-toggle-on"></i>&nbsp;&nbsp;Hartă
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="turul1.html">Turul 1</a>
+              <a class="dropdown-item" href="index.html">Turul 2</a>
+              <a class="dropdown-item" href="tur1_vs_tur2.html">Turul 1 vs Turul 2</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <main role="main" class="container">
+    <h4 class="tutorialTitle">Cartografie electorală în linie de comandă: Download date</h4>
+    <p>Datele utilizate în cadrul aplicației pot fi descărcate în format <a href="https://ro.wikipedia.org/wiki/GeoPackage">GeoPackage</a>:</p>
+    <ul>
+      <li>Rezultate la nivel de secții de votare (poligon): <a href="http://www.geo-spatial.org/file_download/29690">Turul 1</a> | <a href="http://www.geo-spatial.org/file_download/29691">Turul 2</a></li>
+      <li>Rezultate la nivel de secții de votare (punct): <a href="http://www.geo-spatial.org/file_download/29688">Turul 1</a> | <a href="http://www.geo-spatial.org/file_download/29689">Turul 2</a></li>
+      <li>Rezultate la nivel de secții de votare, doar acolo unde există populație conform recensămîntului din 2011: <a href="http://www.geo-spatial.org/file_download/29686">Turul 1</a> | <a href="http://www.geo-spatial.org/file_download/29687">Turul 2</a></li>
+      <li>Rezultate la nivel de UAT-uri: <a href="http://www.geo-spatial.org/file_download/29692">Turul 1</a> | <a href="http://www.geo-spatial.org/file_download/29693">Turul 2</a></li>
+      <li>Rezultate la nivel de județ: <a href="http://www.geo-spatial.org/file_download/29684">Turul 1</a> | <a href="http://www.geo-spatial.org/file_download/29685">Turul 2</a></li>
+      <li>Reprezentarea fiecărui vot: <a href="http://www.geo-spatial.org/file_download/29676">Turul 1</a> | <a href="http://www.geo-spatial.org/file_download/29677">Turul 2</a></li>
+      <li>Reprezentarea fiecărui procent la nivel de secție: <a href="http://www.geo-spatial.org/file_download/29680">Turul 1</a> | <a href="http://www.geo-spatial.org/file_download/29681">Turul 2</a></li>
+      <li>Reprezentarea fiecărui procent la nivel de UAT: <a href="http://www.geo-spatial.org/file_download/29682">Turul 1</a> | <a href="http://www.geo-spatial.org/file_download/29683">Turul 2</a></li>
+      <li>Reprezentarea fiecărui procent la nivel de județ: <a href="http://www.geo-spatial.org/file_download/29678">Turul 1</a> | <a href="http://www.geo-spatial.org/file_download/29679">Turul 2</a></li>
+    </ul>
+    <p>De asemenea, vă punem la dispoziție regulile de simbolizare cartografică în format <a href="https://www.qgis.org/">QGIS</a>:</p>
+    <ul>
+      <li>Poligoane: <a href="http://www.geo-spatial.org/file_download/29694">Turul 1</a> | <a href="http://www.geo-spatial.org/file_download/29695">Turul 2</a></li></li>
+      <li>Puncte: <a href="http://www.geo-spatial.org/file_download/29697">Turul 1</a> | <a href="http://www.geo-spatial.org/file_download/29696">Turul 2</a></li></li>
+    </ul>
+
+      
+    </main>
+    <script src="assets/prism/prism.js"></script>
+    <script type="text/javascript">
+      Prism.plugins.NormalizeWhitespace.setDefaults({'break-lines': 112,});
+    </script>
+
+  </body>
+</html>

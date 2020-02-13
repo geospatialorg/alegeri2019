@@ -56,6 +56,9 @@
               <a class="dropdown-item" href="part7.html">7 - Utilizarea rezultatelor în OSGeoLive</a>
             </div>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="download.html"><i class="fas fa-download"></i>&nbsp;&nbsp;Download</a>
+          </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i class="fas fa-toggle-on"></i>&nbsp;&nbsp;Hartă
@@ -559,7 +562,7 @@ ALTER TABLE tur2.fiecare_vot_tur2 ADD COLUMN id serial primary key;"
       <img src="images/032_puncte_tur2.png" class="img-fluid" alt="Exemplu: fiecare punct semnifică un vot">
       <p class="text-center"><em>Exemplu: fiecare punct semnifică un vot.</em></p>
       <p>Problema, după cum se poate observa mai sus, este dată de scara la care se face vizualizare și de ordinea de randare a celor două straturi (sau a elementelor dacă au fost combinate într-un singur strat). În imagine putem observa mult albastru în secțiile mici, cu densitate mare de votanți. În realitate, proporția de albastru este mult mai mică dar, datorită ordinii de randare (albastru la sfîrșit), apare mult mai pregnant. Puteți folosi aplicația interactivă de mai jos pentru a vedea cît de mult le acoperă punctele albastre pe cele roșii.</p>
-      <iframe frameborder="0" class="juxtapose" width="100%" height="642" src="https://cdn.knightlab.com/libs/juxtapose/latest/embed/index.html?uid=983637a0-4906-11ea-b9b8-0edaf8f81e27"></iframe>
+      <iframe frameborder="0" class="juxtapose" width="100%" height="902" src="https://cdn.knightlab.com/libs/juxtapose/latest/embed/index.html?uid=d4c819f0-4a77-11ea-b9b8-0edaf8f81e27"></iframe>
       <p class="text-center"><em>Compararea interactivă a distribuției voturilor (mutați slider-ul pentru a vedea diferențele).</em></p>
 
       <h6 class="tutorialTitle">4.3.2. Crearea punctelor pentru turul 1</h6>
@@ -642,7 +645,7 @@ CREATE TABLE tur2.sectii_voronoi_pv_tur2_clip_pop AS
         </code>
       </pre>
       <p>Astfel, am colorat hărțile doar arealele populate. Rezultatule pentru cele două tururi pot fi comparate interactiv în aplicație de mai jos:</p>    
-      <iframe frameborder="0" class="juxtapose" width="100%" height="814" src="https://cdn.knightlab.com/libs/juxtapose/latest/embed/index.html?uid=22858b40-4907-11ea-b9b8-0edaf8f81e27"></iframe>
+      <iframe frameborder="0" class="juxtapose" width="100%" height="814" src="https://cdn.knightlab.com/libs/juxtapose/latest/embed/index.html?uid=808376aa-4a77-11ea-b9b8-0edaf8f81e27"></iframe>
       <p class="text-center"><em>Compararea interactivă a rezultatelor pentru zonele locuite în cele două tururi (mutați slider-ul pentru a vedea diferențele).</em></p>
       <div>
         <div class="float-left">
