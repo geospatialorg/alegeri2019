@@ -625,7 +625,6 @@
             fiecare_procent_judete.on('mouseout', function(e) {
               var properties = e.layer.properties;
               clearHighlightVectorGrid();
-              console.log(e.layer.properties);
               highlightVectorGrid = properties.id;
               var style = {
                 fillColor: getColor(properties.castigator),
