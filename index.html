@@ -408,7 +408,7 @@
             });
             sectii_punct = L.geoJson(getsections, {pointToLayer: function (feature, latlng) {return L.circleMarker(latlng, optiuniSectiiPunct)}});
 
-            fiecare_vot = L.vectorGrid.protobuf('http://geo-spatial.org/geoserver/gwc/service/tms/1.0.0/alegeri2019:fiecare_vot_tur2@EPSG%3A3857@pbf/{z}/{x}/{-y}.pbf', {
+            fiecare_vot = L.vectorGrid.protobuf('http://geo-spatial.org/geoserver/gwc/service/tms/1.0.0/alegeri2019:fiecare_vot_tur2@EPSG%3A900913@pbf/{z}/{x}/{-y}.pbf', {
               rendererFactory: L.svg.tile,
               interactive: true,
               minZoom: 14,
@@ -423,7 +423,7 @@
               }
             });
 
-            fiecare_procent_sectie = L.vectorGrid.protobuf('http://geo-spatial.org/geoserver/gwc/service/tms/1.0.0/alegeri2019:fiecare_procent_sectie_tur2@EPSG%3A3857@pbf/{z}/{x}/{-y}.pbf', {
+            fiecare_procent_sectie = L.vectorGrid.protobuf('http://geo-spatial.org/geoserver/gwc/service/tms/1.0.0/alegeri2019:fiecare_procent_sectie_tur2@EPSG%3A900913@pbf/{z}/{x}/{-y}.pbf', {
               rendererFactory: L.svg.tile,
               interactive: true,
               minZoom: 11,
@@ -438,7 +438,7 @@
               }
             });
 
-            fiecare_procent_uat = L.vectorGrid.protobuf('http://geo-spatial.org/geoserver/gwc/service/tms/1.0.0/alegeri2019:fiecare_procent_uat_tur2@EPSG%3A3857@pbf/{z}/{x}/{-y}.pbf', {
+            fiecare_procent_uat = L.vectorGrid.protobuf('http://geo-spatial.org/geoserver/gwc/service/tms/1.0.0/alegeri2019:fiecare_procent_uat_tur2@EPSG%3A900913@pbf/{z}/{x}/{-y}.pbf', {
               rendererFactory: L.svg.tile,
               interactive: true,
               minZoom: 10,
@@ -453,7 +453,7 @@
               }
             });
 
-            fiecare_procent_judete = L.vectorGrid.protobuf('http://geo-spatial.org/geoserver/gwc/service/tms/1.0.0/alegeri2019:fiecare_procent_judete_tur2@EPSG%3A3857@pbf/{z}/{x}/{-y}.pbf', {
+            fiecare_procent_judete = L.vectorGrid.protobuf('http://geo-spatial.org/geoserver/gwc/service/tms/1.0.0/alegeri2019:fiecare_procent_judete_tur2@EPSG%3A900913@pbf/{z}/{x}/{-y}.pbf', {
               rendererFactory: L.svg.tile,
               interactive: true,
               pane: 'fiecare_procent_judete',
