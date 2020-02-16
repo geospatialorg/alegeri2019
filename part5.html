@@ -878,8 +878,31 @@ ALTER TABLE tur1.voronoi_procente_judete ADD COLUMN id serial primary key;
       <iframe frameborder="0" class="juxtapose" width="100%" height="741" src="https://cdn.knightlab.com/libs/juxtapose/latest/embed/index.html?uid=4e25678e-490c-11ea-b9b8-0edaf8f81e27"></iframe>
       <p class="text-center"><em>Compararea interactivă a rezultatelor la nivel de județ în cele două tururi (mutați slider-ul pentru a vedea diferențele).</em></p>
 
+      <h5 class="tutorialTitle">5.5. Ștergerea tabelelor temporare</h5>
 
-      <h5 class="tutorialTitle">5.5. Way forward</h5>
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+DROP TABLE sandbox.judete_simplificat;
+DROP TABLE sandbox.puncte_2000_uat;
+DROP TABLE sandbox.clustere_puncte_2000_uat;
+DROP TABLE sandbox.centroizi_clustere_puncte_2000_uat;
+DROP TABLE sandbox.voronoi_procente_uat;
+DROP TABLE sandbox.voronoi_procente_uat_clip;
+DROP TABLE sandbox.uat_voronoi_pv_tur1_rotunjit;
+DROP TABLE sandbox.puncte_5000_judete;
+DROP TABLE sandbox.clustere_puncte_5000_judete;
+DROP TABLE sandbox.centroizi_clustere_puncte_5000_judete;
+DROP TABLE sandbox.voronoi_procente_judete;
+DROP TABLE sandbox.voronoi_procente_judete_clip;
+DROP TABLE sandbox.voronoi_procente_judete_clip;
+DROP TABLE sandbox.judete_voronoi_pv_tur1_rotunjit;"
+        </code>
+      </pre>
+
+      <h5 class="tutorialTitle">5.6. Way forward</h5>
       <p>După o avalanșă de interogări SQL, avem toate datele necesare pentru a face o hartă web interactivă. Ne mai rămîne doar să înțelegem cum putem folosi datele ce momentan stau în tabele de tip <a href="http://postgis.net">PostGIS</a>.</p>
 
 
