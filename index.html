@@ -801,18 +801,24 @@
                 hideShowLayers('pop_rez');
               }
               if ($('#rezultat').val() == '5'){  
-                map.setZoom(13);
+                zoomLevel = map.getZoom();
+                if (zoomLevel < 13)  
+                  map.setZoom(13);
                 hideShowLayers('fiecare_procent_sectie');
               }
               if ($('#rezultat').val() == '6'){  
-                map.setZoom(12);
+                zoomLevel = map.getZoom();
+                if (zoomLevel < 12) 
+                  map.setZoom(12);
                 hideShowLayers('fiecare_procent_uat');
               }
               if ($('#rezultat').val() == '7'){  
                 hideShowLayers('fiecare_procent_judete');
               }
-              if ($('#rezultat').val() == '8'){  
-                map.setZoom(14);
+              if ($('#rezultat').val() == '8'){ 
+                zoomLevel = map.getZoom();
+                if (zoomLevel < 14)                 
+                  map.setZoom(14); 
                 hideShowLayers('fiecare_vot');
               }
             });

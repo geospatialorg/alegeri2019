@@ -863,9 +863,7 @@
               }
             }
             info.addTo(map);
-
-
-
+            
             $('#rezultat').change(function () {
               if ($('#rezultat').val() == '1'){  
                 hideShowLayers(['sectii_rez', 'sectii_rez1']);
@@ -879,12 +877,16 @@
               if ($('#rezultat').val() == '4'){  
                 hideShowLayers(['pop_rez', 'pop_rez1']);
               }
-              if ($('#rezultat').val() == '5'){  
-                map.setZoom(13);
+              if ($('#rezultat').val() == '5'){
+                zoomLevel = map.getZoom();
+                if (zoomLevel < 13)    
+                  map.setZoom(13);
                 hideShowLayers(['fiecare_procent_sectie', 'fiecare_procent_sectie1']);
               }
               if ($('#rezultat').val() == '6'){  
-                map.setZoom(12);
+                zoomLevel = map.getZoom();
+                if (zoomLevel < 12)  
+                  map.setZoom(12);
                 hideShowLayers(['fiecare_procent_uat', 'fiecare_procent_uat1']);
               }
               if ($('#rezultat').val() == '7'){  
