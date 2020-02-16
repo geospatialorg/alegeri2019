@@ -34,16 +34,19 @@
   <body>
     
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <strong><i class="fas fa-person-booth"></i>&nbsp;&nbsp;<a class="navbar-brand" href="#">Alegeri 2019 - Poveste</a></strong>
+      <strong><i class="fas fa-person-booth"></i>&nbsp;&nbsp;<a class="navbar-brand" href="#">Alegeri 2019 - Poveste 2/7</a></strong>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="#" data-toggle="modal" data-target="#despre_harta"><i class="fas fa-info-circle"></i>&nbsp;&nbsp;Despre</a>
+          </li>
           <li class="nav-item dropdown active">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i class="fas fa-laptop-code"></i>&nbsp;&nbsp;Povestea hărții
+              <i class="fas fa-laptop-code"></i>&nbsp;&nbsp;Harta pas cu pas
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="dropdown-item" href="part0.html">0 - Introducere</a>
@@ -72,6 +75,91 @@
         </ul>
       </div>
     </nav>
+
+    <div class="modal fade bd-example-modal-xl" id="despre_harta" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true"  style="z-index: 2001">
+      <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalScrollableTitle">Despre hartă</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Închide">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-danger" role="alert">
+              <strong>Disclaimer:</strong> <a href="http://www.geo-spatial.org/" target="_blank">geo-spatial.org</a> nu a fost și nu va fi vreodată implicat în demersuri cu caracter politic. Acest material are un scop pur didactic și nu urmărește aprecierea în sens pozitv sau negativ a candidaților ce au participat la cele două tururi de alegeri prezidențiale din 2019.</a>
+            </div>
+            <p>Demersul de față și-a propus realizarea unor hărți interactive detaliate ale rezultatelor alegerilor prezidențiale din 2019 și <a href="part0.html" target="_blank">prezentarea pas cu pas</a> a modului de prelucrare și reprezentare a datelor. Provocarea principală a fost coborîrea la o scară mai fină decît clasicele reprezentări la nivel de județ și UAT. Nefiind experți în analize electorale, nu știm cît de relevante sînt respectivele reprezentări, bunul simț ne spune însă că o mai fină reprezentare a culorilor votului cetățenilor poate ajuta la înțelegerea mai bună a resorturilor ce au stat în spatele deciziilor de vot ale acestora.</p>
+
+            <div class="card-body">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="judet-tab" 
+                           data-toggle="tab" href="#judet">Județ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="uat-tab" 
+                           data-toggle="tab" href="#uat">UAT</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="sectie-tab" 
+                           data-toggle="tab" href="#sectie">Secție</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="sub-sectie-tab" 
+                           data-toggle="tab" href="#sub-sectie">Fiecare procent dintr-o secție</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane show active" id="judet">
+                      <img src="images/despre_01.png" class="img-fluid" alt="Exemplu rezultate la nivel de județ">
+                    </div>
+                    <div class="tab-pane" id="uat">
+                      <img src="images/despre_02.png" class="img-fluid" alt="Exemplu rezultate la nivel de UAT">
+                    </div>
+                    <div class="tab-pane" id="sectie">
+                      <img src="images/despre_03.png" class="img-fluid" alt="Exemplu rezultate la nivel de secție">
+                    </div>
+                    <div class="tab-pane" id="sub-sectie">
+                      <img src="images/despre_04.png" class="img-fluid" alt="Exemplu rezultate la nivel de procent din secție">
+                    </div>
+                </div>
+            </div>
+
+            <p>Aplicația include trei hărți interactive:</p>
+            <ul>
+              <li><a href="tur1.html" target="_blank">Rezultate turul 1 al alegerilor</a>;</li>
+              <li><a href="tur1.html" target="_blank">Rezultate turul 2 al alegerilor</a>;</li>
+              <li><a href="tur1.html" target="_blank">Rezultate comparative turul 1 vs turul 2 al alegerilor</a>.</li>
+            </ul>
+
+            <p>În cadrul fiecărei hărți pot fi vizualizate rezultatele la nivel de:</p>
+            <ul>
+              <li>Județ;</li>
+              <li>UAT;</li>
+              <li>Secție de votare (consultați <a href="part0.html" target="_blank">această pagină</a> pentru a vedea cum au fost delimitate secțiile folosind tehnica poligoanelor Voronoi);</li>
+              <li>Fiecare procent la nivel de secție;</li>
+              <li>Fiecare procent la nivel de UAT;</li>
+              <li>Fiecare procent la nivel de județ;</li>
+              <li>Fiecare vot.</li>
+            </ul>
+
+            <p>Aplicația mai permite ajustarea nivelului de opacitate a straturilor cu rezultate, suprapunerea unor straturi de referință și schimbarea hărții de fundal. Datele din aplicație pot fi <a href="download.html" target="_blank">descărcate în format GeoPackages</a>. De asemenea, codul sursă al aplicației poate fi descărcat liber de pe <a href="https://github.com/geospatialorg/alegeri2019" target="_blank">GitHub</a>. Harta are o serie de limitări de ordin tehnic, limitări pentru care există soluții dar aplicarea acestora ar depăși scopul acestui demers.</p>
+
+            <div class="alert alert-warning" role="alert">
+              <strong>Limitări tehnice:</strong>
+              <ul>
+                <li>Încărcarea inițială a hărții, mai ales a celei intitulată <code class="highlighter-rouge">Turul 1 vs Turul 2</code>, poate fi destul de lentă din cauza volumului mare de date ce se încarcă în aplicația client;</li>
+                <li>Afișarea rezultatelor nu funcționează atunci cînd sînt afișate pe hartă și straturile de referință de tip poligon (<code class="highlighter-rouge">Contur secție</code>, <code class="highlighter-rouge">Contur UAT</code> sau <code class="highlighter-rouge">Contur județe</code>).</li></a>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Închide</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <main role="main" class="container">
       <h4 class="tutorialTitle">Cartografie electorală în linie de comandă - Partea 2: Datele de intrare</h4>
       <h5 class="tutorialTitle">2.1. "Despre ce vorbim noi aici"?</h5>
@@ -117,7 +205,8 @@
       <p>AEP a publicat locațiile secțiilor de votare într-o aplicație web interactivă pe site-ul <a href="https://gis.registrulelectoral.ro:8443/DrumLaSectie/">https://gis.registrulelectoral.ro:8443/DrumLaSectie/</a>. Inspectînd modul de funcționare a aplicației, am descoperit că informațiile sînt dinamic servite prin intermediul unui serviciu <a href="https://www.opengeospatial.org/standards/wfs">WFS</a> asigurat de o instanță <a href="http://geoserver.org">GeoServer</a>. Astfel, este suficient să facem o cerere <a href="https://www.opengeospatial.org/standards/wfs">WFS</a> către acest server pentru a descărca local o copie a datelor. Facem respectiva cerere prin intermediul utilitarului <a href="https://www.gnu.org/software/wget/">Wget</a>:</p>
       <pre>
         <code class="language-bash">
-wget -O sectii.json --no-check-certificate "https://gis.registrulelectoral.ro:8443/CountApp/geoserver/aep/wfs?service=WFS&version=1.1.0&request=GetFeature&typename=aep:SectiiVotareRomania&outputFormat=application/json&srsname=EPSG:3857"
+wget -O sectii.json --no-check-certificate \
+"https://gis.registrulelectoral.ro:8443/CountApp/geoserver/aep/wfs?service=WFS&version=1.1.0&request=GetFeature&typename=aep:SectiiVotareRomania&outputFormat=application/json&srsname=EPSG:3857"
         </code>
       </pre>
       <p>Rezultatul, în format <a href="https://geojson.org/">GeoJSON</a>, va fi stocat în directorul nostru de lucru cu numele <code class="highlighter-rouge">sectii.json</code>. Fișierul conține locațiile tuturor secțiilor din România și diaspora, așa cum se poate observa după încărcarea în <a href="https://www.qgis.org/">QGIS</a> (disponibil de asemenea pe mașina virtuală):</p>
@@ -186,10 +275,20 @@ CREATE SCHEMA tur2;"
       <p>Pentru importul datelor vom folosi <a href="https://gdal.org">GDAL/OGR:</a></p>
       <pre>
         <code class="language-bash">
-ogr2ogr -f "PostgreSQL" PG:"host=localhost port=5432 dbname=alegeri user=user password=user" -lco SCHEMA=referinta -lco GEOMETRY_NAME=geom -lco SPATIAL_INDEX=yes ro_uat_simplificat.shp ro_uat_simplificat -nln uat_simplificat -nlt PROMOTE_TO_MULTI -s_srs EPSG:3844 -t_srs EPSG:3857 -skipfailures
-ogr2ogr -f "PostgreSQL" PG:"host=localhost port=5432 dbname=alegeri user=user password=user" -lco SCHEMA=referinta -lco GEOMETRY_NAME=geom -lco SPATIAL_INDEX=yes sectii.json sectii -nln sectii -a_srs EPSG:3857 -skipfailures
-ogr2ogr -f "PostgreSQL" PG:"host=localhost port=5432 dbname=alegeri user=user password=user" -lco SCHEMA=referinta pv_tur1.csv pv_tur1 -nln pv_tur1 -skipfailures
-ogr2ogr -f "PostgreSQL" PG:"host=localhost port=5432 dbname=alegeri user=user password=user" -lco SCHEMA=referinta pv_tur2.csv pv_tur2 -nln pv_tur2 -skipfailures
+ogr2ogr -f "PostgreSQL" PG:"host=localhost port=5432 dbname=alegeri user=user password=user" \
+-lco SCHEMA=referinta -lco GEOMETRY_NAME=geom -lco SPATIAL_INDEX=yes ro_uat_simplificat.shp \
+ro_uat_simplificat -nln uat_simplificat -nlt PROMOTE_TO_MULTI -s_srs EPSG:3844 \
+-t_srs EPSG:3857 -skipfailures
+
+ogr2ogr -f "PostgreSQL" PG:"host=localhost port=5432 dbname=alegeri user=user password=user" \
+-lco SCHEMA=referinta -lco GEOMETRY_NAME=geom -lco SPATIAL_INDEX=yes sectii.json sectii \
+-nln sectii -a_srs EPSG:3857 -skipfailures
+
+ogr2ogr -f "PostgreSQL" PG:"host=localhost port=5432 dbname=alegeri user=user password=user" \
+-lco SCHEMA=referinta pv_tur1.csv pv_tur1 -nln pv_tur1 -skipfailures
+
+ogr2ogr -f "PostgreSQL" PG:"host=localhost port=5432 dbname=alegeri user=user password=user" \
+-lco SCHEMA=referinta pv_tur2.csv pv_tur2 -nln pv_tur2 -skipfailures
         </code>
       </pre>
       <p>Astfel, am creat în schema <code class="highlighter-rouge">referinta</code> tabelele <code class="highlighter-rouge">uat_simplificat</code>, <code class="highlighter-rouge">sectii</code>, <code class="highlighter-rouge">pv_tur1</code> și <code class="highlighter-rouge">pv_tur2</code>. Rezultatele pot fi inspectate cu <a href="https://www.pgadmin.org/">pgAdmin</a> sau <a href="https://www.qgis.org/">QGIS</a>.</p>

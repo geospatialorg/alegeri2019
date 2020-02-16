@@ -84,9 +84,12 @@
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="#" data-toggle="modal" data-target="#despre_harta"><i class="fas fa-info-circle"></i>&nbsp;&nbsp;Despre</a>
+          </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <i class="fas fa-laptop-code"></i>&nbsp;&nbsp;Povestea hărții
+              <i class="fas fa-laptop-code"></i>&nbsp;&nbsp;Harta pas cu pas
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="dropdown-item" href="part0.html">0 - Introducere</a>
@@ -166,6 +169,89 @@
       </div>
     </nav>
 
+    <div class="modal fade bd-example-modal-xl" id="despre_harta" tabindex="-1" role="dialog" aria-labelledby="myExtraLargeModalLabel" aria-hidden="true"  style="z-index: 2001">
+      <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalScrollableTitle">Despre hartă</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Închide">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-danger" role="alert">
+              <strong>Disclaimer:</strong> <a href="http://www.geo-spatial.org/" target="_blank">geo-spatial.org</a> nu a fost și nu va fi vreodată implicat în demersuri cu caracter politic. Acest material are un scop pur didactic și nu urmărește aprecierea în sens pozitv sau negativ a candidaților ce au participat la cele două tururi de alegeri prezidențiale din 2019.</a>
+            </div>
+            <p>Demersul de față și-a propus realizarea unor hărți interactive detaliate ale rezultatelor alegerilor prezidențiale din 2019 și <a href="part0.html" target="_blank">prezentarea pas cu pas</a> a modului de prelucrare și reprezentare a datelor. Provocarea principală a fost coborîrea la o scară mai fină decît clasicele reprezentări la nivel de județ și UAT. Nefiind experți în analize electorale, nu știm cît de relevante sînt respectivele reprezentări, bunul simț ne spune însă că o mai fină reprezentare a culorilor votului cetățenilor poate ajuta la înțelegerea mai bună a resorturilor ce au stat în spatele deciziilor de vot ale acestora.</p>
+
+            <div class="card-body">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="judet-tab" 
+                           data-toggle="tab" href="#judet">Județ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="uat-tab" 
+                           data-toggle="tab" href="#uat">UAT</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="sectie-tab" 
+                           data-toggle="tab" href="#sectie">Secție</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="sub-sectie-tab" 
+                           data-toggle="tab" href="#sub-sectie">Fiecare procent dintr-o secție</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane show active" id="judet">
+                      <img src="images/despre_01.png" class="img-fluid" alt="Exemplu rezultate la nivel de județ">
+                    </div>
+                    <div class="tab-pane" id="uat">
+                      <img src="images/despre_02.png" class="img-fluid" alt="Exemplu rezultate la nivel de UAT">
+                    </div>
+                    <div class="tab-pane" id="sectie">
+                      <img src="images/despre_03.png" class="img-fluid" alt="Exemplu rezultate la nivel de secție">
+                    </div>
+                    <div class="tab-pane" id="sub-sectie">
+                      <img src="images/despre_04.png" class="img-fluid" alt="Exemplu rezultate la nivel de procent din secție">
+                    </div>
+                </div>
+            </div>
+
+            <p>Aplicația include trei hărți interactive:</p>
+            <ul>
+              <li><a href="tur1.html" target="_blank">Rezultate turul 1 al alegerilor</a>;</li>
+              <li><a href="tur1.html" target="_blank">Rezultate turul 2 al alegerilor</a>;</li>
+              <li><a href="tur1.html" target="_blank">Rezultate comparative turul 1 vs turul 2 al alegerilor</a>.</li>
+            </ul>
+
+            <p>În cadrul fiecărei hărți pot fi vizualizate rezultatele la nivel de:</p>
+            <ul>
+              <li>Județ;</li>
+              <li>UAT;</li>
+              <li>Secție de votare (consultați <a href="part0.html" target="_blank">această pagină</a> pentru a vedea cum au fost delimitate secțiile folosind tehnica poligoanelor Voronoi);</li>
+              <li>Fiecare procent la nivel de secție;</li>
+              <li>Fiecare procent la nivel de UAT;</li>
+              <li>Fiecare procent la nivel de județ;</li>
+              <li>Fiecare vot.</li>
+            </ul>
+
+            <p>Aplicația mai permite ajustarea nivelului de opacitate a straturilor cu rezultate, suprapunerea unor straturi de referință și schimbarea hărții de fundal. Datele din aplicație pot fi <a href="download.html" target="_blank">descărcate în format GeoPackages</a>. De asemenea, codul sursă al aplicației poate fi descărcat liber de pe <a href="https://github.com/geospatialorg/alegeri2019" target="_blank">GitHub</a>. Harta are o serie de limitări de ordin tehnic, limitări pentru care există soluții dar aplicarea acestora ar depăși scopul acestui demers.</p>
+
+            <div class="alert alert-warning" role="alert">
+              <strong>Limitări tehnice:</strong>
+              <ul>
+                <li>Încărcarea inițială a hărții, mai ales a celei intitulată <code class="highlighter-rouge">Turul 1 vs Turul 2</code>, poate fi destul de lentă din cauza volumului mare de date ce se încarcă în aplicația client;</li>
+                <li>Afișarea rezultatelor nu funcționează atunci cînd sînt afișate pe hartă și straturile de referință de tip poligon (<code class="highlighter-rouge">Contur secție</code>, <code class="highlighter-rouge">Contur UAT</code> sau <code class="highlighter-rouge">Contur județe</code>).</li></a>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Închide</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div style="" id="loadingDiv"><div class="loader">Încărcare...</div><p><center>Așteptați o clipă, încărcăm <strong>10.031.762</strong> de voturi (well, exagerăm puțin, 182.648 au fost declarate nule)...</center></p></div>
 
@@ -276,7 +362,7 @@
           pane: 'sectii_punct'
         };
 
-        function fiecareVotStyle(castigator) {
+        function styleFiecareVot(castigator) {
           return {
             radius: 1,
             fillColor: getColor(castigator),
@@ -303,17 +389,6 @@
           d == 2  ? '#e31a1c':
           '#33a02c';
         }
-
-        var highlightVectorGrid;
-        var clearHighlightVectorGrid = function() {
-          if (highlightVectorGrid) {
-            fiecare_vot.resetFeatureStyle(highlightVectorGrid);
-            fiecare_procent_sectie.resetFeatureStyle(highlightVectorGrid);
-            fiecare_procent_uat.resetFeatureStyle(highlightVectorGrid);
-            fiecare_procent_judete.resetFeatureStyle(highlightVectorGrid);
-          }
-        highlightVectorGrid = null;
-        };
 
         var req = new XMLHttpRequest();
         var url = 'data/data_tur2.topojson';
@@ -408,7 +483,7 @@
             });
             sectii_punct = L.geoJson(getsections, {pointToLayer: function (feature, latlng) {return L.circleMarker(latlng, optiuniSectiiPunct)}});
 
-            fiecare_vot = L.vectorGrid.protobuf('http://geo-spatial.org/geoserver/gwc/service/tms/1.0.0/alegeri2019:fiecare_vot_tur2@EPSG%3A900913@pbf/{z}/{x}/{-y}.pbf', {
+            fiecare_vot = L.vectorGrid.protobuf('http://localhost:8082/geoserver/gwc/service/tms/1.0.0/alegeri:fiecare_vot_tur2@EPSG%3A3857@pbf/{z}/{x}/{-y}.pbf', {
               rendererFactory: L.svg.tile,
               interactive: true,
               minZoom: 14,
@@ -418,12 +493,12 @@
               },
               vectorTileLayerStyles: {
                 fiecare_vot_tur2: properties => {
-                  return fiecareVotStyle(properties.castigator, false)
+                  return styleFiecareVot(properties.castigator)
                 }
               }
             });
 
-            fiecare_procent_sectie = L.vectorGrid.protobuf('http://geo-spatial.org/geoserver/gwc/service/tms/1.0.0/alegeri2019:fiecare_procent_sectie_tur2@EPSG%3A900913@pbf/{z}/{x}/{-y}.pbf', {
+            fiecare_procent_sectie = L.vectorGrid.protobuf('http://localhost:8082/geoserver/gwc/service/tms/1.0.0/alegeri:fiecare_procent_sectie_tur2@EPSG%3A3857@pbf/{z}/{x}/{-y}.pbf', {
               rendererFactory: L.svg.tile,
               interactive: true,
               minZoom: 11,
@@ -433,12 +508,12 @@
               },
               vectorTileLayerStyles: {
                 fiecare_procent_sectie_tur2: properties => {
-                  return styleFiecareProcent(properties.castigator, false)
+                  return styleFiecareProcent(properties.castigator)
                 }
               }
             });
 
-            fiecare_procent_uat = L.vectorGrid.protobuf('http://geo-spatial.org/geoserver/gwc/service/tms/1.0.0/alegeri2019:fiecare_procent_uat_tur2@EPSG%3A900913@pbf/{z}/{x}/{-y}.pbf', {
+            fiecare_procent_uat = L.vectorGrid.protobuf('http://localhost:8082/geoserver/gwc/service/tms/1.0.0/alegeri:fiecare_procent_uat_tur2@EPSG%3A3857@pbf/{z}/{x}/{-y}.pbf', {
               rendererFactory: L.svg.tile,
               interactive: true,
               minZoom: 10,
@@ -448,12 +523,12 @@
               },
               vectorTileLayerStyles: {
                 fiecare_procent_uat_tur2: properties => {
-                  return styleFiecareProcent(properties.castigator, false)
+                  return styleFiecareProcent(properties.castigator)
                 }
               }
             });
 
-            fiecare_procent_judete = L.vectorGrid.protobuf('http://geo-spatial.org/geoserver/gwc/service/tms/1.0.0/alegeri2019:fiecare_procent_judete_tur2@EPSG%3A900913@pbf/{z}/{x}/{-y}.pbf', {
+            fiecare_procent_judete = L.vectorGrid.protobuf('http://localhost:8082/geoserver/gwc/service/tms/1.0.0/alegeri:fiecare_procent_judete_tur2@EPSG%3A3857@pbf/{z}/{x}/{-y}.pbf', {
               rendererFactory: L.svg.tile,
               interactive: true,
               pane: 'fiecare_procent_judete',
@@ -462,7 +537,7 @@
               },
               vectorTileLayerStyles: {
                 fiecare_procent_judete_tur2: properties => {
-                  return styleFiecareProcent(properties.castigator, false)
+                  return styleFiecareProcent(properties.castigator)
                 }
               }
             });
@@ -481,11 +556,10 @@
             map.getPane('sectii_punct').style.zIndex = 1214;
             
             map.addLayer(sectii_rez);
+            console.log(sectii_rez);
             
             fiecare_vot.on('mouseover', function(e) {
               var properties = e.layer.properties;
-              clearHighlightVectorGrid();
-              highlightVectorGrid = properties.id;
               var style = {
                 radius: 20,
                 weight: 10,
@@ -500,8 +574,6 @@
 
             fiecare_vot.on('mouseout', function(e) {
               var properties = e.layer.properties;
-              clearHighlightVectorGrid();
-              highlightVectorGrid = properties.id;
               var style = {
                 radius: 1,
                 fillColor: getColor(properties.castigator),
@@ -514,8 +586,6 @@
 
             fiecare_procent_sectie.on('mouseover', function(e) {
               var properties = e.layer.properties;
-              clearHighlightVectorGrid();
-              highlightVectorGrid = properties.id;
               var style = {
                 fillColor: getColor(properties.castigator),
                 weight: 1,
@@ -530,8 +600,6 @@
 
             fiecare_procent_sectie.on('mouseout', function(e) {
               var properties = e.layer.properties;
-              clearHighlightVectorGrid();
-              highlightVectorGrid = properties.id;
               var style = {
                 fillColor: getColor(properties.castigator),
                 weight: 0.9,
@@ -547,8 +615,6 @@
 
             fiecare_procent_uat.on('mouseover', function(e) {
               var properties = e.layer.properties;
-              clearHighlightVectorGrid();
-              highlightVectorGrid = properties.id;
               var style = {
                 fillColor: getColor(properties.castigator),
                 weight: 1,
@@ -563,8 +629,6 @@
 
             fiecare_procent_uat.on('mouseout', function(e) {
               var properties = e.layer.properties;
-              clearHighlightVectorGrid();
-              highlightVectorGrid = properties.id;
               var style = {
                 fillColor: getColor(properties.castigator),
                 weight: 0.9,
@@ -580,8 +644,6 @@
 
             fiecare_procent_judete.on('mouseover', function(e) {
               var properties = e.layer.properties;
-              clearHighlightVectorGrid();
-              highlightVectorGrid = properties.id;
               var style = {
                 fillColor: getColor(properties.castigator),
                 weight: 1,
@@ -596,8 +658,6 @@
 
             fiecare_procent_judete.on('mouseout', function(e) {
               var properties = e.layer.properties;
-              clearHighlightVectorGrid();
-              highlightVectorGrid = properties.id;
               var style = {
                 fillColor: getColor(properties.castigator),
                 weight: 0.9,
@@ -640,14 +700,6 @@
                 judete_rez.resetStyle(e.target);
               if (e.target.options.pane == 'pop_rez')
                 pop_rez.resetStyle(e.target);
-              if (e.target.options.pane == 'fiecare_vot')
-                fiecare_vot.resetStyle(e.target);
-              if (e.target.options.pane == 'fiecare_procent_sectie')
-                fiecare_procent_sectie.resetStyle(e.target);
-              if (e.target.options.pane == 'fiecare_procent_uat')
-                fiecare_procent_uat.resetStyle(e.target);
-              if (e.target.options.pane == 'fiecare_procent_judete')
-                fiecare_procent_judete.resetStyle(e.target);
               info.update(e.target.properties, e.target.options.pane);
               $('#myChart').css('display', 'none');
               $('#rezultate_info').css('display', 'none');
