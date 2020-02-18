@@ -289,7 +289,7 @@ ALTER TABLE tur2.voronoi_procente_sectie ADD COLUMN castigator integer;
 UPDATE tur2.voronoi_procente_sectie AS voronoi SET castigator = 1 FROM tur2.sectii_voronoi_pv_tur2 AS sectii WHERE voronoi.cluster_id < sectii.g1p AND voronoi.gid = sectii.gid;
 UPDATE tur2.voronoi_procente_sectie AS voronoi SET castigator = 2 FROM tur2.sectii_voronoi_pv_tur2 AS sectii WHERE voronoi.cluster_id >= sectii.g1p AND voronoi.gid = sectii.gid;
 
-ALTER TABLE tur2.voronoi_procente_sectii ADD COLUMN id serial primary key;"
+ALTER TABLE tur2.voronoi_procente_sectie ADD COLUMN id serial primary key;"
         </code>
       </pre>
       <p>Rezultatul la nivel național este prezentat mai jos (albastru - Iohannis, roșu Dăncilă):</p>
@@ -608,7 +608,7 @@ UPDATE tur1.voronoi_procente_sectie AS voronoi SET castigator = 13 FROM sandbox.
 
 UPDATE tur1.voronoi_procente_sectie AS voronoi SET castigator = 14 FROM sandbox.sectii_voronoi_pv_tur1_rotunjit AS sectii WHERE voronoi.cluster_id > ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer + (sectii.procente_rotunjite->>'g4')::integer + (sectii.procente_rotunjite->>'g5')::integer + (sectii.procente_rotunjite->>'g6')::integer + (sectii.procente_rotunjite->>'g7')::integer + (sectii.procente_rotunjite->>'g8')::integer + (sectii.procente_rotunjite->>'g9')::integer + (sectii.procente_rotunjite->>'g10')::integer + (sectii.procente_rotunjite->>'g11')::integer + (sectii.procente_rotunjite->>'g12')::integer + (sectii.procente_rotunjite->>'g13')::integer) AND   voronoi.cluster_id <= ((sectii.procente_rotunjite->>'g1')::integer + (sectii.procente_rotunjite->>'g2')::integer + (sectii.procente_rotunjite->>'g3')::integer + (sectii.procente_rotunjite->>'g4')::integer + (sectii.procente_rotunjite->>'g5')::integer + (sectii.procente_rotunjite->>'g6')::integer + (sectii.procente_rotunjite->>'g7')::integer + (sectii.procente_rotunjite->>'g8')::integer + (sectii.procente_rotunjite->>'g9')::integer + (sectii.procente_rotunjite->>'g10')::integer + (sectii.procente_rotunjite->>'g11')::integer + (sectii.procente_rotunjite->>'g12')::integer + (sectii.procente_rotunjite->>'g13')::integer + (sectii.procente_rotunjite->>'g14')::integer) AND voronoi.gid = sectii.gid;
 
-ALTER TABLE tur1.voronoi_procente_sectii ADD COLUMN id serial primary key;"
+ALTER TABLE tur1.voronoi_procente_sectie ADD COLUMN id serial primary key;"
         </code>
       </pre>
       <p>Rezultatul, o 
@@ -739,7 +739,6 @@ CREATE TABLE tur2.sectii_voronoi_pv_tur2_clip_pop AS
       <p class="text-center"><em>Compararea interactivă a rezultatelor pentru zonele locuite în cele două tururi (mutați slider-ul pentru a vedea diferențele).</em></p>
 
       <h5 class="tutorialTitle">4.4. Ștergerea tabelelor temporare</h5>
-      <p>Pe măsură ce lucrăm, în schema <code class="highlighter-rouge">sandbox</code>, se acumulează seturi relativ mari cu rezultate intermediare, date de care nu mai avem nevoie o dată cu obținerea tabelului final. Vom șterge respectivele tabele pentru a nu încărca discul mașinii virtuale cu date nefolositoare:</p>
 
       <pre>
         <code class="language-bash">

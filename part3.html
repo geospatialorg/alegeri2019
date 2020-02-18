@@ -480,7 +480,26 @@ UPDATE tur2.sectii_voronoi_pv_tur2 SET localitate = 'Diaspora' WHERE gid = 20000
       <p>Rezultatul este prezentat în figura mai jos:</p>
       <img src="images/023_prima_harta_alegeri_diaspora.jpg" class="img-fluid" alt="Inserarea unei entități pentru reprezentarea voturilor din diaspora">
       <p class="text-center"><em>Inserarea unei entități pentru reprezentarea voturilor din diaspora.</em></p>
-      <h5 class="tutorialTitle">3.5. Concluzii de etapă</h5>
+
+      <h5 class="tutorialTitle">3.5. Ștergerea tabelelor temporare</h5>
+      <p>Pe măsură ce lucrăm, în schema <code class="highlighter-rouge">sandbox</code>, se acumulează seturi relativ mari cu rezultate intermediare, date de care nu mai avem nevoie o dată cu obținerea tabelului final. Vom șterge respectivele tabele pentru a nu încărca discul mașinii virtuale cu date nefolositoare:</p>
+
+      <pre>
+        <code class="language-bash">
+psql -h localhost -p 5432 -U user -d alegeri -c "
+        </code>
+        <code class="language-sql">
+DROP TABLE sandbox.gap_voronoi;
+DROP TABLE sandbox.ro_pop_diss;
+DROP TABLE sandbox.sectii_buffer;
+DROP TABLE sandbox.sectii_unic;
+DROP TABLE sandbox.sectii_voronoi;
+DROP TABLE sandbox.sectii_voronoi_pv_tur1_rotunjit;
+DROP TABLE sandbox.voronoi;"
+        </code>
+      </pre>
+
+      <h5 class="tutorialTitle">3.6. Concluzii de etapă</h5>
       <p>În cele scrise pînă acum, am arătat cum datele deschise, disponibile online, pot fi utilizate pentru a spațializa rezultatele alegerilor prezidențiale la nivel de secție de votare. E drept, limita secțiilor este una fictivă dar care ne ajută să "vedem" mai bine cum arată harta politică a alegerilor prezidențiale din 2019 în România. În continuare, vom vedea dacă se poate coborî mai jos de nivelul de secție, precum și cum putem automatiza procesul de creare a hărților la nivele ceva mai convenționale (UAT, județ).</p>
 
       <div>
