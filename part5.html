@@ -672,7 +672,7 @@ ALTER TABLE tur2.voronoi_procente_uat ADD COLUMN castigator integer;
 UPDATE tur2.voronoi_procente_uat AS voronoi SET castigator = 1 FROM tur2.uat_pv_cumulat_tur2 AS uat WHERE voronoi.cluster_id < uat.g1p AND voronoi.natcode = uat.natcode;
 UPDATE tur2.voronoi_procente_uat AS voronoi SET castigator = 2 FROM tur2.uat_pv_cumulat_tur2 AS uat WHERE voronoi.cluster_id >= uat.g1p AND voronoi.natcode = uat.natcode;
 
-ALTER TABLE tur1.voronoi_procente_uat ADD COLUMN id serial primary key;
+ALTER TABLE tur2.voronoi_procente_uat ADD COLUMN id serial primary key;
 
 CREATE TABLE sandbox.uat_voronoi_pv_tur1_rotunjit AS (
 SELECT election_data.geom, election_data.natcode, election_data.name, election_data.county, sandbox.apportion_lrm(election_data.total_seats,
@@ -745,9 +745,9 @@ UPDATE tur1.voronoi_procente_uat AS voronoi SET castigator = 12 FROM sandbox.uat
 
 UPDATE tur1.voronoi_procente_uat AS voronoi SET castigator = 13 FROM sandbox.uat_voronoi_pv_tur1_rotunjit AS uat WHERE voronoi.cluster_id > ((uat.procente_rotunjite->>'g1')::integer + (uat.procente_rotunjite->>'g2')::integer + (uat.procente_rotunjite->>'g3')::integer + (uat.procente_rotunjite->>'g4')::integer + (uat.procente_rotunjite->>'g5')::integer + (uat.procente_rotunjite->>'g6')::integer + (uat.procente_rotunjite->>'g7')::integer + (uat.procente_rotunjite->>'g8')::integer + (uat.procente_rotunjite->>'g9')::integer + (uat.procente_rotunjite->>'g10')::integer + (uat.procente_rotunjite->>'g11')::integer + (uat.procente_rotunjite->>'g12')::integer) AND   voronoi.cluster_id <= ((uat.procente_rotunjite->>'g1')::integer + (uat.procente_rotunjite->>'g2')::integer + (uat.procente_rotunjite->>'g3')::integer + (uat.procente_rotunjite->>'g4')::integer + (uat.procente_rotunjite->>'g5')::integer + (uat.procente_rotunjite->>'g6')::integer + (uat.procente_rotunjite->>'g7')::integer + (uat.procente_rotunjite->>'g8')::integer + (uat.procente_rotunjite->>'g9')::integer + (uat.procente_rotunjite->>'g10')::integer + (uat.procente_rotunjite->>'g11')::integer + (uat.procente_rotunjite->>'g12')::integer + (uat.procente_rotunjite->>'g13')::integer) AND voronoi.natcode = uat.natcode;
 
-UPDATE tur1.voronoi_procente_uat AS voronoi SET castigator = 14 FROM sandbox.uat_voronoi_pv_tur1_rotunjit AS uat WHERE voronoi.cluster_id > ((uat.procente_rotunjite->>'g1')::integer + (uat.procente_rotunjite->>'g2')::integer + (uat.procente_rotunjite->>'g3')::integer + (uat.procente_rotunjite->>'g4')::integer + (uat.procente_rotunjite->>'g5')::integer + (uat.procente_rotunjite->>'g6')::integer + (uat.procente_rotunjite->>'g7')::integer + (uat.procente_rotunjite->>'g8')::integer + (uat.procente_rotunjite->>'g9')::integer + (uat.procente_rotunjite->>'g10')::integer + (uat.procente_rotunjite->>'g11')::integer + (uat.procente_rotunjite->>'g12')::integer + (uat.procente_rotunjite->>'g13')::integer) AND   voronoi.cluster_id <= ((uat.procente_rotunjite->>'g1')::integer + (uat.procente_rotunjite->>'g2')::integer + (uat.procente_rotunjite->>'g3')::integer + (uat.procente_rotunjite->>'g4')::integer + (uat.procente_rotunjite->>'g5')::integer + (uat.procente_rotunjite->>'g6')::integer + (uat.procente_rotunjite->>'g7')::integer + (uat.procente_rotunjite->>'g8')::integer + (uat.procente_rotunjite->>'g9')::integer + (uat.procente_rotunjite->>'g10')::integer + (uat.procente_rotunjite->>'g11')::integer + (uat.procente_rotunjite->>'g12')::integer + (uat.procente_rotunjite->>'g13')::integer + (uat.procente_rotunjite->>'g14')::integer) AND voronoi.natcode = uat.natcode;"
+UPDATE tur1.voronoi_procente_uat AS voronoi SET castigator = 14 FROM sandbox.uat_voronoi_pv_tur1_rotunjit AS uat WHERE voronoi.cluster_id > ((uat.procente_rotunjite->>'g1')::integer + (uat.procente_rotunjite->>'g2')::integer + (uat.procente_rotunjite->>'g3')::integer + (uat.procente_rotunjite->>'g4')::integer + (uat.procente_rotunjite->>'g5')::integer + (uat.procente_rotunjite->>'g6')::integer + (uat.procente_rotunjite->>'g7')::integer + (uat.procente_rotunjite->>'g8')::integer + (uat.procente_rotunjite->>'g9')::integer + (uat.procente_rotunjite->>'g10')::integer + (uat.procente_rotunjite->>'g11')::integer + (uat.procente_rotunjite->>'g12')::integer + (uat.procente_rotunjite->>'g13')::integer) AND   voronoi.cluster_id <= ((uat.procente_rotunjite->>'g1')::integer + (uat.procente_rotunjite->>'g2')::integer + (uat.procente_rotunjite->>'g3')::integer + (uat.procente_rotunjite->>'g4')::integer + (uat.procente_rotunjite->>'g5')::integer + (uat.procente_rotunjite->>'g6')::integer + (uat.procente_rotunjite->>'g7')::integer + (uat.procente_rotunjite->>'g8')::integer + (uat.procente_rotunjite->>'g9')::integer + (uat.procente_rotunjite->>'g10')::integer + (uat.procente_rotunjite->>'g11')::integer + (uat.procente_rotunjite->>'g12')::integer + (uat.procente_rotunjite->>'g13')::integer + (uat.procente_rotunjite->>'g14')::integer) AND voronoi.natcode = uat.natcode;
 
-ALTER TABLE tur2.voronoi_procente_uat ADD COLUMN id serial primary key;
+ALTER TABLE tur1.voronoi_procente_uat ADD COLUMN id serial primary key;"
         </code>
       </pre>
       <p>Facem același lucruri și pentru județe, salvînd datele în tabelele <code class="highlighter-rouge">tur1.voronoi_procente_judete</code> și <code class="highlighter-rouge">tur2.voronoi_procente_judete</code>:</p>
@@ -872,10 +872,10 @@ UPDATE tur1.voronoi_procente_judete AS voronoi SET castigator = 13 FROM sandbox.
 
 UPDATE tur1.voronoi_procente_judete AS voronoi SET castigator = 14 FROM sandbox.judete_voronoi_pv_tur1_rotunjit AS judete WHERE voronoi.cluster_id > ((judete.procente_rotunjite->>'g1')::integer + (judete.procente_rotunjite->>'g2')::integer + (judete.procente_rotunjite->>'g3')::integer + (judete.procente_rotunjite->>'g4')::integer + (judete.procente_rotunjite->>'g5')::integer + (judete.procente_rotunjite->>'g6')::integer + (judete.procente_rotunjite->>'g7')::integer + (judete.procente_rotunjite->>'g8')::integer + (judete.procente_rotunjite->>'g9')::integer + (judete.procente_rotunjite->>'g10')::integer + (judete.procente_rotunjite->>'g11')::integer + (judete.procente_rotunjite->>'g12')::integer + (judete.procente_rotunjite->>'g13')::integer) AND   voronoi.cluster_id <= ((judete.procente_rotunjite->>'g1')::integer + (judete.procente_rotunjite->>'g2')::integer + (judete.procente_rotunjite->>'g3')::integer + (judete.procente_rotunjite->>'g4')::integer + (judete.procente_rotunjite->>'g5')::integer + (judete.procente_rotunjite->>'g6')::integer + (judete.procente_rotunjite->>'g7')::integer + (judete.procente_rotunjite->>'g8')::integer + (judete.procente_rotunjite->>'g9')::integer + (judete.procente_rotunjite->>'g10')::integer + (judete.procente_rotunjite->>'g11')::integer + (judete.procente_rotunjite->>'g12')::integer + (judete.procente_rotunjite->>'g13')::integer + (judete.procente_rotunjite->>'g14')::integer) AND voronoi.county = judete.county;
 
-ALTER TABLE tur1.voronoi_procente_judete ADD COLUMN id serial primary key;
+ALTER TABLE tur1.voronoi_procente_judete ADD COLUMN id serial primary key;"
         </code>
       </pre>
-      <iframe frameborder="0" class="juxtapose" width="100%" height="741" src="https://cdn.knightlab.com/libs/juxtapose/latest/embed/index.html?uid=4e25678e-490c-11ea-b9b8-0edaf8f81e27"></iframe>
+      <iframe frameborder="0" class="juxtapose" width="100%" height="741" src="https://cdn.knightlab.com/libs/juxtapose/latest/embed/index.html?uid=ba4e779a-517a-11ea-b9b8-0edaf8f81e27"></iframe>
       <p class="text-center"><em>Compararea interactivă a rezultatelor la nivel de județ în cele două tururi (mutați slider-ul pentru a vedea diferențele).</em></p>
 
       <h5 class="tutorialTitle">5.5. Ștergerea tabelelor temporare</h5>
@@ -896,7 +896,6 @@ DROP TABLE sandbox.puncte_5000_judete;
 DROP TABLE sandbox.clustere_puncte_5000_judete;
 DROP TABLE sandbox.centroizi_clustere_puncte_5000_judete;
 DROP TABLE sandbox.voronoi_procente_judete;
-DROP TABLE sandbox.voronoi_procente_judete_clip;
 DROP TABLE sandbox.voronoi_procente_judete_clip;
 DROP TABLE sandbox.judete_voronoi_pv_tur1_rotunjit;"
         </code>

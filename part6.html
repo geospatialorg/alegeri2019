@@ -374,7 +374,8 @@ judete_pv_cumulat_tur1.shp "PG:host=localhost dbname=alegeri user=user password=
 numeric(6,2)), cast(g9p as numeric(6,2)), cast(g10p as numeric(6,2)), cast(g11p as numeric(6,2)), cast(g12p as numeric(6,2)), cast(g13p as numeric(6,2)), cast(g14p as numeric(6,2)), castigator from tur1.judete_pv_cumulat_tur1"
 
 ogr2ogr -f "ESRI Shapefile" -lco resize=yes -lco ENCODING=UTF-8 -s_srs EPSG:3857 -t_srs EPSG:4326 \
-sectii_voronoi_pv_tur1_clip_pop.shp "PG:host=localhost dbname=alegeri user=user password=user port=5432" -sql "select geom, castigator from tur1.sectii_voronoi_pv_tur1_clip_pop" 
+sectii_voronoi_pv_tur1_clip_pop.shp "PG:host=localhost dbname=alegeri user=user password=user port=5432" \
+-sql "select geom, castigator from tur1.sectii_voronoi_pv_tur1_clip_pop" 
 
 ogr2ogr -f "ESRI Shapefile" -lco resize=yes -lco ENCODING=UTF-8 -s_srs EPSG:3857 -t_srs EPSG:4326 \
 sectii_punct_tur1.shp "PG:host=localhost dbname=alegeri user=user password=user port=5432" -sql "select geom from tur1.sectii_pv_tur1"
@@ -417,8 +418,7 @@ sectii_punct_tur2.shp sectii_voronoi_pv_tur2_clip_pop.shp combine-files -o forma
       <p>Publicarea datelor în format <code class="highlighter-rouge">vector tiles</code> necesită cîteva activități de configurare. Țineți cont că instanța locală a GeoServer nu pornește o dată cu sistemul de operare. Trebuie să facem manual acest lucru. Să facem însă mai întîi configurările despre care vorbeam. Vom începe cu suportul pentru <code class="highlighter-rouge">vector tiles</code>. Acesta nu există în distribuția de bază dar se poate adăuga prin intermediul unui plugin. Vom descărca acest plugin (cu grijă să selectăm versiunea compatibilă cu instanța GeoServer de pe mașina virtuală) și îl vom instala (cuvîntul instalare e pretențios, aceasta se face prin simpla dezarhivare și copiere a fișierelor ce alcătuiesc pluginul în directorul cu biblioteci a GeoServer: 
       <pre>
         <code class="language-bash">
-wget \
-http://sourceforge.net/projects/geoserver/files/GeoServer/2.15.1/extensions/geoserver-2.15.1-vectortiles-plugin.zip
+wget \ http://sourceforge.net/projects/geoserver/files/GeoServer/2.15.1/extensions/geoserver-2.15.1-vectortiles-plugin.zip
 
 sudo unzip -n geoserver-2.15.1-vectortiles-plugin.zip -d /usr/local/lib/geoserver-2.15.1/lib/
         </code>
@@ -455,7 +455,7 @@ sudo /usr/local/lib/geoserver-2.15.1/bin/startup.sh
       <pre>
         <code class="language-bash">
 curl -u admin:geoserver -v -XPOST -H &quot;accept: application/xml&quot; -H &quot;content-type: application/xml&quot; \
--d &quot;&lt;workspace&gt;&lt;name&gt;geospatial&lt;/name&gt;&lt;/workspace&gt;&quot; http://localhost:8082/geoserver/rest/workspaces
+-d &quot;&lt;workspace&gt;&lt;name&gt;alegeri&lt;/name&gt;&lt;/workspace&gt;&quot; http://localhost:8082/geoserver/rest/workspaces
         </code>
       </pre>   
       <p>Dacă totul a funcționat bine ar trebui să primiți un mesaj asemănător cu cel de mai jos:</p>

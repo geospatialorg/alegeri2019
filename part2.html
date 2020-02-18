@@ -205,8 +205,7 @@
       <p>AEP a publicat locațiile secțiilor de votare într-o aplicație web interactivă pe site-ul <a href="https://gis.registrulelectoral.ro:8443/DrumLaSectie/">https://gis.registrulelectoral.ro:8443/DrumLaSectie/</a>. Inspectînd modul de funcționare a aplicației, am descoperit că informațiile sînt dinamic servite prin intermediul unui serviciu <a href="https://www.opengeospatial.org/standards/wfs">WFS</a> asigurat de o instanță <a href="http://geoserver.org">GeoServer</a>. Astfel, este suficient să facem o cerere <a href="https://www.opengeospatial.org/standards/wfs">WFS</a> către acest server pentru a descărca local o copie a datelor. Facem respectiva cerere prin intermediul utilitarului <a href="https://www.gnu.org/software/wget/">Wget</a>:</p>
       <pre>
         <code class="language-bash">
-wget -O sectii.json --no-check-certificate \
-"https://gis.registrulelectoral.ro:8443/CountApp/geoserver/aep/wfs?service=WFS&version=1.1.0&request=GetFeature&typename=aep:SectiiVotareRomania&outputFormat=application/json&srsname=EPSG:3857"
+wget -O sectii.json --no-check-certificate \ "https://gis.registrulelectoral.ro:8443/CountApp/geoserver/aep/wfs?service=WFS&version=1.1.0&request=GetFeature&typename=aep:SectiiVotareRomania&outputFormat=application/json&srsname=EPSG:3857"
         </code>
       </pre>
       <p>Rezultatul, în format <a href="https://geojson.org/">GeoJSON</a>, va fi stocat în directorul nostru de lucru cu numele <code class="highlighter-rouge">sectii.json</code>. Fișierul conține locațiile tuturor secțiilor din România și diaspora, așa cum se poate observa după încărcarea în <a href="https://www.qgis.org/">QGIS</a> (disponibil de asemenea pe mașina virtuală):</p>
@@ -276,19 +275,19 @@ CREATE SCHEMA tur2;"
       <pre>
         <code class="language-bash">
 ogr2ogr -f "PostgreSQL" PG:"host=localhost port=5432 dbname=alegeri user=user password=user" \
--lco SCHEMA=referinta -lco GEOMETRY_NAME=geom -lco SPATIAL_INDEX=yes ro_uat_simplificat.shp \
+-lco SCHEMA=referinta -lco GEOMETRY_NAME=geom -lco SPATIAL_INDEX=GIST ro_uat_simplificat.shp \
 ro_uat_simplificat -nln uat_simplificat -nlt PROMOTE_TO_MULTI -s_srs EPSG:3844 \
 -t_srs EPSG:3857 -skipfailures
 
 ogr2ogr -f "PostgreSQL" PG:"host=localhost port=5432 dbname=alegeri user=user password=user" \
--lco SCHEMA=referinta -lco GEOMETRY_NAME=geom -lco SPATIAL_INDEX=yes sectii.json sectii \
+-lco SCHEMA=referinta -lco GEOMETRY_NAME=geom -lco SPATIAL_INDEX=GIST sectii.json sectii \
 -nln sectii -a_srs EPSG:3857 -skipfailures
 
 ogr2ogr -f "PostgreSQL" PG:"host=localhost port=5432 dbname=alegeri user=user password=user" \
--lco SCHEMA=referinta pv_tur1.csv pv_tur1 -nln pv_tur1 -skipfailures
+-lco SCHEMA=referinta -lco SPATIAL_INDEX=GIST pv_tur1.csv pv_tur1 -nln pv_tur1 -skipfailures
 
 ogr2ogr -f "PostgreSQL" PG:"host=localhost port=5432 dbname=alegeri user=user password=user" \
--lco SCHEMA=referinta pv_tur2.csv pv_tur2 -nln pv_tur2 -skipfailures
+-lco SCHEMA=referinta -lco SPATIAL_INDEX=GIST pv_tur2.csv pv_tur2 -nln pv_tur2 -skipfailures
         </code>
       </pre>
       <p>Astfel, am creat în schema <code class="highlighter-rouge">referinta</code> tabelele <code class="highlighter-rouge">uat_simplificat</code>, <code class="highlighter-rouge">sectii</code>, <code class="highlighter-rouge">pv_tur1</code> și <code class="highlighter-rouge">pv_tur2</code>. Rezultatele pot fi inspectate cu <a href="https://www.pgadmin.org/">pgAdmin</a> sau <a href="https://www.qgis.org/">QGIS</a>.</p>

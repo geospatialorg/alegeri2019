@@ -360,7 +360,7 @@ CREATE FUNCTION sandbox.apportion_lrm
     IN proportion_total NUMERIC DEFAULT NULL,
     IN allow_truncate_apportion BOOLEAN DEFAULT FALSE
   )
-RETURNS JSONB AS $BODY$
+RETURNS JSONB AS \$BODY\$
 DECLARE
   v_apportion_amt NUMERIC;
   v_proportions JSONB;
@@ -380,11 +380,11 @@ DECLARE
   v_auto_remainder NUMERIC;
   v_dist_count_remaining INTEGER;
 BEGIN
-  v_apportion_amt := $1;
-  v_proportions := $2;
-  v_data_scale := $3;
-  v_proportion_total := $4;
-  v_allow_truncate_total := $5;
+  v_apportion_amt := \$1;
+  v_proportions := \$2;
+  v_data_scale := \$3;
+  v_proportion_total := \$4;
+  v_allow_truncate_total := \$5;
 
   IF (v_apportion_amt < 0) THEN
     RAISE EXCEPTION 'apportion_lrm: Apportion amount must be >= 0. Val: %', v_apportion_amt;
@@ -413,7 +413,8 @@ BEGIN
     ELSE
 
       -- Raise exception if given apportion total is more precise than the provided data scale
-      RAISE EXCEPTION 'apportion_lrm: Total to be apportioned is more precise than given data scale. Scale: %, Total: %'
+      RAISE EXCEPTION 'apportion_lrm: Total to be apportioned is more precise than given data scale. Scale: %, 
+Total: %'
         , v_data_scale, v_apportion_amt;
     END IF;
   END IF;
@@ -440,12 +441,12 @@ BEGIN
   v_quota := v_proportion_total / v_apportion_amt;
   RAISE DEBUG 'apportion_lrm: Hare Quota: %', v_quota;
 
-  CREATE TEMP TABLE IF NOT EXISTS "apportion_data" (
+  CREATE TEMP TABLE IF NOT EXISTS \"apportion_data\" (
     proportion_name TEXT PRIMARY KEY,
     amount NUMERIC,
     remainder NUMERIC
   ) ON COMMIT DROP;
-  TRUNCATE TABLE ONLY "apportion_data";
+  TRUNCATE TABLE ONLY \"apportion_data\";
 
   FOR v_proportion_data IN
     SELECT key, value
@@ -513,7 +514,7 @@ BEGIN
 
   RETURN v_apportioned_data;
 END;
-$BODY$ LANGUAGE plpgsql;"
+\$BODY\$ LANGUAGE plpgsql;"
         </code>
       </pre>
 
@@ -641,9 +642,7 @@ CREATE INDEX fiecare_vot_tur2_idx ON tur2.fiecare_vot_tur2 USING GIST (geom);
 CLUSTER tur2.fiecare_vot_tur2 USING fiecare_vot_tur2_idx;
 
 DROP TABLE sandbox.voturi_iohannis_tur2;
-DROP TABLE sandbox.voturi_dancila_tur2;
-
-ALTER TABLE tur2.fiecare_vot_tur2 ADD COLUMN id serial primary key;"
+DROP TABLE sandbox.voturi_dancila_tur2;"
         </code>
       </pre>
       <p>Rezultatul, <code class="highlighter-rouge">10030773</code> de puncte răspîndite prin toată țara și în entitatea ce reprezintă diaspora:</p>
@@ -675,9 +674,7 @@ do
 done
 psql -h localhost -p 5432 -U user -d alegeri -c "
 CREATE INDEX fiecare_vot_tur1_idx ON tur1.fiecare_vot_tur1 USING GIST (geom);
-CLUSTER tur1.fiecare_vot_tur1 USING fiecare_vot_tur1_idx;
-
-ALTER TABLE tur1.fiecare_vot_tur1 ADD COLUMN id serial primary key;"
+CLUSTER tur1.fiecare_vot_tur1 USING fiecare_vot_tur1_idx;"
         </code>
       </pre>
       <p>Rezultatul este ceva mai colorat decît la turul 2:</p>
@@ -693,7 +690,7 @@ wget -O ro_pop.zip http://www.geo-spatial.org/file_download/29431
 unzip ro_pop.zip
 
 ogr2ogr -f "PostgreSQL" PG:"host=localhost port=5432 dbname=alegeri user=user password=user" \
--lco SCHEMA=referinta -lco GEOMETRY_NAME=geom -lco SPATIAL_INDEX=yes geostat_grid_1k_pop_2014_sparse.shp \
+-lco SCHEMA=referinta -lco GEOMETRY_NAME=geom -lco SPATIAL_INDEX=GIST geostat_grid_1k_pop_2014_sparse.shp \
 geostat_grid_1k_pop_2014_sparse -nlt PROMOTE_TO_MULTI -nln ro_pop -s_srs EPSG:3844 -t_srs EPSG:3857 \
 -skipfailures
         </code>
